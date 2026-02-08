@@ -58,11 +58,10 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-2">
           <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-teal-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xl">O</span>
+            <span className="text-white font-bold text-xl">E</span>
           </div>
           <span className="text-2xl font-bold">
-            <span className="text-gray-900">olive</span>
-            <span className="text-teal-500">board</span>
+            <span className="text-teal-500">eprep</span>
           </span>
         </div>
       </div>

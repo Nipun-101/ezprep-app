@@ -16,9 +16,9 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-teal-600 rounded flex items-center justify-center">
-              <span className="text-white text-xs font-bold">EP</span>
+              <span className="text-white text-xs font-bold">E</span>
             </div>
-            <span className="text-xl font-semibold text-gray-800">Ez Prep</span>
+            <span className="text-xl font-semibold text-gray-800">eprep</span>
           </div>
 
           {/* Desktop Search */}
