@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Phone, Shield } from 'lucide-react';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { ArrowLeft, Phone, Shield, Sparkles } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -32,7 +33,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
 
   const handleVerifyOtp = async () => {
-    if (otp.length !== 6) return;
+    if (otp.length !== 4) return;
 
     setIsLoading(true);
     // Simulate API call
@@ -61,121 +62,180 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-[95%] max-w-md mx-auto rounded-2xl">
-        <DialogHeader className="space-y-4">
-          <div className="flex items-center justify-between">
-            {step === 'otp' && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleBack}
-                className="h-8 w-8"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            )}
-            <DialogTitle className="text-xl font-bold text-gray-900 flex-1 text-center">
-              {step === 'phone' ? 'Welcome to Ez Prep' : 'Verify OTP'}
-            </DialogTitle>
-            <div className="w-8" /> {/* Spacer for centering */}
-          </div>
-        </DialogHeader>
+      <DialogContent className="w-[95%] max-w-md mx-auto rounded-3xl border-0 shadow-2xl p-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-50 via-white to-blue-50 -z-10" />
 
-        <div className="space-y-6">
-          {step === 'phone' ? (
-            <>
-              <div className="text-center space-y-2">
-                <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto">
-                  <Phone className="w-8 h-8 text-teal-600" />
-                </div>
-                <p className="text-gray-600 text-sm">
-                  Enter your mobile number to get started with your exam preparation journey
-                </p>
-              </div>
+        <div className="p-8">
+          <DialogHeader className="space-y-4 mb-6">
+            <div className="flex items-center justify-between">
+              {step === 'otp' && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleBack}
+                  className="h-10 w-10 rounded-full hover:bg-white/80"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+              )}
+              {step === 'phone' && <div className="w-10" />}
+              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent flex-1 text-center">
+                {step === 'phone' ? 'Welcome Back' : 'Verify Code'}
+              </DialogTitle>
+              <div className="w-10" />
+            </div>
+          </DialogHeader>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Mobile Number
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
-                      +91
+          <div className="space-y-8">
+            {step === 'phone' ? (
+              <>
+                <div className="text-center space-y-4">
+                  <div className="relative w-20 h-20 mx-auto">
+                    <div className="absolute inset-0 bg-gradient-to-br from-teal-400 to-blue-500 rounded-2xl rotate-6 blur-sm opacity-60" />
+                    <div className="relative w-20 h-20 bg-gradient-to-br from-teal-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                      <Sparkles className="w-10 h-10 text-white" />
                     </div>
-                    <Input
-                      type="tel"
-                      placeholder="Enter 10-digit mobile number"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      className="pl-12 h-12 text-base"
-                      maxLength={10}
-                    />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                      Start Your Journey
+                    </h3>
+                    <p className="text-gray-600 text-sm max-w-xs mx-auto">
+                      Enter your mobile number to access your personalized exam prep
+                    </p>
                   </div>
                 </div>
 
-                <Button
-                  onClick={handleSendOtp}
-                  disabled={phoneNumber.length !== 10 || isLoading}
-                  className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium text-base"
-                >
-                  {isLoading ? 'Sending OTP...' : 'Send OTP'}
-                </Button>
-              </div>
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Mobile Number
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-600 font-medium">
+                        +91
+                      </div>
+                      <Input
+                        type="tel"
+                        placeholder="Enter mobile number"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                        className="pl-14 h-14 text-base rounded-xl border-2 border-gray-200 focus:border-teal-400 focus:ring-teal-400 shadow-sm bg-white"
+                        maxLength={10}
+                      />
+                    </div>
+                  </div>
 
-              <div className="text-center">
-                <p className="text-xs text-gray-500">
-                  By continuing, you agree to our{' '}
-                  <span className="text-teal-600 underline">Terms of Service</span> and{' '}
-                  <span className="text-teal-600 underline">Privacy Policy</span>
-                </p>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="text-center space-y-2">
-                <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto">
-                  <Shield className="w-8 h-8 text-teal-600" />
-                </div>
-                <p className="text-gray-600 text-sm">
-                  We've sent a 6-digit OTP to{' '}
-                  <span className="font-medium">+91 {phoneNumber}</span>
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Enter OTP
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="Enter 6-digit OTP"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    className="text-center text-lg tracking-widest h-12"
-                    maxLength={6}
-                  />
+                  <Button
+                    onClick={handleSendOtp}
+                    disabled={phoneNumber.length !== 10 || isLoading}
+                    className="w-full h-14 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center gap-2">
+                        <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                        Sending...
+                      </span>
+                    ) : (
+                      'Send OTP'
+                    )}
+                  </Button>
                 </div>
 
-                <Button
-                  onClick={handleVerifyOtp}
-                  disabled={otp.length !== 6 || isLoading}
-                  className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium text-base"
-                >
-                  {isLoading ? 'Verifying...' : 'Verify & Continue'}
-                </Button>
-              </div>
+                <div className="text-center pt-2">
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    By continuing, you agree to our{' '}
+                    <button className="text-teal-600 font-medium hover:underline">
+                      Terms
+                    </button>{' '}
+                    and{' '}
+                    <button className="text-teal-600 font-medium hover:underline">
+                      Privacy Policy
+                    </button>
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-center space-y-4">
+                  <div className="relative w-20 h-20 mx-auto">
+                    <div className="absolute inset-0 bg-gradient-to-br from-teal-400 to-blue-500 rounded-2xl rotate-6 blur-sm opacity-60" />
+                    <div className="relative w-20 h-20 bg-gradient-to-br from-teal-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                      <Shield className="w-10 h-10 text-white" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                      Enter Verification Code
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      We sent a 4-digit code to
+                    </p>
+                    <p className="text-gray-900 font-semibold">
+                      +91 {phoneNumber}
+                    </p>
+                  </div>
+                </div>
 
-              <div className="text-center">
-                <p className="text-sm text-gray-600">
-                  Didn't receive OTP?{' '}
-                  <button className="text-teal-600 font-medium hover:underline">
-                    Resend OTP
-                  </button>
-                </p>
-              </div>
-            </>
-          )}
+                <div className="space-y-6">
+                  <div className="flex flex-col items-center">
+                    <label className="block text-sm font-semibold text-gray-700 mb-4">
+                      Enter 4-Digit Code
+                    </label>
+                    <InputOTP
+                      maxLength={4}
+                      value={otp}
+                      onChange={(value) => setOtp(value)}
+                      pattern="^[0-9]*$"
+                    >
+                      <InputOTPGroup className="gap-3">
+                        <InputOTPSlot
+                          index={0}
+                          className="w-16 h-16 text-2xl font-bold rounded-xl border-2 border-gray-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 bg-white shadow-sm transition-all"
+                        />
+                        <InputOTPSlot
+                          index={1}
+                          className="w-16 h-16 text-2xl font-bold rounded-xl border-2 border-gray-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 bg-white shadow-sm transition-all"
+                        />
+                        <InputOTPSlot
+                          index={2}
+                          className="w-16 h-16 text-2xl font-bold rounded-xl border-2 border-gray-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 bg-white shadow-sm transition-all"
+                        />
+                        <InputOTPSlot
+                          index={3}
+                          className="w-16 h-16 text-2xl font-bold rounded-xl border-2 border-gray-300 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 bg-white shadow-sm transition-all"
+                        />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+
+                  <Button
+                    onClick={handleVerifyOtp}
+                    disabled={otp.length !== 4 || isLoading}
+                    className="w-full h-14 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center gap-2">
+                        <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                        Verifying...
+                      </span>
+                    ) : (
+                      'Verify & Continue'
+                    )}
+                  </Button>
+                </div>
+
+                <div className="text-center pt-2">
+                  <p className="text-sm text-gray-600">
+                    Didn't receive code?{' '}
+                    <button className="text-teal-600 font-semibold hover:underline transition-colors">
+                      Resend Code
+                    </button>
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
