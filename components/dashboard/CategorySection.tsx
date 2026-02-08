@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Exam } from '@/lib/mockData';
 import ExamCardDashboard from './ExamCardDashboard';
 
@@ -9,9 +10,11 @@ interface CategorySectionProps {
 }
 
 export default function CategorySection({ title, exams }: CategorySectionProps) {
+  const router = useRouter();
+
   const handleExamClick = (examId: string, isActive: boolean) => {
     if (isActive) {
-      console.log('Navigate to exam:', examId);
+      router.push(`/dashboard/exam/${examId}`);
     }
   };
 
