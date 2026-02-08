@@ -1,6 +1,12 @@
 export default function HeroSection() {
+import { useState } from 'react';
+import AuthModal from './AuthModal';
+
   return (
-    <section className="relative bg-gradient-to-br from-teal-100 via-teal-200 to-emerald-200 overflow-hidden">
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+    <>
+      <section className="relative bg-gradient-to-br from-teal-100 via-teal-200 to-emerald-200 overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-10 w-32 h-32 bg-teal-300 rounded-full"></div>
@@ -24,7 +30,10 @@ export default function HeroSection() {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
-              <button className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 shadow-lg">
+              <button 
+                onClick={() => setIsAuthModalOpen(true)}
+                className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 shadow-lg"
+              >
                 Start Free Trial
               </button>
               <button className="border-2 border-teal-500 text-teal-600 hover:bg-teal-50 px-8 py-4 rounded-lg font-semibold text-lg transition-all">
@@ -67,6 +76,13 @@ export default function HeroSection() {
           </div>
         </div>
       </div>
+      
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
+    </>
     </section>
   );
+'use client';
 }

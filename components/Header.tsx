@@ -2,12 +2,15 @@
 
 import { Menu, Search, User } from 'lucide-react';
 import { useState } from 'react';
+import AuthModal from './AuthModal';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-100">
+    <>
+      <header className="bg-white shadow-sm border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -32,7 +35,10 @@ export default function Header() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+            <button 
+              onClick={() => setIsAuthModalOpen(true)}
+              className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            >
               Login / Signup
             </button>
             <User className="w-6 h-6 text-gray-600" />
@@ -63,7 +69,10 @@ export default function Header() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-100">
             <div className="flex flex-col space-y-3">
-              <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-center">
+              <button 
+                onClick={() => setIsAuthModalOpen(true)}
+                className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-center"
+              >
                 Login / Signup
               </button>
               <button className="flex items-center justify-center space-x-2 text-gray-600">
@@ -75,5 +84,11 @@ export default function Header() {
         )}
       </div>
     </header>
+      
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
+    </>
   );
 }
