@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +15,7 @@ interface AuthModalProps {
 type AuthStep = 'phone' | 'otp';
 
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
+  const router = useRouter();
   const [step, setStep] = useState<AuthStep>('phone');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
@@ -31,17 +33,18 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   const handleVerifyOtp = async () => {
     if (otp.length !== 6) return;
-    
+
     setIsLoading(true);
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsLoading(false);
-    
-    // Success - close modal and reset
+
+    // Success - close modal, reset, and redirect to dashboard
     onClose();
     setStep('phone');
     setPhoneNumber('');
     setOtp('');
+    router.push('/dashboard');
   };
 
   const handleBack = () => {
