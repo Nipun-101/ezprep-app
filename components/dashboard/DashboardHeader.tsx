@@ -40,29 +40,33 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   }, []);
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-      <div className="flex items-center justify-between px-4 lg:px-8 py-4">
+    <header className="bg-white/80 backdrop-blur-md sticky top-0 z-40 shadow-sm">
+      <div className="flex items-center justify-between px-4 lg:px-10 py-4">
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="lg:hidden p-2.5 hover:bg-gray-100 rounded-xl transition-all active:scale-95"
         >
           <Menu className="w-6 h-6 text-gray-700" />
         </button>
 
         <div className="hidden lg:block" />
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-4 py-2">
-            <Gift className="w-5 h-5 text-red-500" />
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl px-5 py-3 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-md">
+              <Gift className="w-5 h-5 text-white" />
+            </div>
             <div className="flex flex-col">
-              <span className="text-sm font-semibold text-gray-900">Offers</span>
-              <Badge className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 mt-1">
-                Expires in {String(timeLeft.hours).padStart(2, '0')} : {String(timeLeft.minutes).padStart(2, '0')} : {String(timeLeft.seconds).padStart(2, '0')}
-              </Badge>
+              <span className="text-sm font-semibold text-gray-800">Limited Offer</span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-xs font-mono font-bold text-red-600">
+                  {String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
+                </span>
+              </div>
             </div>
           </div>
 
-          <Button className="bg-teal-500 hover:bg-teal-600 text-white font-semibold px-6">
+          <Button className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold px-8 py-6 rounded-2xl shadow-lg shadow-teal-200/50 hover:shadow-xl hover:shadow-teal-300/50 transition-all duration-200 active:scale-95">
             BUY COURSES
           </Button>
         </div>

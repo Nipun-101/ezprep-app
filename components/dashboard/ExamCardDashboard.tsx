@@ -47,25 +47,27 @@ export default function ExamCardDashboard({
     <button
       onClick={onClick}
       className={cn(
-        'flex flex-col items-center justify-center p-4 rounded-xl transition-all group',
+        'flex flex-col items-center justify-center p-6 rounded-2xl transition-all duration-300 group bg-white',
         isActive
-          ? 'hover:bg-gray-50 cursor-pointer'
-          : 'opacity-60 cursor-not-allowed'
+          ? 'hover:shadow-lg hover:shadow-gray-200/60 hover:-translate-y-1 cursor-pointer'
+          : 'opacity-50 cursor-not-allowed hover:shadow-none'
       )}
     >
       <div
         className={cn(
-          'relative w-16 h-16 rounded-full flex items-center justify-center mb-3 border-4 transition-transform group-hover:scale-110',
+          'relative w-20 h-20 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 shadow-md',
           config.bgColor,
-          isActive ? 'border-red-500' : 'border-gray-300'
+          isActive
+            ? 'group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-red-200/50'
+            : ''
         )}
       >
-        <Icon className={cn('w-7 h-7', config.iconColor)} />
+        <Icon className={cn('w-9 h-9', config.iconColor)} />
         {!isActive && (
-          <div className="absolute inset-0 bg-white/50 rounded-full" />
+          <div className="absolute inset-0 bg-white/60 rounded-2xl backdrop-blur-sm" />
         )}
       </div>
-      <p className="text-sm font-medium text-gray-900 text-center leading-tight max-w-[140px]">
+      <p className="text-sm font-semibold text-gray-800 text-center leading-tight max-w-[140px]">
         {name}
       </p>
     </button>
