@@ -63,7 +63,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="w-[95%] max-w-md mx-auto rounded-3xl border-0 shadow-2xl p-0 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-50 via-white to-blue-50 -z-10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-50 via-white to-teal-50/30 -z-10" />
 
         <div className="p-8">
           <DialogHeader className="space-y-4 mb-6">
@@ -79,7 +79,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 </Button>
               )}
               {step === 'phone' && <div className="w-10" />}
-              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent flex-1 text-center">
+              <DialogTitle className="text-2xl font-bold text-teal-600 flex-1 text-center">
                 {step === 'phone' ? 'Welcome Back' : 'Verify Code'}
               </DialogTitle>
               <div className="w-10" />
@@ -91,8 +91,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <>
                 <div className="text-center space-y-4">
                   <div className="relative w-20 h-20 mx-auto">
-                    <div className="absolute inset-0 bg-gradient-to-br from-teal-400 to-blue-500 rounded-2xl rotate-6 blur-sm opacity-60" />
-                    <div className="relative w-20 h-20 bg-gradient-to-br from-teal-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <div className="absolute inset-0 bg-teal-400 rounded-2xl rotate-6 blur-sm opacity-60" />
+                    <div className="relative w-20 h-20 bg-teal-500 rounded-2xl flex items-center justify-center shadow-lg">
                       <Sparkles className="w-10 h-10 text-white" />
                     </div>
                   </div>
@@ -120,7 +120,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         placeholder="Enter mobile number"
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                        className="pl-14 h-14 text-base rounded-xl border-2 border-gray-200 focus:border-teal-400 focus:ring-teal-400 shadow-sm bg-white"
+                        className="pl-14 h-14 text-base rounded-xl border-0 shadow-sm bg-gray-50 focus:outline-none focus:ring-0 focus:bg-white focus:shadow-md"
                         maxLength={10}
                       />
                     </div>
@@ -129,7 +129,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   <Button
                     onClick={handleSendOtp}
                     disabled={phoneNumber.length !== 10 || isLoading}
-                    className="w-full h-14 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+                    className="w-full h-14 bg-teal-500 hover:bg-teal-600 text-white font-semibold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
                   >
                     {isLoading ? (
                       <span className="flex items-center gap-2">
@@ -159,8 +159,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <>
                 <div className="text-center space-y-4">
                   <div className="relative w-20 h-20 mx-auto">
-                    <div className="absolute inset-0 bg-gradient-to-br from-teal-400 to-blue-500 rounded-2xl rotate-6 blur-sm opacity-60" />
-                    <div className="relative w-20 h-20 bg-gradient-to-br from-teal-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <div className="absolute inset-0 bg-teal-400 rounded-2xl rotate-6 blur-sm opacity-60" />
+                    <div className="relative w-20 h-20 bg-teal-500 rounded-2xl flex items-center justify-center shadow-lg">
                       <Shield className="w-10 h-10 text-white" />
                     </div>
                   </div>
@@ -212,7 +212,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   <Button
                     onClick={handleVerifyOtp}
                     disabled={otp.length !== 4 || isLoading}
-                    className="w-full h-14 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+                    className="w-full h-14 bg-teal-500 hover:bg-teal-600 text-white font-semibold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
                   >
                     {isLoading ? (
                       <span className="flex items-center gap-2">
