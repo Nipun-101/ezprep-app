@@ -128,6 +128,6 @@ export function isTokenExpired(token: string): boolean {
 export function logout(): void {
   removeAuthToken();
   if (typeof window !== 'undefined') {
-    window.location.href = '/login';
+    window.location.href = '/';
   }
 }

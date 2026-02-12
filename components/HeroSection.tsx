@@ -1,10 +1,32 @@
 'use client';
 
-import { useState } from 'react';
-import AuthModal from './AuthModal';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { isAuthenticated } from '@/lib/auth';
 
 export default function HeroSection() {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(isAuthenticated());
+  }, []);
+
+  const handleStartFreeTrial = () => {
+    if (isLoggedIn) {
+      router.push('/dashboard');
+    } else {
+      router.push('/login');
+    }
+  };
+
+  const handleViewAllExams = () => {
+    if (isLoggedIn) {
+      router.push('/dashboard');
+    } else {
+      router.push('/login');
+    }
+  };
 
   return (
     <>
@@ -29,13 +51,18 @@ export default function HeroSection() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
+                {!isLoggedIn && (
+                  <button
+                    onClick={handleStartFreeTrial}
+                    className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 shadow-lg"
+                  >
+                    Start Free Trial
+                  </button>
+                )}
                 <button
-                  onClick={() => setIsAuthModalOpen(true)}
-                  className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-105 shadow-lg"
+                  onClick={handleViewAllExams}
+                  className="border-2 border-teal-500 text-teal-600 hover:bg-teal-50 px-8 py-4 rounded-lg font-semibold text-lg transition-all"
                 >
-                  Start Free Trial
-                </button>
-                <button className="border-2 border-teal-500 text-teal-600 hover:bg-teal-50 px-8 py-4 rounded-lg font-semibold text-lg transition-all">
                   View All Exams
                 </button>
               </div>
@@ -74,11 +101,6 @@ export default function HeroSection() {
           </div>
         </div>
       </section>
-
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-      />
     </>
   );
 }

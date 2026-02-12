@@ -17,6 +17,7 @@ import {
 import { navigationItems } from '@/lib/mockData';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { logout } from '@/lib/auth';
 
 const iconMap: Record<string, any> = {
   LayoutDashboard,
@@ -47,7 +48,8 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
   };
 
   const handleLogout = () => {
-    router.push('/');
+    // Clear authentication tokens and redirect to login
+    logout();
     if (onNavigate) {
       onNavigate();
     }
