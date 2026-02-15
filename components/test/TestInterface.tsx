@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Timer from './Timer';
 import QuestionPalette from './QuestionPalette';
-import { ChevronLeft, ChevronRight, Flag, X, Languages } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Flag, X, Languages, Grid3X3 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +34,7 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const [language, setLanguage] = useState<'en' | 'ml'>(initialLanguage);
   const [isPaused, setIsPaused] = useState(false);
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
   const currentQuestion = test.questions[currentQuestionIndex];
 
@@ -318,6 +319,8 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
         onTogglePause={togglePause}
         testTitle={test.title}
         isMobile
+        mobileOpen={mobileSheetOpen}
+        onMobileOpenChange={setMobileSheetOpen}
       />
 
       <AlertDialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
@@ -350,8 +353,16 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
               variant="outline"
               className="flex-1 text-sm h-12 font-semibold border-2"
             >
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Previous
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Prev
+            </Button>
+
+            <Button
+              onClick={() => setMobileSheetOpen(true)}
+              variant="outline"
+              className="h-12 w-12 p-0 border-2 border-teal-200 text-teal-600 hover:bg-teal-50"
+            >
+              <Grid3X3 className="w-5 h-5" />
             </Button>
 
             {currentQuestionIndex === test.totalQuestions - 1 ? (
@@ -367,7 +378,7 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
                 className="flex-1 bg-teal-600 hover:bg-teal-700 text-sm h-12 font-semibold"
               >
                 Save & Next
-                <ChevronRight className="w-4 h-4 ml-2" />
+                <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             )}
           </div>

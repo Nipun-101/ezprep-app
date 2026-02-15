@@ -1,9 +1,9 @@
 'use client';
 
 import { QuestionStatus } from '@/lib/testTypes';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, Pause, Play, User, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Pause, Play, User, ChevronLeft } from 'lucide-react';
 
 interface QuestionPaletteProps {
   totalQuestions: number;
@@ -14,6 +14,8 @@ interface QuestionPaletteProps {
   onTogglePause?: () => void;
   testTitle?: string;
   isMobile?: boolean;
+  mobileOpen?: boolean;
+  onMobileOpenChange?: (open: boolean) => void;
 }
 
 export default function QuestionPalette({
@@ -25,6 +27,8 @@ export default function QuestionPalette({
   onTogglePause,
   testTitle = '',
   isMobile = false,
+  mobileOpen = false,
+  onMobileOpenChange,
 }: QuestionPaletteProps) {
   const getStatusClass = (status: QuestionStatus, isCurrent: boolean) => {
     if (isCurrent) {
@@ -158,17 +162,7 @@ export default function QuestionPalette({
 
   if (isMobile) {
     return (
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button
-            variant="default"
-            size="lg"
-            className="fixed bottom-20 right-4 z-50 shadow-2xl lg:hidden bg-teal-600 hover:bg-teal-700 h-14 px-5 rounded-full font-semibold"
-          >
-            <Menu className="w-5 h-5 mr-2" />
-            Questions
-          </Button>
-        </SheetTrigger>
+      <Sheet open={mobileOpen} onOpenChange={onMobileOpenChange}>
         <SheetContent side="right" className="w-full sm:w-96 overflow-y-auto p-0">
           <div className="p-4 sm:p-6 h-full">
             <PaletteContent />
