@@ -264,7 +264,7 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
                 </Button>
               </div>
 
-              <div className="flex gap-2 sm:gap-3">
+              <div className="hidden lg:flex gap-2 sm:gap-3">
                 <Button
                   onClick={handlePrevious}
                   disabled={currentQuestionIndex === 0}
