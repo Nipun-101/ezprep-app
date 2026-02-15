@@ -62,12 +62,12 @@ export default function TestResults({ test, answers, initialLanguage = 'en' }: T
   const answersMap = new Map(answers.map((a) => [a.questionId, a]));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-teal-50/30 py-8">
-      <div className="max-w-5xl mx-auto px-4">
-        <div className="flex justify-end mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-teal-50/30 py-4 sm:py-8">
+      <div className="max-w-5xl mx-auto px-3 sm:px-4">
+        <div className="flex justify-end mb-3 sm:mb-4">
           <Select value={language} onValueChange={handleLanguageChange}>
-            <SelectTrigger className="w-[140px] border-2 hover:border-teal-500 transition-colors">
-              <Languages className="w-4 h-4 mr-2" />
+            <SelectTrigger className="w-[100px] sm:w-[140px] border-2 hover:border-teal-500 transition-colors text-xs sm:text-sm h-9">
+              <Languages className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -77,35 +77,35 @@ export default function TestResults({ test, answers, initialLanguage = 'en' }: T
           </Select>
         </div>
 
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 text-white mb-4">
-            <Award className="w-10 h-10" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 text-white mb-3 sm:mb-4">
+            <Award className="w-8 h-8 sm:w-10 sm:h-10" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             {language === 'en' ? 'Test Completed!' : 'ടെസ്റ്റ് പൂർത്തിയായി!'}
           </h1>
-          <p className="text-gray-600">{test.title}</p>
+          <p className="text-sm sm:text-base text-gray-600">{test.title}</p>
         </div>
 
-        <Card className="p-8 mb-6 shadow-xl border-0">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center mb-4">
-              <div className="text-7xl font-bold text-gray-900">
+        <Card className="p-4 sm:p-8 mb-4 sm:mb-6 shadow-xl border-0">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="inline-flex items-center justify-center mb-3 sm:mb-4">
+              <div className="text-5xl sm:text-7xl font-bold text-gray-900">
                 {results.totalMarks}
-                <span className="text-3xl text-gray-500 ml-1">/{results.maxMarks}</span>
+                <span className="text-2xl sm:text-3xl text-gray-500 ml-1">/{results.maxMarks}</span>
               </div>
             </div>
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="w-72 h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6 px-4">
+              <div className="flex-1 max-w-xs sm:max-w-sm h-3 sm:h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
                 <div
                   className="h-full bg-gradient-to-r from-teal-500 to-teal-600 transition-all shadow-sm"
                   style={{ width: `${results.percentage}%` }}
                 />
               </div>
-              <span className="text-lg font-bold text-gray-700">{results.percentage.toFixed(1)}%</span>
+              <span className="text-base sm:text-lg font-bold text-gray-700 whitespace-nowrap">{results.percentage.toFixed(1)}%</span>
             </div>
             <div
-              className={`inline-block px-8 py-3 rounded-full text-xl font-bold shadow-lg ${
+              className={`inline-block px-6 sm:px-8 py-2 sm:py-3 rounded-full text-lg sm:text-xl font-bold shadow-lg ${
                 results.isPassed ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
               }`}
             >
@@ -113,23 +113,23 @@ export default function TestResults({ test, answers, initialLanguage = 'en' }: T
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow-md border border-green-200">
-              <CheckCircle2 className="w-10 h-10 text-green-600 mx-auto mb-3" />
-              <div className="text-4xl font-bold text-green-700 mb-1">{results.correctAnswers}</div>
-              <div className="text-sm font-semibold text-green-600">Correct</div>
+          <div className="grid grid-cols-3 gap-3 sm:gap-6 mb-6 sm:mb-8">
+            <div className="text-center p-3 sm:p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg sm:rounded-xl shadow-md border border-green-200">
+              <CheckCircle2 className="w-6 h-6 sm:w-10 sm:h-10 text-green-600 mx-auto mb-1 sm:mb-3" />
+              <div className="text-2xl sm:text-4xl font-bold text-green-700 mb-0.5 sm:mb-1">{results.correctAnswers}</div>
+              <div className="text-xs sm:text-sm font-semibold text-green-600">Correct</div>
             </div>
 
-            <div className="text-center p-6 bg-gradient-to-br from-red-50 to-red-100 rounded-xl shadow-md border border-red-200">
-              <XCircle className="w-10 h-10 text-red-600 mx-auto mb-3" />
-              <div className="text-4xl font-bold text-red-700 mb-1">{results.wrongAnswers}</div>
-              <div className="text-sm font-semibold text-red-600">Wrong</div>
+            <div className="text-center p-3 sm:p-6 bg-gradient-to-br from-red-50 to-red-100 rounded-lg sm:rounded-xl shadow-md border border-red-200">
+              <XCircle className="w-6 h-6 sm:w-10 sm:h-10 text-red-600 mx-auto mb-1 sm:mb-3" />
+              <div className="text-2xl sm:text-4xl font-bold text-red-700 mb-0.5 sm:mb-1">{results.wrongAnswers}</div>
+              <div className="text-xs sm:text-sm font-semibold text-red-600">Wrong</div>
             </div>
 
-            <div className="text-center p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-md border border-gray-200">
-              <Circle className="w-10 h-10 text-gray-600 mx-auto mb-3" />
-              <div className="text-4xl font-bold text-gray-700 mb-1">{results.unattempted}</div>
-              <div className="text-sm font-semibold text-gray-600">Unattempted</div>
+            <div className="text-center p-3 sm:p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg sm:rounded-xl shadow-md border border-gray-200">
+              <Circle className="w-6 h-6 sm:w-10 sm:h-10 text-gray-600 mx-auto mb-1 sm:mb-3" />
+              <div className="text-2xl sm:text-4xl font-bold text-gray-700 mb-0.5 sm:mb-1">{results.unattempted}</div>
+              <div className="text-xs sm:text-sm font-semibold text-gray-600">Unattempted</div>
             </div>
           </div>
 

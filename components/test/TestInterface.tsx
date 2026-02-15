@@ -141,40 +141,44 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
   const unansweredCount = questionStatuses.filter((s) => s === 'not-answered' || s === 'marked').length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-teal-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-teal-50/30 pb-20 lg:pb-6">
       <div className="border-b bg-white shadow-md sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <div className="flex-1">
-            <h1 className="text-xl font-bold text-gray-900 mb-1">{test.title}</h1>
-            <p className="text-sm text-gray-500">
-              Question {currentQuestionIndex + 1} of {test.totalQuestions}
-            </p>
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex items-start justify-between gap-2 sm:gap-4 mb-3">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-base sm:text-xl font-bold text-gray-900 mb-1 truncate">{test.title}</h1>
+              <p className="text-xs sm:text-sm text-gray-500">
+                Q {currentQuestionIndex + 1}/{test.totalQuestions}
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+              <Select value={language} onValueChange={handleLanguageChange}>
+                <SelectTrigger className="w-[100px] sm:w-[140px] border-2 hover:border-teal-500 transition-colors text-xs sm:text-sm h-9">
+                  <Languages className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="ml">മലയാളം</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Select value={language} onValueChange={handleLanguageChange}>
-              <SelectTrigger className="w-[140px] border-2 hover:border-teal-500 transition-colors">
-                <Languages className="w-4 h-4 mr-2" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="ml">മലയാളം</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex justify-center">
             <Timer durationInMinutes={test.durationInMinutes} onTimeUp={handleTimeUp} isPaused={isPaused} />
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid lg:grid-cols-[1fr,340px] gap-6">
-          <div className="space-y-6">
-            <Card className="p-6 lg:p-8 shadow-lg border-0">
-              <div className="space-y-6">
-                <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-100">
-                  <h2 className="text-lg font-bold text-gray-900">Question No {currentQuestionIndex + 1}</h2>
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        <div className="grid lg:grid-cols-[1fr,340px] gap-4 sm:gap-6">
+          <div className="space-y-4 sm:space-y-6">
+            <Card className="p-4 sm:p-6 lg:p-8 shadow-lg border-0">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="flex items-start justify-between gap-2 sm:gap-4 pb-3 sm:pb-4 border-b border-gray-100">
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900">Question No {currentQuestionIndex + 1}</h2>
                   <span
-                    className={`px-4 py-1.5 text-xs font-semibold rounded-full shadow-sm ${
+                    className={`px-3 sm:px-4 py-1 sm:py-1.5 text-xs font-semibold rounded-full shadow-sm whitespace-nowrap ${
                       currentQuestion.difficultyLevel === 'easy'
                         ? 'bg-green-500 text-white'
                         : currentQuestion.difficultyLevel === 'medium'
@@ -188,14 +192,14 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
                 </div>
 
                 <div className="prose max-w-none">
-                  <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+                  <p className="text-sm sm:text-base text-gray-800 leading-relaxed whitespace-pre-wrap">
                     {currentQuestion.questionText[language].text}
                   </p>
                   {currentQuestion.questionText[language].image && (
                     <img
                       src={currentQuestion.questionText[language].image!}
                       alt="Question"
-                      className="mt-4 max-w-full h-auto rounded-lg"
+                      className="mt-3 sm:mt-4 max-w-full h-auto rounded-lg"
                     />
                   )}
                 </div>
@@ -208,22 +212,22 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
                       <button
                         key={option.id}
                         onClick={() => handleOptionSelect(option.id)}
-                        className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                        className={`w-full text-left p-4 sm:p-4 rounded-lg border-2 transition-all active:scale-[0.98] ${
                           isSelected
-                            ? 'border-teal-500 bg-teal-50'
-                            : 'border-gray-200 hover:border-teal-300 hover:bg-gray-50'
+                            ? 'border-teal-500 bg-teal-50 shadow-md'
+                            : 'border-gray-200 hover:border-teal-300 hover:bg-gray-50 active:bg-gray-100'
                         }`}
                       >
                         <div className="flex items-start gap-3">
                           <div
-                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                              isSelected ? 'border-teal-500' : 'border-gray-300'
+                            className={`w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                              isSelected ? 'border-teal-500 bg-teal-500' : 'border-gray-300'
                             }`}
                           >
-                            {isSelected && <div className="w-3 h-3 rounded-full bg-teal-500" />}
+                            {isSelected && <div className="w-3 h-3 sm:w-2.5 sm:h-2.5 rounded-full bg-white" />}
                           </div>
                           {option.type === 'text' ? (
-                            <span className="text-gray-800">{option[language]}</span>
+                            <span className="text-sm sm:text-base text-gray-800 leading-relaxed">{option[language]}</span>
                           ) : (
                             <img
                               src={option.image}
@@ -239,39 +243,54 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
               </div>
             </Card>
 
-            <div className="flex flex-wrap gap-3">
-              <Button
-                onClick={handleMarkForReview}
-                variant="outline"
-                className="flex-1 sm:flex-none border-purple-200 hover:bg-purple-50"
-              >
-                <Flag className="w-4 h-4 mr-2" />
-                Mark for Review & Next
-              </Button>
+            <div className="space-y-3">
+              <div className="flex gap-2 sm:gap-3">
+                <Button
+                  onClick={handleMarkForReview}
+                  variant="outline"
+                  className="flex-1 border-purple-200 hover:bg-purple-50 text-xs sm:text-sm h-11 sm:h-10"
+                >
+                  <Flag className="w-4 h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Mark for Review & Next</span>
+                  <span className="sm:hidden">Mark & Next</span>
+                </Button>
 
-              <Button
-                onClick={handleClearResponse}
-                variant="outline"
-                className="flex-1 sm:flex-none border-gray-200 hover:bg-gray-50"
-              >
-                <X className="w-4 h-4 mr-2" />
-                Clear Response
-              </Button>
+                <Button
+                  onClick={handleClearResponse}
+                  variant="outline"
+                  className="flex-1 border-gray-200 hover:bg-gray-50 text-xs sm:text-sm h-11 sm:h-10"
+                >
+                  <X className="w-4 h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Clear Response</span>
+                  <span className="sm:hidden">Clear</span>
+                </Button>
+              </div>
 
-              <div className="flex gap-3 flex-1 sm:flex-none sm:ml-auto">
-                <Button onClick={handlePrevious} disabled={currentQuestionIndex === 0} variant="outline">
-                  <ChevronLeft className="w-4 h-4 mr-2" />
+              <div className="flex gap-2 sm:gap-3">
+                <Button
+                  onClick={handlePrevious}
+                  disabled={currentQuestionIndex === 0}
+                  variant="outline"
+                  className="flex-1 sm:flex-none text-xs sm:text-sm h-11 sm:h-10 min-w-[100px]"
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1 sm:mr-2" />
                   Previous
                 </Button>
 
                 {currentQuestionIndex === test.totalQuestions - 1 ? (
-                  <Button onClick={() => setShowSubmitDialog(true)} className="bg-teal-600 hover:bg-teal-700">
+                  <Button
+                    onClick={() => setShowSubmitDialog(true)}
+                    className="flex-1 sm:flex-none bg-teal-600 hover:bg-teal-700 text-xs sm:text-sm h-11 sm:h-10 font-semibold"
+                  >
                     Submit Test
                   </Button>
                 ) : (
-                  <Button onClick={handleNext} className="bg-teal-600 hover:bg-teal-700">
+                  <Button
+                    onClick={handleNext}
+                    className="flex-1 sm:flex-none bg-teal-600 hover:bg-teal-700 text-xs sm:text-sm h-11 sm:h-10 font-semibold"
+                  >
                     Save & Next
-                    <ChevronRight className="w-4 h-4 ml-2" />
+                    <ChevronRight className="w-4 h-4 ml-1 sm:ml-2" />
                   </Button>
                 )}
               </div>

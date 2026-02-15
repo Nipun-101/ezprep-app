@@ -160,13 +160,17 @@ export default function QuestionPalette({
     return (
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" size="sm" className="fixed bottom-4 right-4 z-50 shadow-lg lg:hidden">
-            <Menu className="w-4 h-4 mr-2" />
+          <Button
+            variant="default"
+            size="lg"
+            className="fixed bottom-4 right-4 z-50 shadow-2xl lg:hidden bg-teal-600 hover:bg-teal-700 h-14 px-5 rounded-full font-semibold"
+          >
+            <Menu className="w-5 h-5 mr-2" />
             Questions
           </Button>
         </SheetTrigger>
-        <SheetContent side="right" className="w-80 overflow-y-auto p-0">
-          <div className="p-6 h-full">
+        <SheetContent side="right" className="w-full sm:w-96 overflow-y-auto p-0">
+          <div className="p-4 sm:p-6 h-full">
             <PaletteContent />
           </div>
         </SheetContent>
