@@ -9,15 +9,17 @@ import TestResults from '@/components/test/TestResults';
 export default function TestPage() {
   const [isTestCompleted, setIsTestCompleted] = useState(false);
   const [submittedAnswers, setSubmittedAnswers] = useState<UserAnswer[]>([]);
+  const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'ml'>('en');
 
-  const handleSubmit = (answers: UserAnswer[]) => {
+  const handleSubmit = (answers: UserAnswer[], language: 'en' | 'ml') => {
     setSubmittedAnswers(answers);
+    setSelectedLanguage(language);
     setIsTestCompleted(true);
   };
 
   if (isTestCompleted) {
-    return <TestResults test={dummyTest} answers={submittedAnswers} language="en" />;
+    return <TestResults test={dummyTest} answers={submittedAnswers} initialLanguage={selectedLanguage} />;
   }
 
-  return <TestInterface test={dummyTest} onSubmit={handleSubmit} language="en" />;
+  return <TestInterface test={dummyTest} onSubmit={handleSubmit} initialLanguage="en" />;
 }

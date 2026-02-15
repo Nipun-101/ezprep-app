@@ -20,17 +20,18 @@ import {
 
 interface TestInterfaceProps {
   test: Test;
-  onSubmit: (answers: UserAnswer[]) => void;
-  language?: 'en' | 'ml';
+  onSubmit: (answers: UserAnswer[], language: 'en' | 'ml') => void;
+  initialLanguage?: 'en' | 'ml';
 }
 
-export default function TestInterface({ test, onSubmit, language = 'en' }: TestInterfaceProps) {
+export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }: TestInterfaceProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<string, UserAnswer>>(new Map());
   const [questionStatuses, setQuestionStatuses] = useState<QuestionStatus[]>(
     Array(test.totalQuestions).fill('not-visited')
   );
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+  const [language, setLanguage] = useState<'en' | 'ml'>(initialLanguage);
 
   const currentQuestion = test.questions[currentQuestionIndex];
 
@@ -117,12 +118,16 @@ export default function TestInterface({ test, onSubmit, language = 'en' }: TestI
 
   const handleSubmit = () => {
     const answersArray = Array.from(answers.values());
-    onSubmit(answersArray);
+    onSubmit(answersArray, language);
   };
 
   const handleTimeUp = () => {
     const answersArray = Array.from(answers.values());
-    onSubmit(answersArray);
+    onSubmit(answersArray, language);
+  };
+
+  const toggleLanguage = () => {
+    setLanguage((prev) => (prev === 'en' ? 'ml' : 'en'));
   };
 
   const currentAnswer = answers.get(currentQuestion._id);
@@ -132,14 +137,24 @@ export default function TestInterface({ test, onSubmit, language = 'en' }: TestI
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-teal-50/30">
       <div className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold text-gray-900">{test.title}</h1>
             <p className="text-sm text-gray-600">
               Question {currentQuestionIndex + 1} of {test.totalQuestions}
             </p>
           </div>
-          <Timer durationInMinutes={test.durationInMinutes} onTimeUp={handleTimeUp} />
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={toggleLanguage}
+              variant="outline"
+              size="sm"
+              className="font-semibold border-2 hover:bg-teal-50 hover:border-teal-500"
+            >
+              {language === 'en' ? 'മലയാളം' : 'English'}
+            </Button>
+            <Timer durationInMinutes={test.durationInMinutes} onTimeUp={handleTimeUp} />
+          </div>
         </div>
       </div>
 

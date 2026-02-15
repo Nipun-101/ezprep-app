@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Test, UserAnswer } from '@/lib/testTypes';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,11 +10,16 @@ import { useRouter } from 'next/navigation';
 interface TestResultsProps {
   test: Test;
   answers: UserAnswer[];
-  language?: 'en' | 'ml';
+  initialLanguage?: 'en' | 'ml';
 }
 
-export default function TestResults({ test, answers, language = 'en' }: TestResultsProps) {
+export default function TestResults({ test, answers, initialLanguage = 'en' }: TestResultsProps) {
   const router = useRouter();
+  const [language, setLanguage] = useState<'en' | 'ml'>(initialLanguage);
+
+  const toggleLanguage = () => {
+    setLanguage((prev) => (prev === 'en' ? 'ml' : 'en'));
+  };
 
   const calculateResults = () => {
     let correctAnswers = 0;
@@ -57,11 +63,24 @@ export default function TestResults({ test, answers, language = 'en' }: TestResu
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-teal-50/30 py-8">
       <div className="max-w-5xl mx-auto px-4">
+        <div className="flex justify-end mb-4">
+          <Button
+            onClick={toggleLanguage}
+            variant="outline"
+            size="sm"
+            className="font-semibold border-2 hover:bg-teal-50 hover:border-teal-500"
+          >
+            {language === 'en' ? 'മലയാളം' : 'English'}
+          </Button>
+        </div>
+
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 text-white mb-4">
             <Award className="w-10 h-10" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Test Completed!</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {language === 'en' ? 'Test Completed!' : 'ടെസ്റ്റ് പൂർത്തിയായി!'}
+          </h1>
           <p className="text-gray-600">{test.title}</p>
         </div>
 
