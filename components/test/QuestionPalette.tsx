@@ -32,7 +32,7 @@ export default function QuestionPalette({
 }: QuestionPaletteProps) {
   const getStatusClass = (status: QuestionStatus, isCurrent: boolean) => {
     if (isCurrent) {
-      return 'ring-2 ring-orange-500 ring-offset-2 bg-orange-500 text-white';
+      return 'ring-2 ring-teal-500 ring-offset-2 bg-teal-500 text-white';
     }
 
     switch (status) {
@@ -129,7 +129,12 @@ export default function QuestionPalette({
                 return (
                   <button
                     key={index}
-                    onClick={() => onQuestionSelect(index)}
+                    onClick={() => {
+                      onQuestionSelect(index);
+                      if (isMobile && onMobileOpenChange) {
+                        onMobileOpenChange(false);
+                      }
+                    }}
                     className={`h-10 rounded-md font-bold text-sm transition-all shadow-sm ${getStatusClass(
                       status,
                       isCurrent
@@ -169,7 +174,7 @@ export default function QuestionPalette({
   if (isMobile) {
     return (
       <Sheet open={mobileOpen} onOpenChange={onMobileOpenChange}>
-        <SheetContent side="right" className="w-full sm:w-96 overflow-y-auto p-0">
+        <SheetContent side="right" className="w-[80%] max-w-sm overflow-y-auto p-0">
           <div className="p-4 sm:p-6 h-full">
             <PaletteContent />
           </div>
