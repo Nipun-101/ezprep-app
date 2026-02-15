@@ -81,28 +81,34 @@ export default function QuestionPalette({
           <h3 className="text-sm font-bold text-gray-900">Legend</h3>
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-md bg-green-500 flex items-center justify-center text-white font-bold text-xs">
+              <div className="w-7 h-7 rounded-md bg-green-500 flex items-center justify-center text-white font-bold text-xs shadow-sm">
                 {getStatusCount('answered')}
               </div>
-              <span className="font-medium">Answered</span>
+              <span className="font-medium text-gray-700">Answered</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-md bg-orange-500 flex items-center justify-center text-white font-bold text-xs">
+              <div className="w-7 h-7 rounded-md bg-orange-500 flex items-center justify-center text-white font-bold text-xs shadow-sm">
                 {getStatusCount('not-answered')}
               </div>
-              <span className="font-medium">Not Answered</span>
+              <span className="font-medium text-gray-700">Not Answered</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-md bg-purple-500 flex items-center justify-center text-white font-bold text-xs">
+              <div className="w-7 h-7 rounded-md bg-purple-500 flex items-center justify-center text-white font-bold text-xs shadow-sm">
                 {getStatusCount('marked')}
               </div>
-              <span className="font-medium">Marked</span>
+              <span className="font-medium text-gray-700">Marked</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-md bg-gray-300 flex items-center justify-center text-gray-700 font-bold text-xs border border-gray-400">
+              <div className="w-7 h-7 rounded-md bg-blue-500 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                {getStatusCount('marked-answered')}
+              </div>
+              <span className="font-medium text-gray-700">Marked & Answered</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-md bg-gray-300 flex items-center justify-center text-gray-700 font-bold text-xs shadow-sm">
                 {getStatusCount('not-visited')}
               </div>
-              <span className="font-medium">Not Visited</span>
+              <span className="font-medium text-gray-700">Not Visited</span>
             </div>
           </div>
         </div>

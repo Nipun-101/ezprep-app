@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Timer from './Timer';
 import QuestionPalette from './QuestionPalette';
-import { ChevronLeft, ChevronRight, Flag, X, Languages, Grid3X3 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Flag, X, Languages, LayoutGrid } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -362,7 +362,7 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
               variant="outline"
               className="h-12 w-12 p-0 border-2 border-teal-200 text-teal-600 hover:bg-teal-50"
             >
-              <Grid3X3 className="w-5 h-5" />
+              <LayoutGrid className="w-5 h-5" />
             </Button>
 
             {currentQuestionIndex === test.totalQuestions - 1 ? (
