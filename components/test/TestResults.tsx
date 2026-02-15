@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { Test, UserAnswer } from '@/lib/testTypes';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, XCircle, Circle, Award, TrendingUp, Clock } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CheckCircle2, XCircle, Circle, Award, TrendingUp, Clock, Languages } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface TestResultsProps {
@@ -17,8 +18,8 @@ export default function TestResults({ test, answers, initialLanguage = 'en' }: T
   const router = useRouter();
   const [language, setLanguage] = useState<'en' | 'ml'>(initialLanguage);
 
-  const toggleLanguage = () => {
-    setLanguage((prev) => (prev === 'en' ? 'ml' : 'en'));
+  const handleLanguageChange = (value: 'en' | 'ml') => {
+    setLanguage(value);
   };
 
   const calculateResults = () => {
@@ -64,14 +65,16 @@ export default function TestResults({ test, answers, initialLanguage = 'en' }: T
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-teal-50/30 py-8">
       <div className="max-w-5xl mx-auto px-4">
         <div className="flex justify-end mb-4">
-          <Button
-            onClick={toggleLanguage}
-            variant="outline"
-            size="sm"
-            className="font-semibold border-2 hover:bg-teal-50 hover:border-teal-500"
-          >
-            {language === 'en' ? 'മലയാളം' : 'English'}
-          </Button>
+          <Select value={language} onValueChange={handleLanguageChange}>
+            <SelectTrigger className="w-[140px] border-2 hover:border-teal-500 transition-colors">
+              <Languages className="w-4 h-4 mr-2" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">English</SelectItem>
+              <SelectItem value="ml">മലയാളം</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="text-center mb-8">
@@ -84,26 +87,26 @@ export default function TestResults({ test, answers, initialLanguage = 'en' }: T
           <p className="text-gray-600">{test.title}</p>
         </div>
 
-        <Card className="p-8 mb-6">
+        <Card className="p-8 mb-6 shadow-xl border-0">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center mb-4">
-              <div className="text-6xl font-bold text-gray-900">
+              <div className="text-7xl font-bold text-gray-900">
                 {results.totalMarks}
-                <span className="text-2xl text-gray-500">/{results.maxMarks}</span>
+                <span className="text-3xl text-gray-500 ml-1">/{results.maxMarks}</span>
               </div>
             </div>
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <div className="w-64 h-3 bg-gray-200 rounded-full overflow-hidden">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="w-72 h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
                 <div
-                  className="h-full bg-gradient-to-r from-teal-500 to-teal-600 transition-all"
+                  className="h-full bg-gradient-to-r from-teal-500 to-teal-600 transition-all shadow-sm"
                   style={{ width: `${results.percentage}%` }}
                 />
               </div>
-              <span className="text-sm font-semibold text-gray-600">{results.percentage.toFixed(1)}%</span>
+              <span className="text-lg font-bold text-gray-700">{results.percentage.toFixed(1)}%</span>
             </div>
             <div
-              className={`inline-block px-6 py-2 rounded-full text-lg font-semibold ${
-                results.isPassed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+              className={`inline-block px-8 py-3 rounded-full text-xl font-bold shadow-lg ${
+                results.isPassed ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
               }`}
             >
               {results.isPassed ? 'PASSED' : 'FAILED'}
@@ -111,22 +114,22 @@ export default function TestResults({ test, answers, initialLanguage = 'en' }: T
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-              <CheckCircle2 className="w-8 h-8 text-green-600 mx-auto mb-2" />
-              <div className="text-3xl font-bold text-green-700">{results.correctAnswers}</div>
-              <div className="text-sm text-green-600">Correct</div>
+            <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow-md border border-green-200">
+              <CheckCircle2 className="w-10 h-10 text-green-600 mx-auto mb-3" />
+              <div className="text-4xl font-bold text-green-700 mb-1">{results.correctAnswers}</div>
+              <div className="text-sm font-semibold text-green-600">Correct</div>
             </div>
 
-            <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
-              <XCircle className="w-8 h-8 text-red-600 mx-auto mb-2" />
-              <div className="text-3xl font-bold text-red-700">{results.wrongAnswers}</div>
-              <div className="text-sm text-red-600">Wrong</div>
+            <div className="text-center p-6 bg-gradient-to-br from-red-50 to-red-100 rounded-xl shadow-md border border-red-200">
+              <XCircle className="w-10 h-10 text-red-600 mx-auto mb-3" />
+              <div className="text-4xl font-bold text-red-700 mb-1">{results.wrongAnswers}</div>
+              <div className="text-sm font-semibold text-red-600">Wrong</div>
             </div>
 
-            <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <Circle className="w-8 h-8 text-gray-600 mx-auto mb-2" />
-              <div className="text-3xl font-bold text-gray-700">{results.unattempted}</div>
-              <div className="text-sm text-gray-600">Unattempted</div>
+            <div className="text-center p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-md border border-gray-200">
+              <Circle className="w-10 h-10 text-gray-600 mx-auto mb-3" />
+              <div className="text-4xl font-bold text-gray-700 mb-1">{results.unattempted}</div>
+              <div className="text-sm font-semibold text-gray-600">Unattempted</div>
             </div>
           </div>
 

@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { Test, UserAnswer, QuestionStatus } from '@/lib/testTypes';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Timer from './Timer';
 import QuestionPalette from './QuestionPalette';
-import { ChevronLeft, ChevronRight, Flag, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Flag, X, Languages } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +33,7 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
   );
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const [language, setLanguage] = useState<'en' | 'ml'>(initialLanguage);
+  const [isPaused, setIsPaused] = useState(false);
 
   const currentQuestion = test.questions[currentQuestionIndex];
 
@@ -126,8 +128,12 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
     onSubmit(answersArray, language);
   };
 
-  const toggleLanguage = () => {
-    setLanguage((prev) => (prev === 'en' ? 'ml' : 'en'));
+  const handleLanguageChange = (value: 'en' | 'ml') => {
+    setLanguage(value);
+  };
+
+  const togglePause = () => {
+    setIsPaused((prev) => !prev);
   };
 
   const currentAnswer = answers.get(currentQuestion._id);
@@ -136,42 +142,44 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-teal-50/30">
-      <div className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-40 shadow-sm">
+      <div className="border-b bg-white shadow-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">{test.title}</h1>
-            <p className="text-sm text-gray-600">
+          <div className="flex-1">
+            <h1 className="text-xl font-bold text-gray-900 mb-1">{test.title}</h1>
+            <p className="text-sm text-gray-500">
               Question {currentQuestionIndex + 1} of {test.totalQuestions}
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button
-              onClick={toggleLanguage}
-              variant="outline"
-              size="sm"
-              className="font-semibold border-2 hover:bg-teal-50 hover:border-teal-500"
-            >
-              {language === 'en' ? 'മലയാളം' : 'English'}
-            </Button>
-            <Timer durationInMinutes={test.durationInMinutes} onTimeUp={handleTimeUp} />
+            <Select value={language} onValueChange={handleLanguageChange}>
+              <SelectTrigger className="w-[140px] border-2 hover:border-teal-500 transition-colors">
+                <Languages className="w-4 h-4 mr-2" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="ml">മലയാളം</SelectItem>
+              </SelectContent>
+            </Select>
+            <Timer durationInMinutes={test.durationInMinutes} onTimeUp={handleTimeUp} isPaused={isPaused} />
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid lg:grid-cols-[1fr,320px] gap-6">
+        <div className="grid lg:grid-cols-[1fr,340px] gap-6">
           <div className="space-y-6">
-            <Card className="p-6 lg:p-8">
+            <Card className="p-6 lg:p-8 shadow-lg border-0">
               <div className="space-y-6">
-                <div className="flex items-start justify-between gap-4">
-                  <h2 className="text-lg font-semibold text-gray-900">Question No {currentQuestionIndex + 1}</h2>
+                <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-100">
+                  <h2 className="text-lg font-bold text-gray-900">Question No {currentQuestionIndex + 1}</h2>
                   <span
-                    className={`px-3 py-1 text-xs font-medium rounded-full ${
+                    className={`px-4 py-1.5 text-xs font-semibold rounded-full shadow-sm ${
                       currentQuestion.difficultyLevel === 'easy'
-                        ? 'bg-green-100 text-green-700'
+                        ? 'bg-green-500 text-white'
                         : currentQuestion.difficultyLevel === 'medium'
-                        ? 'bg-amber-100 text-amber-700'
-                        : 'bg-red-100 text-red-700'
+                        ? 'bg-amber-500 text-white'
+                        : 'bg-red-500 text-white'
                     }`}
                   >
                     {currentQuestion.difficultyLevel.charAt(0).toUpperCase() +
@@ -276,6 +284,9 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
               currentQuestion={currentQuestionIndex}
               questionStatuses={questionStatuses}
               onQuestionSelect={handleQuestionSelect}
+              isPaused={isPaused}
+              onTogglePause={togglePause}
+              testTitle={test.title}
             />
           </div>
         </div>
@@ -286,6 +297,9 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
         currentQuestion={currentQuestionIndex}
         questionStatuses={questionStatuses}
         onQuestionSelect={handleQuestionSelect}
+        isPaused={isPaused}
+        onTogglePause={togglePause}
+        testTitle={test.title}
         isMobile
       />
 

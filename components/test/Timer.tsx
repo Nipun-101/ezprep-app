@@ -6,14 +6,19 @@ import { Clock } from 'lucide-react';
 interface TimerProps {
   durationInMinutes: number;
   onTimeUp: () => void;
+  isPaused?: boolean;
 }
 
-export default function Timer({ durationInMinutes, onTimeUp }: TimerProps) {
+export default function Timer({ durationInMinutes, onTimeUp, isPaused = false }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(durationInMinutes * 60);
 
   useEffect(() => {
     if (timeLeft <= 0) {
       onTimeUp();
+      return;
+    }
+
+    if (isPaused) {
       return;
     }
 
@@ -28,7 +33,7 @@ export default function Timer({ durationInMinutes, onTimeUp }: TimerProps) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft, onTimeUp]);
+  }, [timeLeft, onTimeUp, isPaused]);
 
   const hours = Math.floor(timeLeft / 3600);
   const minutes = Math.floor((timeLeft % 3600) / 60);
@@ -38,20 +43,23 @@ export default function Timer({ durationInMinutes, onTimeUp }: TimerProps) {
   const isCritical = timeLeft <= 60;
 
   return (
-    <div
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
-        isCritical
-          ? 'bg-red-100 text-red-700'
-          : isWarning
-          ? 'bg-amber-100 text-amber-700'
-          : 'bg-teal-100 text-teal-700'
-      }`}
-    >
-      <Clock className="w-5 h-5" />
-      <span className="text-lg tabular-nums">
-        {hours > 0 && `${hours.toString().padStart(2, '0')}:`}
-        {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
-      </span>
+    <div className="flex flex-col items-center">
+      <div className="text-xs font-semibold text-gray-600 mb-1">Time Left:</div>
+      <div
+        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-bold transition-colors shadow-sm ${
+          isCritical
+            ? 'bg-red-500 text-white'
+            : isWarning
+            ? 'bg-amber-500 text-white'
+            : 'bg-teal-600 text-white'
+        }`}
+      >
+        <Clock className="w-5 h-5" />
+        <span className="text-lg tabular-nums">
+          {hours > 0 && `${hours.toString().padStart(2, '0')}:`}
+          {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
+        </span>
+      </div>
     </div>
   );
 }
