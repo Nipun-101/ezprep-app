@@ -43,23 +43,20 @@ export default function Timer({ durationInMinutes, onTimeUp, isPaused = false }:
   const isCritical = timeLeft <= 60;
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="text-xs font-semibold text-gray-600 mb-1">Time Left:</div>
-      <div
-        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-bold transition-colors shadow-sm ${
-          isCritical
-            ? 'bg-red-500 text-white'
-            : isWarning
-            ? 'bg-amber-500 text-white'
-            : 'bg-teal-600 text-white'
-        }`}
-      >
-        <Clock className="w-5 h-5" />
-        <span className="text-lg tabular-nums">
-          {hours > 0 && `${hours.toString().padStart(2, '0')}:`}
-          {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
-        </span>
-      </div>
+    <div
+      className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-bold transition-colors shadow-sm ${
+        isCritical
+          ? 'bg-red-500 text-white'
+          : isWarning
+          ? 'bg-amber-500 text-white'
+          : 'bg-teal-600 text-white'
+      }`}
+    >
+      <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+      <span className="text-sm sm:text-base tabular-nums">
+        {hours > 0 && `${hours.toString().padStart(2, '0')}:`}
+        {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
+      </span>
     </div>
   );
 }

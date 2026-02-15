@@ -143,18 +143,19 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-teal-50/30 pb-20 lg:pb-6">
       <div className="border-b bg-white shadow-md sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
-          <div className="flex items-start justify-between gap-2 sm:gap-4 mb-3">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
             <div className="flex-1 min-w-0">
-              <h1 className="text-base sm:text-xl font-bold text-gray-900 mb-1 truncate">{test.title}</h1>
-              <p className="text-xs sm:text-sm text-gray-500">
+              <h1 className="text-sm sm:text-lg font-bold text-gray-900 truncate leading-tight">{test.title}</h1>
+              <p className="text-xs text-gray-500 leading-tight">
                 Q {currentQuestionIndex + 1}/{test.totalQuestions}
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Timer durationInMinutes={test.durationInMinutes} onTimeUp={handleTimeUp} isPaused={isPaused} />
               <Select value={language} onValueChange={handleLanguageChange}>
-                <SelectTrigger className="w-[100px] sm:w-[140px] border-2 hover:border-teal-500 transition-colors text-xs sm:text-sm h-9">
-                  <Languages className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <SelectTrigger className="w-[85px] sm:w-[120px] border-2 hover:border-teal-500 transition-colors text-xs sm:text-sm h-8 sm:h-9">
+                  <Languages className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -163,9 +164,6 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
                 </SelectContent>
               </Select>
             </div>
-          </div>
-          <div className="flex justify-center">
-            <Timer durationInMinutes={test.durationInMinutes} onTimeUp={handleTimeUp} isPaused={isPaused} />
           </div>
         </div>
       </div>
