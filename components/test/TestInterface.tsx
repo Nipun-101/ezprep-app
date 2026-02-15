@@ -340,6 +340,39 @@ export default function TestInterface({ test, onSubmit, initialLanguage = 'en' }
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg lg:hidden z-30 safe-area-inset-bottom">
+        <div className="max-w-7xl mx-auto px-3 py-3">
+          <div className="flex gap-2">
+            <Button
+              onClick={handlePrevious}
+              disabled={currentQuestionIndex === 0}
+              variant="outline"
+              className="flex-1 text-sm h-12 font-semibold border-2"
+            >
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Previous
+            </Button>
+
+            {currentQuestionIndex === test.totalQuestions - 1 ? (
+              <Button
+                onClick={() => setShowSubmitDialog(true)}
+                className="flex-1 bg-teal-600 hover:bg-teal-700 text-sm h-12 font-semibold"
+              >
+                Submit Test
+              </Button>
+            ) : (
+              <Button
+                onClick={handleNext}
+                className="flex-1 bg-teal-600 hover:bg-teal-700 text-sm h-12 font-semibold"
+              >
+                Save & Next
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

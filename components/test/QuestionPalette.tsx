@@ -163,7 +163,7 @@ export default function QuestionPalette({
           <Button
             variant="default"
             size="lg"
-            className="fixed bottom-4 right-4 z-50 shadow-2xl lg:hidden bg-teal-600 hover:bg-teal-700 h-14 px-5 rounded-full font-semibold"
+            className="fixed bottom-20 right-4 z-50 shadow-2xl lg:hidden bg-teal-600 hover:bg-teal-700 h-14 px-5 rounded-full font-semibold"
           >
             <Menu className="w-5 h-5 mr-2" />
             Questions
