@@ -5,7 +5,7 @@ import { Test, UserAnswer } from '@/lib/testTypes';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CheckCircle2, XCircle, Circle, Award, TrendingUp, Clock, Languages } from 'lucide-react';
+import { CheckCircle2, XCircle, Circle, TrendingUp, Clock, Languages } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface TestResultsProps {
@@ -61,13 +61,18 @@ export default function TestResults({ test, answers, initialLanguage = 'en' }: T
   const results = calculateResults();
   const answersMap = new Map(answers.map((a) => [a.questionId, a]));
 
+  const accuracy =
+    results.correctAnswers + results.wrongAnswers > 0
+      ? ((results.correctAnswers / (results.correctAnswers + results.wrongAnswers)) * 100).toFixed(1)
+      : '0';
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-teal-50/30 py-4 sm:py-8">
-      <div className="max-w-5xl mx-auto px-3 sm:px-4">
-        <div className="flex justify-end mb-3 sm:mb-4">
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4">
+        <div className="flex justify-end mb-3">
           <Select value={language} onValueChange={handleLanguageChange}>
-            <SelectTrigger className="w-[100px] sm:w-[140px] border-2 hover:border-teal-500 transition-colors text-xs sm:text-sm h-9">
-              <Languages className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            <SelectTrigger className="w-[100px] sm:w-[130px] border hover:border-teal-500 transition-colors text-xs sm:text-sm h-8">
+              <Languages className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -77,81 +82,76 @@ export default function TestResults({ test, answers, initialLanguage = 'en' }: T
           </Select>
         </div>
 
-        <div className="text-center mb-6 sm:mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 text-white mb-3 sm:mb-4">
-            <Award className="w-8 h-8 sm:w-10 sm:h-10" />
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            {language === 'en' ? 'Test Completed!' : 'ടെസ്റ്റ് പൂർത്തിയായി!'}
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600">{test.title}</p>
-        </div>
-
-        <Card className="p-4 sm:p-8 mb-4 sm:mb-6 shadow-xl border-0">
-          <div className="text-center mb-6 sm:mb-8">
-            <div className="inline-flex items-center justify-center mb-3 sm:mb-4">
-              <div className="text-5xl sm:text-7xl font-bold text-gray-900">
-                {results.totalMarks}
-                <span className="text-2xl sm:text-3xl text-gray-500 ml-1">/{results.maxMarks}</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6 px-4">
-              <div className="flex-1 max-w-xs sm:max-w-sm h-3 sm:h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
-                <div
-                  className="h-full bg-gradient-to-r from-teal-500 to-teal-600 transition-all shadow-sm"
-                  style={{ width: `${results.percentage}%` }}
+        <Card className="p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-200 shadow-sm">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+            <div className="relative flex-shrink-0">
+              <svg className="w-24 h-24 sm:w-28 sm:h-28" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="#e5e7eb" strokeWidth="8" />
+                <circle
+                  cx="50" cy="50" r="42"
+                  fill="none"
+                  stroke={results.isPassed ? '#14b8a6' : '#ef4444'}
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                  strokeDasharray={`${results.percentage * 2.64} ${264 - results.percentage * 2.64}`}
+                  strokeDashoffset="66"
+                  className="transition-all duration-700"
                 />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-2xl sm:text-3xl font-bold text-gray-900">{results.totalMarks}</span>
+                <span className="text-xs text-gray-500">of {results.maxMarks}</span>
               </div>
-              <span className="text-base sm:text-lg font-bold text-gray-700 whitespace-nowrap">{results.percentage.toFixed(1)}%</span>
-            </div>
-            <div
-              className={`inline-block px-6 sm:px-8 py-2 sm:py-3 rounded-full text-lg sm:text-xl font-bold shadow-lg ${
-                results.isPassed ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-              }`}
-            >
-              {results.isPassed ? 'PASSED' : 'FAILED'}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 sm:gap-6 mb-6 sm:mb-8">
-            <div className="text-center p-3 sm:p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg sm:rounded-xl shadow-md border border-green-200">
-              <CheckCircle2 className="w-6 h-6 sm:w-10 sm:h-10 text-green-600 mx-auto mb-1 sm:mb-3" />
-              <div className="text-2xl sm:text-4xl font-bold text-green-700 mb-0.5 sm:mb-1">{results.correctAnswers}</div>
-              <div className="text-xs sm:text-sm font-semibold text-green-600">Correct</div>
             </div>
 
-            <div className="text-center p-3 sm:p-6 bg-gradient-to-br from-red-50 to-red-100 rounded-lg sm:rounded-xl shadow-md border border-red-200">
-              <XCircle className="w-6 h-6 sm:w-10 sm:h-10 text-red-600 mx-auto mb-1 sm:mb-3" />
-              <div className="text-2xl sm:text-4xl font-bold text-red-700 mb-0.5 sm:mb-1">{results.wrongAnswers}</div>
-              <div className="text-xs sm:text-sm font-semibold text-red-600">Wrong</div>
-            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                <h1 className="text-lg sm:text-xl font-bold text-gray-900">
+                  {language === 'en' ? 'Test Completed' : 'ടെസ്റ്റ് പൂർത്തിയായി'}
+                </h1>
+                <span
+                  className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                    results.isPassed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                  }`}
+                >
+                  {results.isPassed ? 'PASSED' : 'FAILED'}
+                </span>
+              </div>
+              <p className="text-sm text-gray-500 mb-3">{test.title}</p>
 
-            <div className="text-center p-3 sm:p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg sm:rounded-xl shadow-md border border-gray-200">
-              <Circle className="w-6 h-6 sm:w-10 sm:h-10 text-gray-600 mx-auto mb-1 sm:mb-3" />
-              <div className="text-2xl sm:text-4xl font-bold text-gray-700 mb-0.5 sm:mb-1">{results.unattempted}</div>
-              <div className="text-xs sm:text-sm font-semibold text-gray-600">Unattempted</div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-3">
-              <TrendingUp className="w-5 h-5 text-teal-600" />
-              <div>
-                <div className="text-sm text-gray-600">Accuracy</div>
-                <div className="font-semibold text-gray-900">
-                  {results.correctAnswers + results.wrongAnswers > 0
-                    ? ((results.correctAnswers / (results.correctAnswers + results.wrongAnswers)) * 100).toFixed(1)
-                    : 0}
-                  %
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <div className="flex items-center gap-1.5 bg-green-50 rounded-lg px-2.5 py-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-base sm:text-lg font-bold text-green-700 leading-tight">{results.correctAnswers}</div>
+                    <div className="text-[10px] sm:text-xs text-green-600">Correct</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 bg-red-50 rounded-lg px-2.5 py-2">
+                  <XCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-base sm:text-lg font-bold text-red-700 leading-tight">{results.wrongAnswers}</div>
+                    <div className="text-[10px] sm:text-xs text-red-600">Wrong</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 bg-gray-100 rounded-lg px-2.5 py-2">
+                  <Circle className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-base sm:text-lg font-bold text-gray-700 leading-tight">{results.unattempted}</div>
+                    <div className="text-[10px] sm:text-xs text-gray-500">Skipped</div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5 text-teal-600" />
-              <div>
-                <div className="text-sm text-gray-600">Duration</div>
-                <div className="font-semibold text-gray-900">{test.durationInMinutes} minutes</div>
+              <div className="flex items-center gap-4 mt-3 text-xs sm:text-sm text-gray-500">
+                <span className="flex items-center gap-1">
+                  <TrendingUp className="w-3.5 h-3.5 text-teal-600" />
+                  {accuracy}% accuracy
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-teal-600" />
+                  {test.durationInMinutes} min
+                </span>
               </div>
             </div>
           </div>
