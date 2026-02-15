@@ -44,16 +44,16 @@ export default function Timer({ durationInMinutes, onTimeUp, isPaused = false }:
 
   return (
     <div
-      className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg font-bold transition-colors shadow-sm ${
+      className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded border transition-colors ${
         isCritical
-          ? 'bg-red-500 text-white'
+          ? 'border-red-500 text-red-600 bg-red-50'
           : isWarning
-          ? 'bg-amber-500 text-white'
-          : 'bg-teal-600 text-white'
+          ? 'border-amber-500 text-amber-700 bg-amber-50'
+          : 'border-gray-300 text-gray-700 bg-white'
       }`}
     >
-      <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-      <span className="text-sm sm:text-base tabular-nums">
+      <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+      <span className="text-xs sm:text-sm font-medium tabular-nums">
         {hours > 0 && `${hours.toString().padStart(2, '0')}:`}
         {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
       </span>
