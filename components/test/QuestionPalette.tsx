@@ -39,7 +39,7 @@ export default function QuestionPalette({
       case 'answered':
         return 'bg-green-500 text-white hover:bg-green-600';
       case 'not-answered':
-        return 'bg-orange-500 text-white hover:bg-orange-600';
+        return 'bg-red-600 text-white hover:bg-red-700';
       case 'marked':
         return 'bg-purple-500 text-white hover:bg-purple-600';
       case 'marked-answered':
@@ -87,7 +87,7 @@ export default function QuestionPalette({
               <span className="font-medium text-gray-700">Answered</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-md bg-orange-500 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+              <div className="w-7 h-7 rounded-md bg-red-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
                 {getStatusCount('not-answered')}
               </div>
               <span className="font-medium text-gray-700">Not Answered</span>
