@@ -88,12 +88,12 @@ export default function ExamsSection() {
           </p>
         </div>
 
-        <div className="bg-gray-100 rounded-xl p-1 grid grid-cols-3 sm:grid-cols-5 gap-1 mb-8">
+        <div className="bg-gray-100 rounded-xl p-1 flex flex-wrap gap-1 mb-8">
           {examsByCategory.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`w-full py-2.5 px-2 rounded-lg text-sm font-medium transition-all duration-200 text-center leading-snug ${
+              className={`flex-1 min-w-[calc(33.333%-4px)] sm:flex-none sm:min-w-0 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 text-center leading-snug whitespace-nowrap ${
                 activeCategory === cat.id
                   ? 'bg-white text-gray-900 shadow-sm font-semibold'
                   : 'text-gray-500 hover:text-gray-700'
