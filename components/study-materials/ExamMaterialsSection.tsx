@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, FileStack, Train, Building2, ShieldCheck } from 'lucide-react';
+import { ChevronDown, ChevronUp, FileStack, Train, Building2, ShieldCheck, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 import type { ExamMaterials } from '@/lib/studyMaterialsData';
 import { categoryColors } from '@/lib/studyMaterialsData';
 import MaterialCard from './MaterialCard';
@@ -75,6 +76,15 @@ export default function ExamMaterialsSection({ exam, defaultOpen = false }: Prop
                 accentText={colors.text}
               />
             ))}
+          </div>
+          <div className="mt-5 pt-4 border-t border-gray-50 flex justify-end">
+            <Link
+              href={`/study-materials/${exam.id}`}
+              className={`inline-flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-xl transition-all active:scale-95 ${colors.bg} ${colors.text} ${colors.border} border hover:opacity-80`}
+            >
+              View All {exam.examName} Materials
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       )}
