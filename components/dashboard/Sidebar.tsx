@@ -12,6 +12,7 @@ import {
   CreditCard,
   Zap,
   Award,
+  UserCircle,
   LogOut
 } from 'lucide-react';
 import { navigationItems } from '@/lib/mockData';
@@ -30,6 +31,7 @@ const iconMap: Record<string, any> = {
   CreditCard,
   Zap,
   Award,
+  UserCircle,
 };
 
 interface SidebarProps {

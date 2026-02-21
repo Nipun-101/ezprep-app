@@ -2,14 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { Menu, Gift } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import SearchBox from './SearchBox';
+import { dummyProfile } from '@/lib/profileData';
 
 interface DashboardHeaderProps {
   onMenuClick: () => void;
 }
 
 export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
+  const router = useRouter();
   const [timeLeft, setTimeLeft] = useState({
     hours: 10,
     minutes: 54,
@@ -69,6 +72,14 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
           <Button className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-semibold px-6 py-5 rounded-2xl shadow-lg shadow-teal-200/50 hover:shadow-xl hover:shadow-teal-300/50 transition-all duration-200 active:scale-95 text-sm">
             BUY COURSES
           </Button>
+
+          <button
+            onClick={() => router.push('/dashboard/profile')}
+            className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-teal-200 hover:shadow-lg hover:scale-105 transition-all active:scale-95"
+            title="My Profile"
+          >
+            {dummyProfile.avatar}
+          </button>
         </div>
 
         <div className="sm:hidden shrink-0">
