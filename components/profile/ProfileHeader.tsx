@@ -11,19 +11,13 @@ interface Props {
 export default function ProfileHeader({ profile, onEdit }: Props) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-      <div className="h-28 bg-gradient-to-r from-teal-500 via-teal-400 to-emerald-400 relative rounded-t-2xl overflow-hidden">
-        <div className="absolute inset-0 opacity-20"
-          style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '40px 40px' }}
-        />
-      </div>
-
-      <div className="px-6 pb-6">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-10">
-          <div className="flex items-end gap-4">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-teal-200 border-4 border-white shrink-0">
+      <div className="px-6 py-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-teal-200 shrink-0">
               {profile.avatar}
             </div>
-            <div className="mb-1">
+            <div>
               <h1 className="text-xl font-bold text-gray-900">{profile.name}</h1>
               <div className="flex items-center gap-1.5 text-sm text-gray-500 mt-0.5">
                 <Target className="w-3.5 h-3.5 text-teal-500" />
