@@ -88,15 +88,15 @@ export default function ExamsSection() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 mb-8 overflow-x-auto pb-1 scrollbar-none">
+        <div className="bg-gray-100 rounded-xl p-1 grid grid-cols-3 sm:grid-cols-5 gap-1 mb-8">
           {examsByCategory.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`flex-shrink-0 px-4 sm:px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
+              className={`w-full py-2.5 px-2 rounded-lg text-sm font-medium transition-all duration-200 text-center leading-snug ${
                 activeCategory === cat.id
-                  ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-teal-400 hover:text-teal-600'
+                  ? 'bg-white text-gray-900 shadow-sm font-semibold'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {cat.label}
@@ -104,7 +104,7 @@ export default function ExamsSection() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-10">
           {active.exams.map((exam) => (
             <ExamCard key={exam.id} {...exam} />
           ))}
