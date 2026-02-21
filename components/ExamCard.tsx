@@ -21,9 +21,10 @@ const acronymColors = {
   SBI: 'bg-teal-500 text-white',
   IBPS: 'bg-cyan-500 text-white',
   SSC: 'bg-blue-500 text-white',
-  UPSC: 'bg-purple-500 text-white',
-  RLY: 'bg-indigo-500 text-white',
-  NAB: 'bg-emerald-500 text-white'
+  UPSC: 'bg-slate-600 text-white',
+  RLY: 'bg-orange-500 text-white',
+  NAB: 'bg-emerald-500 text-white',
+  PSC: 'bg-sky-600 text-white',
 };
 
 export default function ExamCard({ 

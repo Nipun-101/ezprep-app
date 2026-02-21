@@ -1,9 +1,10 @@
 'use client';
 
-import { Menu, Search, User, LogOut } from 'lucide-react';
+import { Menu, User, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { isAuthenticated, logout } from '@/lib/auth';
+import SearchBox from '@/components/dashboard/SearchBox';
 
 export default function Header() {
   const router = useRouter();
@@ -30,112 +31,92 @@ export default function Header() {
   return (
     <>
       <header className="bg-white shadow-sm border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-teal-600 rounded flex items-center justify-center">
-              <span className="text-white text-xs font-bold">E</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 gap-4">
+            <div className="flex items-center space-x-2 shrink-0">
+              <div className="w-8 h-8 bg-teal-600 rounded flex items-center justify-center">
+                <span className="text-white text-xs font-bold">E</span>
+              </div>
+              <span className="text-xl font-semibold text-gray-800">eprep</span>
             </div>
-            <span className="text-xl font-semibold text-gray-800">eprep</span>
-          </div>
 
-          {/* Desktop Search */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search exams, courses, mock tests..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-gray-50"
-              />
+            <div className="hidden md:flex flex-1 max-w-md">
+              <SearchBox />
             </div>
-          </div>
 
-          {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-4">
-            {isLoggedIn ? (
-              <>
-                <button 
-                  onClick={handleAuthClick}
-                  className="flex items-center space-x-2 text-gray-700 hover:text-teal-600 font-medium transition-colors"
-                >
-                  <User className="w-5 h-5" />
-                  <span>Dashboard</span>
-                </button>
-                <button 
-                  onClick={handleLogout}
-                  className="flex items-center space-x-2 text-gray-700 hover:text-red-600 font-medium transition-colors"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span>Logout</span>
-                </button>
-              </>
-            ) : (
-              <button 
-                onClick={handleAuthClick}
-                className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-              >
-                Login / Signup
-              </button>
-            )}
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2"
-          >
-            <Menu className="w-6 h-6 text-gray-600" />
-          </button>
-        </div>
-
-        {/* Mobile Search */}
-        <div className="md:hidden pb-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search exams, courses, mock tests..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-gray-50"
-            />
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-100">
-            <div className="flex flex-col space-y-3">
+            <div className="hidden md:flex items-center space-x-4 shrink-0">
               {isLoggedIn ? (
                 <>
-                  <button 
+                  <button
                     onClick={handleAuthClick}
-                    className="flex items-center justify-center space-x-2 text-gray-700 py-2"
+                    className="flex items-center space-x-2 text-gray-700 hover:text-teal-600 font-medium transition-colors"
                   >
                     <User className="w-5 h-5" />
                     <span>Dashboard</span>
                   </button>
-                  <button 
+                  <button
                     onClick={handleLogout}
-                    className="flex items-center justify-center space-x-2 text-red-600 py-2"
+                    className="flex items-center space-x-2 text-gray-700 hover:text-red-600 font-medium transition-colors"
                   >
                     <LogOut className="w-5 h-5" />
                     <span>Logout</span>
                   </button>
                 </>
               ) : (
-                <button 
+                <button
                   onClick={handleAuthClick}
-                  className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-center"
+                  className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                 >
                   Login / Signup
                 </button>
               )}
             </div>
+
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2"
+            >
+              <Menu className="w-6 h-6 text-gray-600" />
+            </button>
           </div>
-        )}
-      </div>
-    </header>
+
+          <div className="md:hidden pb-4">
+            <SearchBox />
+          </div>
+
+          {isMenuOpen && (
+            <div className="md:hidden py-4 border-t border-gray-100">
+              <div className="flex flex-col space-y-3">
+                {isLoggedIn ? (
+                  <>
+                    <button
+                      onClick={handleAuthClick}
+                      className="flex items-center justify-center space-x-2 text-gray-700 py-2"
+                    >
+                      <User className="w-5 h-5" />
+                      <span>Dashboard</span>
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center justify-center space-x-2 text-red-600 py-2"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span>Logout</span>
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={handleAuthClick}
+                    className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-center"
+                  >
+                    Login / Signup
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
     </>
   );
 }
