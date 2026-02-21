@@ -25,7 +25,7 @@ export default function ProfileSubjects({ subjects }: Props) {
           <p className="text-xs text-gray-400 mt-0.5">Based on your recent tests</p>
         </div>
         <Link
-          href="/dashboard/analytics"
+          href="/analytics"
           className="flex items-center gap-1.5 text-xs font-medium text-teal-600 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-3 py-1.5 rounded-lg transition-colors"
         >
           <Brain className="w-3.5 h-3.5" />
