@@ -1,6 +1,7 @@
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import ExamsSection from '@/components/ExamsSection';
+import WhyChooseUsSection from '@/components/WhyChooseUsSection';
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
       <Header />
       <HeroSection />
       <ExamsSection />
+      <WhyChooseUsSection />
     </main>
   );
 }
