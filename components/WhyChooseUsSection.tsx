@@ -78,10 +78,10 @@ export default function WhyChooseUsSection() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:max-w-2xl lg:mx-auto xl:max-w-none xl:grid-cols-2 xl:gap-6">
-          <div className="sm:col-span-1 xl:col-span-1">
+          <div className="sm:col-span-1 xl:col-span-1 flex">
             <FeatureTile feature={features[3]} />
           </div>
-          <div className="sm:col-span-1 xl:col-span-1">
+          <div className="sm:col-span-1 xl:col-span-1 flex">
             <FeatureTile feature={features[4]} />
           </div>
         </div>
@@ -94,7 +94,7 @@ function FeatureTile({ feature }: { feature: typeof features[0] }) {
   const Icon = feature.icon;
   return (
     <div
-      className={`group relative rounded-2xl border ${feature.accent} ${feature.bg} p-7 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-default`}
+      className={`group relative rounded-2xl border ${feature.accent} ${feature.bg} p-7 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-default h-full`}
     >
       <div className="flex items-start gap-5">
         <div
