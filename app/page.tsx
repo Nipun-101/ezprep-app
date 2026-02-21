@@ -11,10 +11,10 @@ export default function Home() {
     <main className="min-h-screen bg-white">
       <Header />
       <HeroSection />
-      <StatsSection />
       <ExamsSection />
       <WhyChooseUsSection />
       <TestimonialsSection />
+      <StatsSection />
       <Footer />
     </main>
   );
