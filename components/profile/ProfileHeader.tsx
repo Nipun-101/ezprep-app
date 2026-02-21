@@ -11,7 +11,7 @@ interface Props {
 export default function ProfileHeader({ profile, onEdit }: Props) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-500 px-6 pt-6 pb-10 relative">
+      <div className="bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-500 px-6 pt-8 pb-14 relative">
         <div className="absolute inset-0 opacity-10"
           style={{
             backgroundImage: 'radial-gradient(circle at 10% 80%, white 2px, transparent 2px), radial-gradient(circle at 90% 20%, white 2px, transparent 2px), radial-gradient(circle at 50% 50%, white 1px, transparent 1px)',
@@ -43,7 +43,7 @@ export default function ProfileHeader({ profile, onEdit }: Props) {
         </div>
       </div>
 
-      <div className="px-6 pb-5 -mt-5">
+      <div className="px-6 pb-6 -mt-8">
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-4">
           {profile.bio && (
             <p className="text-gray-600 text-sm leading-relaxed mb-4 pb-4 border-b border-gray-100">{profile.bio}</p>
