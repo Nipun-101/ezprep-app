@@ -23,7 +23,7 @@ const testimonials = [
     color: "from-emerald-500 to-teal-500",
   },
   {
-    name: "Anjali Nair",
+    name: "Anjali",
     exam: "IBPS PO",
     rank: "AIR 38",
     text: "The AI mock analysis after each test was a game-changer. EzPrep mentors kept me on track every week.",
