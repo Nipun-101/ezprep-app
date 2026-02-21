@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { isAuthenticated } from '@/lib/auth';
-import SearchBox from '@/components/dashboard/SearchBox';
 
 export default function HeroSection() {
   const router = useRouter();
@@ -50,10 +49,6 @@ export default function HeroSection() {
                 Master competitive exams with AI-powered mock tests, expert faculty guidance,
                 and comprehensive practice sessions tailored for your success.
               </p>
-
-              <div className="mb-8 max-w-lg mx-auto lg:mx-0">
-                <SearchBox variant="hero" />
-              </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
                 {!isLoggedIn && (
