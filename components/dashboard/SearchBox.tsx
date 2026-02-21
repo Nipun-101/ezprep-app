@@ -83,7 +83,11 @@ function highlight(text: string, query: string) {
   );
 }
 
-export default function SearchBox() {
+interface SearchBoxProps {
+  variant?: 'default' | 'hero';
+}
+
+export default function SearchBox({ variant = 'default' }: SearchBoxProps) {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -143,11 +147,15 @@ export default function SearchBox() {
 
   let flatCounter = 0;
 
+  const isHero = variant === 'hero';
+
   return (
     <div ref={containerRef} className="relative w-full max-w-xl">
       <div
-        className={`flex items-center gap-2.5 bg-gray-50 border-2 rounded-2xl px-4 py-2.5 transition-all duration-200 ${
-          open ? 'border-teal-400 bg-white shadow-lg shadow-teal-100/60' : 'border-gray-200 hover:border-gray-300'
+        className={`flex items-center gap-2.5 rounded-2xl px-4 transition-all duration-200 ${
+          isHero
+            ? `bg-white border-2 py-3 shadow-xl ${open ? 'border-teal-400 shadow-teal-200/60' : 'border-white/80 hover:border-teal-300'}`
+            : `bg-gray-50 border-2 py-2.5 ${open ? 'border-teal-400 bg-white shadow-lg shadow-teal-100/60' : 'border-gray-200 hover:border-gray-300'}`
         }`}
       >
         <Search className="w-4 h-4 text-gray-400 shrink-0" />
