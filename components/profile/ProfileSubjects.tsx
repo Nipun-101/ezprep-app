@@ -1,8 +1,9 @@
 'use client';
 
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Brain, ArrowRight } from 'lucide-react';
 import type { SubjectPerf } from '@/lib/profileData';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface Props {
   subjects: SubjectPerf[];
@@ -18,9 +19,19 @@ const subjectConfig = (pct: number) => {
 export default function ProfileSubjects({ subjects }: Props) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      <div className="px-5 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
-        <h2 className="text-base font-bold text-gray-900">Subject Performance</h2>
-        <p className="text-xs text-gray-400 mt-0.5">Based on your recent tests</p>
+      <div className="px-5 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 flex items-center justify-between">
+        <div>
+          <h2 className="text-base font-bold text-gray-900">Subject Performance</h2>
+          <p className="text-xs text-gray-400 mt-0.5">Based on your recent tests</p>
+        </div>
+        <Link
+          href="/dashboard/analytics"
+          className="flex items-center gap-1.5 text-xs font-medium text-teal-600 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-3 py-1.5 rounded-lg transition-colors"
+        >
+          <Brain className="w-3.5 h-3.5" />
+          AI Analysis
+          <ArrowRight className="w-3 h-3" />
+        </Link>
       </div>
 
       <div className="px-5 py-4 space-y-5">
