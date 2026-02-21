@@ -10,8 +10,8 @@ interface Props {
 
 export default function ProfileHeader({ profile, onEdit }: Props) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="h-28 bg-gradient-to-r from-teal-500 via-teal-400 to-emerald-400 relative">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+      <div className="h-28 bg-gradient-to-r from-teal-500 via-teal-400 to-emerald-400 relative rounded-t-2xl overflow-hidden">
         <div className="absolute inset-0 opacity-20"
           style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '40px 40px' }}
         />
