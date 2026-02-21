@@ -1,0 +1,77 @@
+'use client';
+
+import { MapPin, Phone, Mail, Target, Pencil, CalendarDays, Clock } from 'lucide-react';
+import type { UserProfile } from '@/lib/profileData';
+
+interface Props {
+  profile: UserProfile;
+  onEdit: () => void;
+}
+
+export default function ProfileHeader({ profile, onEdit }: Props) {
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="h-28 bg-gradient-to-r from-teal-500 via-teal-400 to-emerald-400 relative">
+        <div className="absolute inset-0 opacity-20"
+          style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+        />
+      </div>
+
+      <div className="px-6 pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-10">
+          <div className="flex items-end gap-4">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-teal-200 border-4 border-white shrink-0">
+              {profile.avatar}
+            </div>
+            <div className="mb-1">
+              <h1 className="text-xl font-bold text-gray-900">{profile.name}</h1>
+              <div className="flex items-center gap-1.5 text-sm text-gray-500 mt-0.5">
+                <Target className="w-3.5 h-3.5 text-teal-500" />
+                <span className="font-medium text-teal-600">{profile.targetExam}</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={onEdit}
+            className="flex items-center gap-2 px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-xl font-medium text-sm transition-all active:scale-95 shadow-md shadow-teal-200 self-start sm:self-auto"
+          >
+            <Pencil className="w-4 h-4" />
+            Edit Profile
+          </button>
+        </div>
+
+        {profile.bio && (
+          <p className="mt-4 text-gray-600 text-sm leading-relaxed max-w-2xl">{profile.bio}</p>
+        )}
+
+        <div className="mt-4 flex flex-wrap gap-4">
+          <div className="flex items-center gap-1.5 text-sm text-gray-500">
+            <Phone className="w-4 h-4 text-gray-400" />
+            <span>{profile.phone}</span>
+          </div>
+          {profile.email && (
+            <div className="flex items-center gap-1.5 text-sm text-gray-500">
+              <Mail className="w-4 h-4 text-gray-400" />
+              <span>{profile.email}</span>
+            </div>
+          )}
+          {profile.location && (
+            <div className="flex items-center gap-1.5 text-sm text-gray-500">
+              <MapPin className="w-4 h-4 text-gray-400" />
+              <span>{profile.location}</span>
+            </div>
+          )}
+          <div className="flex items-center gap-1.5 text-sm text-gray-500">
+            <CalendarDays className="w-4 h-4 text-gray-400" />
+            <span>Joined {profile.joinedDate}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-sm text-gray-500">
+            <Clock className="w-4 h-4 text-gray-400" />
+            <span>{profile.totalStudyHours} hrs studied</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

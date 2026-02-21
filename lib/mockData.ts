@@ -78,6 +78,7 @@ export const navigationItems: NavigationItem[] = [
   { id: 'subscriptions', label: 'My Subscriptions', icon: 'CreditCard', href: '/dashboard/subscriptions', comingSoon: true },
   { id: 'current-affairs', label: 'Current Affairs', icon: 'Zap', href: '/dashboard/current-affairs', comingSoon: true },
   { id: 'success-stories', label: 'Success Stories', icon: 'Award', href: '/dashboard/success-stories', comingSoon: true },
+  { id: 'profile', label: 'My Profile', icon: 'UserCircle', href: '/dashboard/profile' },
 ];
 
 export interface PracticeTest {
