@@ -11,56 +11,64 @@ const stats = (p: UserProfile) => [
   {
     label: 'National Rank',
     value: `#${p.rank.toLocaleString()}`,
-    sub: `of ${(p.totalStudents / 1000).toFixed(0)}k students`,
+    sub: `Top ${Math.round((p.rank / p.totalStudents) * 100)}% of students`,
     icon: TrendingUp,
     gradient: 'from-teal-500 to-emerald-400',
-    bg: 'bg-teal-50',
-    iconColor: 'text-teal-600',
+    glow: 'shadow-teal-200',
+    text: 'text-teal-600',
+    ring: 'ring-teal-100',
   },
   {
     label: 'Study Streak',
-    value: `${p.streakDays} days`,
+    value: `${p.streakDays}`,
+    unit: 'days',
     sub: 'Keep it going!',
     icon: Flame,
-    gradient: 'from-orange-400 to-red-400',
-    bg: 'bg-orange-50',
-    iconColor: 'text-orange-500',
+    gradient: 'from-orange-500 to-red-400',
+    glow: 'shadow-orange-200',
+    text: 'text-orange-500',
+    ring: 'ring-orange-100',
   },
   {
     label: 'Tests Attempted',
     value: p.testsAttempted,
     sub: `${p.testsCompleted} completed`,
     icon: FileText,
-    gradient: 'from-blue-400 to-cyan-400',
-    bg: 'bg-blue-50',
-    iconColor: 'text-blue-500',
+    gradient: 'from-blue-500 to-cyan-400',
+    glow: 'shadow-blue-200',
+    text: 'text-blue-500',
+    ring: 'ring-blue-100',
   },
   {
     label: 'Average Score',
     value: `${p.avgScore}%`,
     sub: `Best: ${p.topScore}%`,
     icon: Target,
-    gradient: 'from-emerald-400 to-teal-400',
-    bg: 'bg-emerald-50',
-    iconColor: 'text-emerald-600',
+    gradient: 'from-emerald-500 to-teal-400',
+    glow: 'shadow-emerald-200',
+    text: 'text-emerald-600',
+    ring: 'ring-emerald-100',
   },
   {
     label: 'Accuracy',
     value: `${p.accuracy}%`,
     sub: 'Correct answers',
     icon: CheckCircle2,
-    gradient: 'from-violet-400 to-blue-400',
-    bg: 'bg-violet-50',
-    iconColor: 'text-violet-500',
+    gradient: 'from-sky-500 to-blue-400',
+    glow: 'shadow-sky-200',
+    text: 'text-sky-500',
+    ring: 'ring-sky-100',
   },
   {
     label: 'Study Hours',
-    value: `${p.totalStudyHours}h`,
-    sub: 'Total this month',
+    value: `${p.totalStudyHours}`,
+    unit: 'hrs',
+    sub: 'Total invested',
     icon: Zap,
-    gradient: 'from-amber-400 to-orange-400',
-    bg: 'bg-amber-50',
-    iconColor: 'text-amber-500',
+    gradient: 'from-amber-500 to-orange-400',
+    glow: 'shadow-amber-200',
+    text: 'text-amber-500',
+    ring: 'ring-amber-100',
   },
 ];
 
@@ -72,15 +80,20 @@ export default function ProfileStats({ profile }: Props) {
         return (
           <div
             key={stat.label}
-            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col gap-3"
+            className={`bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 p-4 flex flex-col gap-3 ring-1 ${stat.ring} group`}
           >
-            <div className={`w-9 h-9 rounded-xl ${stat.bg} flex items-center justify-center`}>
-              <Icon className={`w-4.5 h-4.5 ${stat.iconColor}`} size={18} />
+            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg ${stat.glow} group-hover:scale-110 transition-transform duration-200`}>
+              <Icon className="w-5 h-5 text-white" />
             </div>
             <div>
-              <div className="text-xl font-bold text-gray-900">{stat.value}</div>
-              <div className="text-xs text-gray-500 mt-0.5 font-medium">{stat.label}</div>
-              <div className="text-xs text-gray-400 mt-0.5">{stat.sub}</div>
+              <div className="flex items-baseline gap-0.5">
+                <span className="text-2xl font-extrabold text-gray-900 leading-none">{stat.value}</span>
+                {'unit' in stat && stat.unit && (
+                  <span className={`text-xs font-bold ml-1 ${stat.text}`}>{stat.unit}</span>
+                )}
+              </div>
+              <div className="text-xs font-semibold text-gray-500 mt-1">{stat.label}</div>
+              <div className={`text-xs mt-0.5 font-medium ${stat.text}`}>{stat.sub}</div>
             </div>
           </div>
         );

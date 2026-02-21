@@ -13,7 +13,8 @@ import {
   Zap,
   Award,
   UserCircle,
-  LogOut
+  LogOut,
+  BarChart2
 } from 'lucide-react';
 import { navigationItems } from '@/lib/mockData';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +33,7 @@ const iconMap: Record<string, any> = {
   Zap,
   Award,
   UserCircle,
+  BarChart2,
 };
 
 interface SidebarProps {
