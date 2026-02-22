@@ -77,7 +77,7 @@ export const dummyProfile: UserProfile = {
   name: 'Arjun Sharma',
   phone: '+91 98765 43210',
   email: 'arjun.sharma@gmail.com',
-  location: 'New Delhi, India',
+  location: 'Kochi, India',
   targetExam: 'SSC CGL 2025',
   bio: 'Aspiring government officer, preparing for SSC CGL. Currently in my final year of B.Com. Consistent 6-hour daily study routine.',
   joinedDate: 'March 2024',
