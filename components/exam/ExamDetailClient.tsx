@@ -1,43 +1,60 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import ExamIntro from './ExamIntro';
 import PracticeTestCard from './PracticeTestCard';
-import MockTestCard from './MockTestCard';
 import { Button } from '@/components/ui/button';
-import { ExamDetail, Exam } from '@/lib/mockData';
-import { ArrowLeft, ChevronRight } from 'lucide-react';
+import { getMockTestsByExam, ApiMockTest, ApiMockTestExam } from '@/lib/api/exams';
+import { startMockTestAttempt } from '@/lib/api/attempts';
+import { ArrowLeft, BookOpen } from 'lucide-react';
+
+const STORAGE_KEY_PREFIX = 'ezp:mockAttempt:';
 
 interface ExamDetailClientProps {
-  examDetail: ExamDetail | null;
-  currentExam: Exam | undefined;
   examId: string;
 }
 
-export default function ExamDetailClient({ examDetail, currentExam, examId }: ExamDetailClientProps) {
+export default function ExamDetailClient({ examId }: ExamDetailClientProps) {
   const router = useRouter();
+  const [practiceTests, setPracticeTests] = useState<ApiMockTest[]>([]);
+  const [examInfo, setExamInfo] = useState<ApiMockTestExam | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [startingTestId, setStartingTestId] = useState<string | null>(null);
+  const [startError, setStartError] = useState<string | null>(null);
 
-  if (!examDetail || !currentExam) {
-    return (
-      <DashboardLayout>
-        <div className="flex flex-col items-center justify-center min-h-[60vh]">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Exam Not Found</h1>
-          <p className="text-gray-600 mb-6">The exam you're looking for doesn't exist or is not available yet.</p>
-          <Button onClick={() => router.push('/dashboard')} className="bg-teal-500 hover:bg-teal-600">
-            Back to Dashboard
-          </Button>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  useEffect(() => {
+    getMockTestsByExam(examId)
+      .then((res) => {
+        setPracticeTests(res.data);
+        if (res.data.length > 0) {
+          setExamInfo(res.data[0].exam);
+        }
+      })
+      .catch(() => setError('Failed to load tests. Please try again.'))
+      .finally(() => setLoading(false));
+  }, [examId]);
 
-  const handleStartPracticeTest = (testId: string) => {
-    console.log('Starting practice test:', testId);
-  };
-
-  const handleStartMockTest = (testId: string) => {
-    console.log('Starting mock test:', testId);
+  const handleStartTest = async (testId: string) => {
+    if (startingTestId) return;
+    setStartingTestId(testId);
+    setStartError(null);
+    try {
+      const data = await startMockTestAttempt(testId);
+      try {
+        sessionStorage.setItem(`${STORAGE_KEY_PREFIX}${data.attemptId}`, JSON.stringify(data));
+      } catch {
+        // ignore quota / unavailable
+      }
+      router.push(`/dashboard/attempt/${data.attemptId}`);
+    } catch (err: any) {
+      setStartError(
+        err?.response?.data?.message || 'Could not start the test. Please try again.'
+      );
+      setStartingTestId(null);
+    }
   };
 
   return (
@@ -51,61 +68,93 @@ export default function ExamDetailClient({ examDetail, currentExam, examId }: Ex
           <span className="font-medium">Back to Dashboard</span>
         </button>
 
-        <ExamIntro
-          name={examDetail.name}
-          iconType={examDetail.iconType}
-          description={examDetail.description}
-          totalTests={examDetail.totalTests}
-          totalStudents={examDetail.totalStudents}
-        />
-
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">Daily Practice Tests</h2>
-              <p className="text-gray-600">Master topics with focused practice tests</p>
-            </div>
+        {loading && (
+          <div className="flex items-center justify-center py-20">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-red-500 border-t-transparent" />
           </div>
+        )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            {examDetail.practiceTests.map((test) => (
-              <PracticeTestCard
-                key={test.id}
-                test={test}
-                onStart={() => handleStartPracticeTest(test.id)}
+        {error && (
+          <div className="rounded-xl bg-red-50 border border-red-200 p-6 text-center text-red-600">
+            {error}
+          </div>
+        )}
+
+        {!loading && !error && (
+          <>
+            {examInfo && (
+              <ExamIntro
+                name={examInfo.name}
+                description={examInfo.description}
               />
-            ))}
-          </div>
+            )}
 
-          <div className="flex justify-center">
-            <Button
-              variant="outline"
-              className="border-teal-500 text-teal-600 hover:bg-teal-50"
-            >
-              View More Tests
-              <ChevronRight className="w-4 h-4 ml-2" />
-            </Button>
-          </div>
-        </section>
+            {/* Daily Practice Tests */}
+            <section>
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">Daily Practice Tests</h2>
+                <p className="text-gray-600">Master topics with focused practice tests</p>
+              </div>
 
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">Full Mock Tests</h2>
-              <p className="text-gray-600">Complete exam simulation for better preparation</p>
-            </div>
-          </div>
+              {practiceTests.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-gray-200">
+                  <BookOpen className="w-12 h-12 text-gray-300 mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No Practice Tests Yet</h3>
+                  <p className="text-gray-500 text-sm">Practice tests for this exam will be available soon.</p>
+                </div>
+              ) : (
+                <>
+                  {startError && (
+                    <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600">
+                      {startError}
+                    </div>
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {practiceTests.map((test) => (
+                      <PracticeTestCard
+                        key={test.id}
+                        test={test}
+                        isStarting={startingTestId === test.id}
+                        disabled={startingTestId !== null && startingTestId !== test.id}
+                        onStart={() => handleStartTest(test.id)}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {examDetail.mockTests.map((test) => (
-              <MockTestCard
-                key={test.id}
-                test={test}
-                onStart={() => handleStartMockTest(test.id)}
-              />
-            ))}
-          </div>
-        </section>
+            {/* Full Mock Tests - Coming Soon */}
+            <section className="opacity-60 pointer-events-none select-none">
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-1">
+                  <h2 className="text-2xl font-bold text-gray-900">Full Mock Tests</h2>
+                  <span className="text-xs font-semibold bg-gray-200 text-gray-600 px-2.5 py-1 rounded-full">
+                    Coming Soon
+                  </span>
+                </div>
+                <p className="text-gray-600">Complete exam simulation for better preparation</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-white rounded-lg border-2 border-gray-200 p-6 h-44 flex flex-col justify-between"
+                  >
+                    <div className="space-y-3">
+                      <div className="h-4 bg-gray-100 rounded w-3/4" />
+                      <div className="h-3 bg-gray-100 rounded w-1/2" />
+                    </div>
+                    <Button disabled className="w-full bg-gray-200 text-gray-400 cursor-not-allowed">
+                      Coming Soon
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
       </div>
     </DashboardLayout>
   );

@@ -1,48 +1,21 @@
 'use client';
 
-import { Train, Building2, Shield, Keyboard } from 'lucide-react';
-import { ExamIconType } from '@/lib/mockData';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
-
-const iconConfig: Record<ExamIconType, { icon: any; bgColor: string; iconColor: string }> = {
-  railways: {
-    icon: Train,
-    bgColor: 'bg-red-100',
-    iconColor: 'text-red-600',
-  },
-  ssc: {
-    icon: Building2,
-    bgColor: 'bg-red-100',
-    iconColor: 'text-red-600',
-  },
-  ib: {
-    icon: Shield,
-    bgColor: 'bg-gray-100',
-    iconColor: 'text-gray-700',
-  },
-  typing: {
-    icon: Keyboard,
-    bgColor: 'bg-red-100',
-    iconColor: 'text-red-600',
-  },
-};
 
 interface ExamCardDashboardProps {
   name: string;
-  iconType: ExamIconType;
-  isActive: boolean;
+  imageUrl?: string;
+  isActive?: boolean;
   onClick?: () => void;
 }
 
 export default function ExamCardDashboard({
   name,
-  iconType,
-  isActive,
+  imageUrl,
+  isActive = true,
   onClick,
 }: ExamCardDashboardProps) {
-  const config = iconConfig[iconType];
-  const Icon = config.icon;
-
   return (
     <button
       onClick={onClick}
@@ -55,14 +28,23 @@ export default function ExamCardDashboard({
     >
       <div
         className={cn(
-          'relative w-20 h-20 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 shadow-md',
-          config.bgColor,
-          isActive
-            ? 'group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-red-200/50'
-            : ''
+          'relative w-20 h-20 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 shadow-md overflow-hidden bg-gray-100',
+          isActive ? 'group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-red-200/50' : ''
         )}
       >
-        <Icon className={cn('w-9 h-9', config.iconColor)} />
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt={name}
+            fill
+            className="object-cover"
+            sizes="80px"
+          />
+        ) : (
+          <span className="text-2xl font-bold text-gray-400">
+            {name.charAt(0)}
+          </span>
+        )}
         {!isActive && (
           <div className="absolute inset-0 bg-white/60 rounded-2xl backdrop-blur-sm" />
         )}
