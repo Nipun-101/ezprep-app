@@ -80,3 +80,32 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Mathpix markdown rendering tweaks */
+.mathpix-content p {
+  margin: 0;
+}
+.mathpix-content p + p {
+  margin-top: 0.5rem;
+}
+.mathpix-content .math-inline,
+.mathpix-content mjx-container[jax='SVG'][display='false'] {
+  display: inline-block;
+  vertical-align: middle;
+}
+.mathpix-content mjx-container[jax='SVG'][display='true'] {
+  margin: 0.5rem 0;
+}
+.mathpix-inline,
+.mathpix-inline > div,
+.mathpix-inline p {
+  display: inline;
+}
+.mathpix-inline p {
+  margin: 0;
+}
+/* Defensive: hide raw loader scrollers/wrappers that mathpix loader injects */
+.mathpix-content .mathjax_md_help,
+.mathpix-content .mathpix-render-elem {
+  background: transparent;
+}
