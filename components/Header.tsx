@@ -3,6 +3,7 @@
 import { Menu, User, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { isAuthenticated, logout } from '@/lib/auth';
 import SearchBox from '@/components/dashboard/SearchBox';
 
@@ -33,11 +34,16 @@ export default function Header() {
       <header className="bg-white shadow-sm border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 gap-4">
-            <div className="flex items-center space-x-2 shrink-0">
-              <div className="w-8 h-8 bg-teal-600 rounded flex items-center justify-center">
-                <span className="text-white text-xs font-bold">E</span>
+            <div className="flex items-center shrink-0">
+              <div className="relative h-14 w-36">
+                <Image
+                  src="/ezprep-logo.png"
+                  alt="EzPrep"
+                  fill
+                  className="object-contain object-center"
+                  priority
+                />
               </div>
-              <span className="text-xl font-semibold text-gray-800">eprep</span>
             </div>
 
             <div className="hidden md:flex flex-1 max-w-md">

@@ -11,6 +11,7 @@ import {
   UserCircle,
   LogOut,
 } from 'lucide-react';
+import Image from 'next/image';
 import { navigationItems } from '@/lib/mockData';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -52,13 +53,16 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
   return (
     <div className="flex flex-col h-full bg-white rounded-2xl shadow-lg shadow-gray-200/50">
       <div className="p-6 pb-8">
-        <div className="flex items-center space-x-3">
-          <div className="w-11 h-11 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md shadow-teal-200">
-            <span className="text-white font-bold text-xl">E</span>
+        <div className="flex items-center">
+          <div className="relative h-12 w-36">
+            <Image
+              src="/ezprep-logo.png"
+              alt="EzPrep"
+              fill
+              className="object-contain object-center"
+              priority
+            />
           </div>
-          <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text text-transparent">
-            eprep
-          </span>
         </div>
       </div>
 

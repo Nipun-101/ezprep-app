@@ -1,74 +1,51 @@
-import { Clock, FileText, Users } from 'lucide-react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 interface ExamCardProps {
   id: string;
-  title: string;
-  fullName: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  testsCount: number;
-  studentsCount: string;
-  duration: string;
-  acronym: string;
+  name: string;
+  shortName: string;
+  imageUrl: string;
+  categoryName: string;
+  categoryShortName: string;
 }
 
-const difficultyColors = {
-  Easy: 'bg-green-100 text-green-700 border-green-200',
-  Medium: 'bg-orange-100 text-orange-700 border-orange-200',
-  Hard: 'bg-red-100 text-red-700 border-red-200'
-};
+export default function ExamCard({ name, shortName, imageUrl, categoryName, categoryShortName }: ExamCardProps) {
+  const router = useRouter();
+  const title = `${categoryShortName} ${shortName}`;
+  const showSubtitle = title.trim().toLowerCase() !== name.trim().toLowerCase();
 
-const acronymColors = {
-  SBI: 'bg-teal-500 text-white',
-  IBPS: 'bg-cyan-500 text-white',
-  SSC: 'bg-blue-500 text-white',
-  UPSC: 'bg-slate-600 text-white',
-  RLY: 'bg-orange-500 text-white',
-  NAB: 'bg-emerald-500 text-white',
-  PSC: 'bg-sky-600 text-white',
-};
-
-export default function ExamCard({ 
-  id, 
-  title, 
-  fullName, 
-  difficulty, 
-  testsCount, 
-  studentsCount, 
-  duration, 
-  acronym 
-}: ExamCardProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1 group">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center space-x-3">
-          <div className={`w-12 h-12 rounded-lg flex items-center justify-center font-bold text-sm ${acronymColors[acronym as keyof typeof acronymColors] || 'bg-gray-500 text-white'}`}>
-            {acronym}
-          </div>
-          <div>
-            <h3 className="font-semibold text-gray-900 text-lg group-hover:text-teal-600 transition-colors">
-              {title}
-            </h3>
-            <p className="text-gray-600 text-sm leading-relaxed">{fullName}</p>
-          </div>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all duration-200 hover:-translate-y-1 group cursor-pointer">
+      <div className="flex items-start space-x-4">
+        <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100 bg-gray-50">
+          <Image
+            src={imageUrl}
+            alt={categoryName}
+            width={56}
+            height={56}
+            className="w-full h-full object-cover"
+            unoptimized
+          />
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${difficultyColors[difficulty]}`}>
-          {difficulty}
-        </span>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-bold text-gray-900 text-base group-hover:text-teal-600 transition-colors leading-tight">
+            {title}
+          </h3>
+          {showSubtitle && (
+            <p className="text-gray-500 text-sm mt-0.5 leading-snug line-clamp-2">{name}</p>
+          )}
+        </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
-        <div className="flex items-center space-x-2">
-          <FileText className="w-4 h-4 text-gray-400" />
-          <span>{testsCount} Tests</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Users className="w-4 h-4 text-gray-400" />
-          <span>{studentsCount}</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Clock className="w-4 h-4 text-gray-400" />
-          <span>{duration}</span>
-        </div>
+      <div className="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between">
+        <span className="text-xs text-gray-400 truncate">{categoryName}</span>
+        <button
+          onClick={() => router.push('/login')}
+          className="text-xs text-teal-600 font-medium group-hover:underline flex-shrink-0 ml-2"
+        >
+          View Tests →
+        </button>
       </div>
     </div>
   );
