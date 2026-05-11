@@ -1,4 +1,5 @@
-import { BookOpen, Youtube, Twitter, Linkedin, Send, Mail, Phone, MapPin } from 'lucide-react';
+import Image from 'next/image';
+import { Youtube, Twitter, Linkedin, Send, Mail, Phone, MapPin } from 'lucide-react';
 
 const footerLinks = {
   Exams: [
@@ -44,11 +45,15 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="pt-10 pb-8 md:pt-16 md:pb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 md:gap-10 border-b border-white/10">
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-900/30">
-                <BookOpen className="w-5 h-5 text-white" strokeWidth={2} />
+            <div className="flex items-center mb-4">
+              <div className="relative h-10 w-32 bg-white rounded-lg p-1">
+                <Image
+                  src="/ezprep-logo.png"
+                  alt="EzPrep"
+                  fill
+                  className="object-contain object-center"
+                />
               </div>
-              <span className="text-white font-extrabold text-xl tracking-tight">EzPrep</span>
             </div>
 
             <p className="text-sm leading-relaxed text-gray-400 mb-6 max-w-xs">
