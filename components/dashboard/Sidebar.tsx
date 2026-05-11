@@ -5,16 +5,11 @@ import {
   LayoutDashboard,
   BookOpen,
   Video,
-  FileText,
-  Users,
-  Search,
   Bookmark,
   CreditCard,
   Zap,
-  Award,
   UserCircle,
   LogOut,
-  BarChart2
 } from 'lucide-react';
 import { navigationItems } from '@/lib/mockData';
 import { Badge } from '@/components/ui/badge';
@@ -25,15 +20,10 @@ const iconMap: Record<string, any> = {
   LayoutDashboard,
   BookOpen,
   Video,
-  FileText,
-  Users,
-  Search,
   Bookmark,
   CreditCard,
   Zap,
-  Award,
   UserCircle,
-  BarChart2,
 };
 
 interface SidebarProps {

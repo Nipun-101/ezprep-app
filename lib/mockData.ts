@@ -71,14 +71,9 @@ export const navigationItems: NavigationItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: 'LayoutDashboard', href: '/dashboard' },
   { id: 'courses', label: 'Courses', icon: 'BookOpen', href: '/dashboard/courses', comingSoon: true },
   { id: 'concept-videos', label: 'Concept Videos', icon: 'Video', href: '/dashboard/concept-videos', comingSoon: true },
-  { id: 'tests', label: 'Tests', icon: 'FileText', href: '/dashboard/tests', comingSoon: true },
-  { id: 'mentorship', label: 'Personalised Mentorship', icon: 'Users', href: '/dashboard/mentorship', badge: 'New!', comingSoon: true },
-  { id: 'search', label: 'Search', icon: 'Search', href: '/dashboard/search', comingSoon: true },
   { id: 'bookmarks', label: 'My Bookmarks', icon: 'Bookmark', href: '/dashboard/bookmarks', comingSoon: true },
   { id: 'subscriptions', label: 'My Subscriptions', icon: 'CreditCard', href: '/dashboard/subscriptions', comingSoon: true },
   { id: 'current-affairs', label: 'Current Affairs', icon: 'Zap', href: '/dashboard/current-affairs', comingSoon: true },
-  { id: 'success-stories', label: 'Success Stories', icon: 'Award', href: '/dashboard/success-stories', comingSoon: true },
-  { id: 'analytics', label: 'AI Analytics', icon: 'BarChart2', href: '/analytics', badge: 'AI' },
   { id: 'profile', label: 'My Profile', icon: 'UserCircle', href: '/dashboard/profile' },
 ];
 

@@ -2,6 +2,8 @@
  * Authentication utility functions
  */
 
+import { AUTH_TOKEN_COOKIE, LOGOUT_RESUME_PATH_COOKIE } from '@/lib/authCookieNames';
+
 /**
  * Helper function to set a cookie
  */
@@ -33,7 +35,7 @@ export function getAuthToken(): string | null {
 export function setAuthToken(token: string): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem('authToken', token);
-  setCookie('authToken', token, 7); // Cookie expires in 7 days
+  setCookie(AUTH_TOKEN_COOKIE, token, 7); // Cookie expires in 7 days
 }
 
 /**
@@ -42,7 +44,7 @@ export function setAuthToken(token: string): void {
 export function removeAuthToken(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem('authToken');
-  removeCookie('authToken');
+  removeCookie(AUTH_TOKEN_COOKIE);
 }
 
 /**
@@ -126,8 +128,26 @@ export function isTokenExpired(token: string): boolean {
  * Logout user
  */
 export function logout(): void {
+  if (typeof window !== 'undefined') {
+    const path = window.location.pathname || '';
+    // Remember where they left off so middleware can send them back after sign-in instead of /
+    if (
+      path &&
+      path !== '/' &&
+      path !== '/login' &&
+      isSafeLogoutResumePath(path)
+    ) {
+      setCookie(LOGOUT_RESUME_PATH_COOKIE, path, 7);
+    }
+  }
   removeAuthToken();
   if (typeof window !== 'undefined') {
     window.location.href = '/';
   }
+}
+
+function isSafeLogoutResumePath(pathname: string): boolean {
+  if (!pathname.startsWith('/') || pathname.startsWith('//')) return false;
+  if (pathname.includes('..')) return false;
+  return true;
 }

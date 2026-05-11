@@ -2,9 +2,59 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sparkles, Shield, CheckCircle2 } from 'lucide-react';
+import { Sparkles, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { setAuthToken, getAuthToken } from '@/lib/auth';
+
+type WidgetNotice =
+  | { kind: 'dismissed'; message: string }
+  | { kind: 'error'; message: string };
+
+function normalizeMsg91Failure(error: unknown): WidgetNotice {
+  const e =
+    error && typeof error === 'object'
+      ? (error as {
+          closeByUser?: boolean;
+          message?: unknown;
+          type?: unknown;
+        })
+      : null;
+
+  const rawMsg =
+    typeof e?.message === 'string' ? e.message.trim() : '';
+
+  if (e?.closeByUser === true) {
+    return {
+      kind: 'dismissed',
+      message:
+        rawMsg ||
+        'You closed verification. Continue below whenever you’re ready.',
+    };
+  }
+
+  const typeStr = typeof e?.type === 'string' ? e.type.toLowerCase() : '';
+  if (rawMsg.toLowerCase().includes('cancel') || typeStr.includes('cancel')) {
+    return {
+      kind: 'dismissed',
+      message:
+        rawMsg ||
+        'You closed verification. Continue below whenever you’re ready.',
+    };
+  }
+
+  if (rawMsg) {
+    return { kind: 'error', message: rawMsg };
+  }
+
+  return {
+    kind: 'error',
+    message:
+      "That OTP doesn’t match or something went wrong. Please try again, or tap resend if you didn’t receive a code.",
+  };
+}
+
+const VERIFY_CLOSED_REDIRECT_SECONDS = 30;
 
 // Extend window interface for MSG91
 declare global {
@@ -17,7 +67,95 @@ export default function LoginPage() {
   const router = useRouter();
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [widgetNotice, setWidgetNotice] = useState<WidgetNotice | null>(null);
+  const [redirectSecondsLeft, setRedirectSecondsLeft] = useState<number | null>(
+    null,
+  );
   const scriptRef = useRef<HTMLScriptElement | null>(null);
+
+  const getOtpWidgetConfig = (): Parameters<
+    Window['initSendOTP']
+  >[0] => ({
+    widgetId:
+      process.env.NEXT_PUBLIC_MSG91_WIDGET_ID ,
+    tokenAuth:
+      process.env.NEXT_PUBLIC_MSG91_TOKEN_AUTH,
+    identifier: '',
+    exposeMethods: false,
+    success: async (data: unknown) => {
+      const payload = data as { message?: string };
+      console.log('MSG91 OTP verification successful:', data);
+      setWidgetNotice(null);
+      setRedirectSecondsLeft(null);
+      setIsVerifying(true);
+
+      try {
+        const accessToken = payload?.message;
+
+        if (!accessToken) {
+          console.error('Access token missing in MSG91 callback data.');
+          setWidgetNotice({
+            kind: 'error',
+            message:
+              'We could not finish sign-in from that OTP. Please try again.',
+          });
+          setIsVerifying(false);
+          return;
+        }
+
+        const apiUrl =
+          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        const response = await fetch(`${apiUrl}/api/v1/auth/verify-otp`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ accessToken }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Backend verification failed');
+        }
+
+        const result = await response.json();
+        console.log('Backend verification result:', result);
+
+        if (result.data?.accessToken) {
+          setAuthToken(result.data.accessToken);
+
+          if (result.data.isNewUser) {
+            router.push('/dashboard');
+          } else {
+            router.push('/dashboard');
+          }
+        } else {
+          throw new Error('No access token received from backend');
+        }
+      } catch (error) {
+        console.error('Error during verification:', error);
+        setWidgetNotice({
+          kind: 'error',
+          message:
+            'Something went wrong while completing sign-in. Please try verifying again in a moment.',
+        });
+        setIsVerifying(false);
+      }
+    },
+    failure: (error: unknown) => {
+      console.error('MSG91 OTP verification failed:', error);
+      setWidgetNotice(normalizeMsg91Failure(error));
+      setIsVerifying(false);
+    },
+  });
+
+  const mountOtpWidget = () => {
+    if (typeof window.initSendOTP === 'function') {
+      window.initSendOTP(getOtpWidgetConfig());
+    }
+  };
+
+  const mountOtpWidgetRef = useRef(mountOtpWidget);
+  mountOtpWidgetRef.current = mountOtpWidget;
 
   useEffect(() => {
     // Check if user is already logged in
@@ -34,7 +172,7 @@ export default function LoginPage() {
       script.async = true;
       script.onload = () => {
         setIsScriptLoaded(true);
-        initializeWidget();
+        mountOtpWidgetRef.current();
       };
       document.body.appendChild(script);
       scriptRef.current = script;
@@ -49,75 +187,40 @@ export default function LoginPage() {
     };
   }, [router]);
 
-  const initializeWidget = () => {
-    const configuration = {
-      widgetId: process.env.NEXT_PUBLIC_MSG91_WIDGET_ID || "356978705467343332303532",
-      tokenAuth: process.env.NEXT_PUBLIC_MSG91_TOKEN_AUTH || "470606TKO40Abg68d4221dP1",
-      identifier: "",
-      exposeMethods: false,
-      success: async (data: any) => {
-        console.log('MSG91 OTP verification successful:', data);
-        setIsVerifying(true);
-
-        try {
-          // Extract the access token from MSG91 response
-          const accessToken = data?.message;
-          
-          if (!accessToken) {
-            console.error('Access token missing in MSG91 callback data.');
-            alert('Verification failed. Please try again.');
-            setIsVerifying(false);
-            return;
-          }
-
-          // Send token to backend for verification
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-          const response = await fetch(`${apiUrl}/api/v1/auth/verify-otp`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ accessToken }),
-          });
-
-          if (!response.ok) {
-            throw new Error('Backend verification failed');
-          }
-
-          const result = await response.json();
-          console.log('Backend verification result:', result);
-
-          // Store JWT token
-          if (result.data?.accessToken) {
-            // Store in both localStorage and cookie
-            setAuthToken(result.data.accessToken);
-
-            // Route user based on account status
-            if (result.data.isNewUser) {
-             // router.push('/complete-profile');
-             router.push('/dashboard');
-            } else {
-              router.push('/dashboard');
-            }
-          } else {
-            throw new Error('No access token received from backend');
-          }
-        } catch (error) {
-          console.error('Error during verification:', error);
-          alert('Verification failed. Please try again.');
-          setIsVerifying(false);
-        }
-      },
-      failure: (error: any) => {
-        console.error('MSG91 OTP verification failed:', error);
-        alert('OTP verification failed. Please try again.');
-        setIsVerifying(false);
-      },
-    };
-
-    if (window.initSendOTP) {
-      window.initSendOTP(configuration);
+  useEffect(() => {
+    if (widgetNotice?.kind !== 'dismissed') {
+      setRedirectSecondsLeft(null);
+      return;
     }
+
+    setRedirectSecondsLeft(VERIFY_CLOSED_REDIRECT_SECONDS);
+    let remaining = VERIFY_CLOSED_REDIRECT_SECONDS;
+
+    const id = window.setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        window.clearInterval(id);
+        setRedirectSecondsLeft(null);
+        setWidgetNotice(null);
+        router.push('/');
+        return;
+      }
+      setRedirectSecondsLeft(remaining);
+    }, 1000);
+
+    return () => window.clearInterval(id);
+  }, [widgetNotice, router]);
+
+  const handleBackToVerification = () => {
+    setWidgetNotice(null);
+    setRedirectSecondsLeft(null);
+    mountOtpWidget();
+  };
+
+  const handleBackToHomeFromBanner = () => {
+    setWidgetNotice(null);
+    setRedirectSecondsLeft(null);
+    router.push('/');
   };
 
   return (
@@ -148,6 +251,86 @@ export default function LoginPage() {
                 <h2 className="text-xl font-semibold text-gray-800 mb-2">Login or Sign Up</h2>
                 <p className="text-sm text-gray-600">We'll send you an OTP for verification</p>
               </div>
+
+              {widgetNotice && (
+                <Alert
+                  variant={widgetNotice.kind === 'error' ? 'destructive' : 'default'}
+                  className={
+                    widgetNotice.kind === 'dismissed'
+                      ? 'border-teal-200/80 bg-teal-50/60 text-teal-900 [&>svg]:text-teal-700'
+                      : undefined
+                  }
+                >
+                  {widgetNotice.kind === 'error' ? (
+                    <AlertCircle className="h-4 w-4" />
+                  ) : (
+                    <Info className="h-4 w-4" />
+                  )}
+                  <div className="flex flex-1 flex-col gap-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <AlertTitle className="text-sm font-semibold">
+                          {widgetNotice.kind === 'error'
+                            ? 'Could not verify'
+                            : widgetNotice.message.toLowerCase().includes(
+                                  'magic link',
+                                )
+                              ? 'Magic link sent'
+                              : 'OTP verification window closed'}
+                        </AlertTitle>
+                        <AlertDescription className="text-sm opacity-95">
+                          {widgetNotice.message}
+                        </AlertDescription>
+                        {widgetNotice.kind === 'dismissed' && (
+                          <p className="text-xs text-teal-800/85 pt-1">
+                            Going to home in{' '}
+                            <span className="font-semibold tabular-nums">
+                              {redirectSecondsLeft ?? VERIFY_CLOSED_REDIRECT_SECONDS}
+                            </span>{' '}
+                            {(redirectSecondsLeft ?? VERIFY_CLOSED_REDIRECT_SECONDS) ===
+                            1
+                              ? 'second'
+                              : 'seconds'}
+                            …
+                          </p>
+                        )}
+                      </div>
+                      {widgetNotice.kind === 'error' && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 shrink-0 self-start text-xs sm:self-center"
+                          onClick={() => setWidgetNotice(null)}
+                        >
+                          Dismiss
+                        </Button>
+                      )}
+                    </div>
+                    {widgetNotice.kind === 'dismissed' && (
+                      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="w-full sm:w-auto bg-teal-600 text-white hover:bg-teal-700"
+                          onClick={handleBackToVerification}
+                        >
+                          Back to verification
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="w-full sm:w-auto border-teal-300 text-teal-900 hover:bg-teal-100/60"
+                          onClick={handleBackToHomeFromBanner}
+                        >
+                          Back to home
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </Alert>
+              )}
 
               {/* MSG91 Widget Container */}
               <div id="msg91-otp-widget" className="mb-6">
