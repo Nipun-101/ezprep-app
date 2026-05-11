@@ -77,9 +77,9 @@ export default function LoginPage() {
     Window['initSendOTP']
   >[0] => ({
     widgetId:
-      process.env.NEXT_PUBLIC_MSG91_WIDGET_ID || '356978705467343332303532',
+      process.env.NEXT_PUBLIC_MSG91_WIDGET_ID ,
     tokenAuth:
-      process.env.NEXT_PUBLIC_MSG91_TOKEN_AUTH || '470606TKO40Abg68d4221dP1',
+      process.env.NEXT_PUBLIC_MSG91_TOKEN_AUTH,
     identifier: '',
     exposeMethods: false,
     success: async (data: unknown) => {
