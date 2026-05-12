@@ -7,7 +7,7 @@ import ExamIntro from './ExamIntro';
 import PracticeTestCard from './PracticeTestCard';
 import { Button } from '@/components/ui/button';
 import { getMockTestsByExam, ApiMockTest, ApiMockTestExam } from '@/lib/api/exams';
-import { startMockTestAttempt } from '@/lib/api/attempts';
+import { startMockTestAttempt, resumeAttempt } from '@/lib/api/attempts';
 import { ArrowLeft, BookOpen } from 'lucide-react';
 
 const STORAGE_KEY_PREFIX = 'ezp:mockAttempt:';
@@ -52,6 +52,26 @@ export default function ExamDetailClient({ examId }: ExamDetailClientProps) {
     } catch (err: any) {
       setStartError(
         err?.response?.data?.message || 'Could not start the test. Please try again.'
+      );
+      setStartingTestId(null);
+    }
+  };
+
+  const handleResumeTest = async (testId: string, attemptId: string) => {
+    if (startingTestId) return;
+    setStartingTestId(testId);
+    setStartError(null);
+    try {
+      const data = await resumeAttempt(attemptId);
+      try {
+        sessionStorage.setItem(`${STORAGE_KEY_PREFIX}${data.attemptId}`, JSON.stringify(data));
+      } catch {
+        // ignore quota / unavailable
+      }
+      router.push(`/dashboard/attempt/${data.attemptId}`);
+    } catch (err: any) {
+      setStartError(
+        err?.response?.data?.message || 'Could not resume the test. Please try again.'
       );
       setStartingTestId(null);
     }
@@ -114,9 +134,13 @@ export default function ExamDetailClient({ examId }: ExamDetailClientProps) {
                       <PracticeTestCard
                         key={test.id}
                         test={test}
-                        isStarting={startingTestId === test.id}
+                        isActing={startingTestId === test.id}
                         disabled={startingTestId !== null && startingTestId !== test.id}
-                        onStart={() => handleStartTest(test.id)}
+                        onAction={
+                          test.userAttemptAction === 'RESUME' && test.resumeAttemptId
+                            ? () => handleResumeTest(test.id, test.resumeAttemptId!)
+                            : () => handleStartTest(test.id)
+                        }
                       />
                     ))}
                   </div>
