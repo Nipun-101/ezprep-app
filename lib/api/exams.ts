@@ -41,6 +41,8 @@ export interface ApiMockTestTopic {
   name: string;
 }
 
+export type UserAttemptAction = 'START' | 'RETAKE' | 'RESUME';
+
 export interface ApiMockTest {
   id: string;
   title: string | null;
@@ -60,6 +62,8 @@ export interface ApiMockTest {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  userAttemptAction: UserAttemptAction;
+  resumeAttemptId?: string;
 }
 
 export interface MockTestsPagination {

@@ -1,25 +1,51 @@
 'use client';
 
-import { Clock, HelpCircle, BookMarked, Minus, Loader2 } from 'lucide-react';
+import { Clock, HelpCircle, BookMarked, Minus, Loader2, Play, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ApiMockTest } from '@/lib/api/exams';
+import { ApiMockTest, UserAttemptAction } from '@/lib/api/exams';
 
 interface PracticeTestCardProps {
   test: ApiMockTest;
-  onStart?: () => void;
-  isStarting?: boolean;
+  onAction?: () => void;
+  isActing?: boolean;
   disabled?: boolean;
 }
 
+const ACTION_CONFIG: Record<
+  UserAttemptAction,
+  { label: string; loadingLabel: string; className: string; Icon: React.ElementType }
+> = {
+  START: {
+    label: 'Start Practice',
+    loadingLabel: 'Starting...',
+    className: 'bg-teal-500 hover:bg-teal-600 text-white',
+    Icon: Play,
+  },
+  RETAKE: {
+    label: 'Retake',
+    loadingLabel: 'Starting...',
+    className: 'bg-amber-500 hover:bg-amber-600 text-white',
+    Icon: RotateCcw,
+  },
+  RESUME: {
+    label: 'Resume',
+    loadingLabel: 'Resuming...',
+    className: 'bg-blue-500 hover:bg-blue-600 text-white',
+    Icon: Play,
+  },
+};
+
 export default function PracticeTestCard({
   test,
-  onStart,
-  isStarting = false,
+  onAction,
+  isActing = false,
   disabled = false,
 }: PracticeTestCardProps) {
   const displayTitle = test.title || test.topic.name;
   const negativeMarking = test.negativeMarking > 0;
+  const action = test.userAttemptAction ?? 'START';
+  const { label, loadingLabel, className, Icon } = ACTION_CONFIG[action];
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-md transition-shadow">
@@ -59,17 +85,20 @@ export default function PracticeTestCard({
       </div>
 
       <Button
-        onClick={onStart}
-        disabled={disabled || isStarting}
-        className="w-full bg-teal-500 hover:bg-teal-600 text-white disabled:bg-gray-300 disabled:text-gray-500"
+        onClick={onAction}
+        disabled={disabled || isActing}
+        className={`w-full disabled:bg-gray-300 disabled:text-gray-500 ${className}`}
       >
-        {isStarting ? (
+        {isActing ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Starting...
+            {loadingLabel}
           </>
         ) : (
-          'Start Practice'
+          <>
+            <Icon className="w-4 h-4 mr-2" />
+            {label}
+          </>
         )}
       </Button>
     </div>

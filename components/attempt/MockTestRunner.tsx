@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -81,6 +81,13 @@ export default function MockTestRunner({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
+  const [showExitDialog, setShowExitDialog] = useState(false);
+  const [isExitPausing, setIsExitPausing] = useState(false);
+  const [exitError, setExitError] = useState<string | null>(null);
+
+  // Disarmed when the test is successfully submitted so guards don't fire on results navigation
+  const isActiveRef = useRef(true);
+
   const totalQuestions = questions.length;
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -92,6 +99,43 @@ export default function MockTestRunner({
       return next;
     });
   }, [currentQuestionIndex]);
+
+  // Hard close / refresh guard — uses keepalive fetch so the auth token can be sent
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!isActiveRef.current) return;
+      e.preventDefault();
+      e.returnValue = '';
+      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? '';
+      fetch(`${apiUrl}/api/v1/mock-test-attempts/${attemptId}/pause`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        keepalive: true,
+      }).catch(() => {});
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [attemptId]);
+
+  // Back-button trap — push a dummy history entry so pressing back hits it first,
+  // then re-arm and show the confirm dialog instead of silently navigating away
+  useEffect(() => {
+    window.history.pushState(null, '', window.location.href);
+
+    const handlePopState = () => {
+      if (!isActiveRef.current) return;
+      // Re-arm the trap
+      window.history.pushState(null, '', window.location.href);
+      setShowExitDialog(true);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const questionStatuses: QuestionStatus[] = useMemo(() => {
     return questions.map((q, idx) => {
@@ -196,10 +240,33 @@ export default function MockTestRunner({
         selectedOptionId,
       }));
       const result = await submitAttempt(attemptId, answersArray);
+      // Disarm navigation guards before handing off to results view
+      isActiveRef.current = false;
       onSubmitted(result, language);
     } catch (err: any) {
       setSubmitError(err?.response?.data?.message || 'Failed to submit. Please try again.');
       setIsSubmitting(false);
+    }
+  };
+
+  const handlePauseAndExit = async () => {
+    if (isExitPausing) return;
+    setIsExitPausing(true);
+    setExitError(null);
+    try {
+      if (!isPaused) {
+        await pauseAttempt(attemptId);
+      }
+      isActiveRef.current = false;
+      try {
+        sessionStorage.removeItem(`ezp:mockAttempt:${attemptId}`);
+      } catch {
+        // ignore
+      }
+      router.push('/dashboard');
+    } catch (err: any) {
+      setExitError(err?.response?.data?.message || 'Could not save your progress. Please try again.');
+      setIsExitPausing(false);
     }
   };
 
@@ -452,6 +519,35 @@ export default function MockTestRunner({
         </AlertDialogContent>
       </AlertDialog>
 
+      <AlertDialog open={showExitDialog} onOpenChange={(open) => {
+        if (!isExitPausing) setShowExitDialog(open);
+      }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Leave the exam?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                <p>Your progress will be saved and you can resume this test later from the dashboard.</p>
+                {exitError && <p className="text-sm text-red-600">{exitError}</p>}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isExitPausing}>Stay in Exam</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handlePauseAndExit();
+              }}
+              disabled={isExitPausing}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isExitPausing ? 'Saving...' : 'Pause & Leave'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {isPaused && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <Card className="max-w-md w-full p-6 sm:p-8 text-center space-y-5">
@@ -475,11 +571,11 @@ export default function MockTestRunner({
               </Button>
               <Button
                 variant="outline"
-                onClick={() => router.push('/dashboard')}
-                disabled={isResuming}
+                onClick={handlePauseAndExit}
+                disabled={isResuming || isExitPausing}
                 className="w-full h-11"
               >
-                Exit to Dashboard
+                {isExitPausing ? 'Saving & Exiting...' : 'Exit to Dashboard'}
               </Button>
             </div>
           </Card>
