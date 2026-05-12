@@ -182,18 +182,20 @@ export default function MockTestResults({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-3 sm:gap-4 mb-3">
                         <h3 className="font-semibold text-gray-900">Question {index + 1}</h3>
-                        <span
-                          className={`px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
-                            question.difficultyLevel === 'easy'
-                              ? 'bg-green-100 text-green-700'
-                              : question.difficultyLevel === 'medium'
-                              ? 'bg-amber-100 text-amber-700'
-                              : 'bg-red-100 text-red-700'
-                          }`}
-                        >
-                          {question.difficultyLevel.charAt(0).toUpperCase() +
-                            question.difficultyLevel.slice(1)}
-                        </span>
+                        {question.difficultyLevel && (
+                          <span
+                            className={`px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
+                              question.difficultyLevel === 'easy'
+                                ? 'bg-green-100 text-green-700'
+                                : question.difficultyLevel === 'medium'
+                                ? 'bg-amber-100 text-amber-700'
+                                : 'bg-red-100 text-red-700'
+                            }`}
+                          >
+                            {question.difficultyLevel.charAt(0).toUpperCase() +
+                              question.difficultyLevel.slice(1)}
+                          </span>
+                        )}
                       </div>
 
                       <div className="text-gray-800 mb-4 text-sm sm:text-base">

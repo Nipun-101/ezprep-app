@@ -191,9 +191,14 @@ export default function ProfileActivity() {
               <button
                 key={item.attemptId}
                 type="button"
-                onClick={() =>
-                  router.push(`/dashboard/attempt/${item.attemptId}`)
-                }
+                onClick={() => {
+                  const isFinished =
+                    item.status === 'SUBMITTED' || item.status === 'EXPIRED';
+                  const href = isFinished
+                    ? `/dashboard/attempt/${item.attemptId}/result`
+                    : `/dashboard/attempt/${item.attemptId}`;
+                  router.push(href);
+                }}
                 className="w-full text-left px-6 py-4 flex items-center gap-4 hover:bg-gray-50/60 transition-colors group"
               >
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-md bg-gradient-to-br from-teal-500 to-emerald-400 shadow-teal-200">

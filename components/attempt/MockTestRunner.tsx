@@ -329,18 +329,20 @@ export default function MockTestRunner({
                   <h2 className="text-base sm:text-lg font-bold text-gray-900">
                     Question No {currentQuestionIndex + 1}
                   </h2>
-                  <span
-                    className={`px-3 sm:px-4 py-1 sm:py-1.5 text-xs font-semibold rounded-full shadow-sm whitespace-nowrap ${
-                      currentQuestion.difficultyLevel === 'easy'
-                        ? 'bg-green-500 text-white'
-                        : currentQuestion.difficultyLevel === 'medium'
-                        ? 'bg-amber-500 text-white'
-                        : 'bg-red-500 text-white'
-                    }`}
-                  >
-                    {currentQuestion.difficultyLevel.charAt(0).toUpperCase() +
-                      currentQuestion.difficultyLevel.slice(1)}
-                  </span>
+                  {currentQuestion.difficultyLevel && (
+                    <span
+                      className={`px-3 sm:px-4 py-1 sm:py-1.5 text-xs font-semibold rounded-full shadow-sm whitespace-nowrap ${
+                        currentQuestion.difficultyLevel === 'easy'
+                          ? 'bg-green-500 text-white'
+                          : currentQuestion.difficultyLevel === 'medium'
+                          ? 'bg-amber-500 text-white'
+                          : 'bg-red-500 text-white'
+                      }`}
+                    >
+                      {currentQuestion.difficultyLevel.charAt(0).toUpperCase() +
+                        currentQuestion.difficultyLevel.slice(1)}
+                    </span>
+                  )}
                 </div>
 
                 <div className="prose max-w-none text-sm sm:text-base text-gray-800 leading-relaxed">

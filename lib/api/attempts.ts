@@ -21,11 +21,11 @@ export interface AttemptQuestionOption {
 export interface AttemptQuestion {
   _id: string;
   questionText: AttemptQuestionText;
-  optionType: 'text' | 'image';
+  optionType?: 'text' | 'image';
   options: AttemptQuestionOption[];
   subject: string;
-  topic: string;
-  difficultyLevel: 'easy' | 'medium' | 'hard';
+  topic?: string;
+  difficultyLevel?: 'easy' | 'medium' | 'hard';
 }
 
 export interface AttemptExamRef {
@@ -156,4 +156,44 @@ export async function submitAttempt(
   // Handle both wrapped and unwrapped responses
   const body = response.data as any;
   return body?.data ?? body;
+}
+
+export interface AttemptDetailsQuestion {
+  _id: string;
+  questionText: AttemptQuestionText;
+  options: AttemptQuestionOption[];
+  subject: string;
+  selectedOption?: string | null;
+  correctAnswer: string;
+  isCorrect: boolean;
+  marksAwarded: number;
+  explanation?: {
+    en: string | null;
+    ml: string | null;
+    imageUrl?: string | null;
+  };
+}
+
+export interface AttemptDetailsTest extends AttemptMockTestData {
+  showResultsImmediately?: boolean;
+}
+
+export interface AttemptDetails {
+  attemptId: string;
+  status: 'SUBMITTED' | 'EXPIRED' | 'PAUSED' | 'IN_PROGRESS' | string;
+  test: AttemptDetailsTest;
+  questions: AttemptDetailsQuestion[];
+  score: number;
+  submittedAt: string;
+  correctAnswers: number;
+  incorrectAnswers: number;
+  unansweredQuestions: number;
+  isPassed: boolean;
+}
+
+export async function getMockTestAttempt(attemptId: string): Promise<AttemptDetails> {
+  const response = await apiClient.get<{ message: string; data: AttemptDetails }>(
+    `/api/v1/mock-test-attempts/${attemptId}`
+  );
+  return response.data.data;
 }
