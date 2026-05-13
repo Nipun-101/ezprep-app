@@ -139,13 +139,21 @@ export default function ExamDetailClient({ examId }: ExamDetailClientProps) {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <button
-          onClick={() => router.push('/dashboard')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span className="font-medium">Back to Dashboard</span>
-        </button>
+        <div className="flex items-center gap-3 md:block">
+          <button
+            type="button"
+            onClick={() => router.push('/dashboard')}
+            className="flex items-center gap-2 shrink-0 text-gray-600 hover:text-gray-900 transition-colors touch-manipulation"
+          >
+            <ArrowLeft className="w-4 h-4 shrink-0" />
+            <span className="font-medium hidden md:inline">Back to Dashboard</span>
+          </button>
+          {examInfo && (
+            <h1 className="md:hidden flex-1 min-w-0 text-lg font-bold text-gray-900 leading-tight truncate">
+              {examInfo.name}
+            </h1>
+          )}
+        </div>
 
         {initialLoading && (
           <div className="flex items-center justify-center py-20">
