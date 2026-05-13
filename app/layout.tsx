@@ -7,6 +7,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Ez Prep - Crack Your Dream Government Exams',
   description: 'Master competitive exams with AI-powered mock tests, expert faculty guidance, and comprehensive practice sessions.',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
 };
 
 export default function RootLayout({
