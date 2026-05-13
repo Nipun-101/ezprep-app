@@ -179,10 +179,11 @@ export default function ProfileActivity() {
             const rawTitle =
               item.testTitle?.trim() ||
               item.topic?.name?.trim() ||
-              item.subject.name;
+              item.subject?.name?.trim() ||
+              '';
             const title = toTitleCase(rawTitle);
-            const subjectLabel = toTitleCase(item.subject.name);
-            const examLabel = item.exam.name.trim();
+            const subjectLabel = toTitleCase(item.subject?.name?.trim() || '');
+            const examLabel = toTitleCase(item.exam?.name?.trim() || '');
             const showSubjectChip =
               !!item.topic?.name &&
               subjectLabel.toLowerCase() !== title.toLowerCase();
