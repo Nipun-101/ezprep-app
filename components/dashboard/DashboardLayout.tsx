@@ -20,7 +20,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
         <SheetContent side="left" className="p-0 w-72">
-          <Sidebar onNavigate={() => setIsMobileMenuOpen(false)} />
+          <Sidebar
+            onNavigate={() => setIsMobileMenuOpen(false)}
+            showEarlyAccessCallout
+          />
         </SheetContent>
       </Sheet>
 

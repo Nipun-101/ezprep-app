@@ -16,7 +16,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
   };
 
   return (
-    <section>
+    <section id={`dashboard-category-${category.id}`} className="scroll-mt-28">
       <h2 className="text-2xl font-bold text-gray-900 mb-6 tracking-tight">
         Popular Exams from {category.name}
       </h2>

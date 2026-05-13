@@ -20,7 +20,7 @@ export default function ExamCardDashboard({
     <button
       onClick={onClick}
       className={cn(
-        'flex flex-col items-center justify-center p-6 rounded-2xl transition-all duration-300 group bg-white',
+        'flex h-full w-full flex-col items-center justify-start p-6 rounded-2xl transition-all duration-300 group bg-white',
         isActive
           ? 'hover:shadow-lg hover:shadow-gray-200/60 hover:-translate-y-1 cursor-pointer'
           : 'opacity-50 cursor-not-allowed hover:shadow-none'

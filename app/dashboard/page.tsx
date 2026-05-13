@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import CategorySection from '@/components/dashboard/CategorySection';
 import { getExamsByCategory, ApiExamCategory } from '@/lib/api/exams';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [categories, setCategories] = useState<ApiExamCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,6 +18,22 @@ export default function DashboardPage() {
       .catch(() => setError('Failed to load exams. Please try again.'))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (loading || categories.length === 0) return;
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const categoryId = params.get('categoryId');
+    if (!categoryId) return;
+
+    const t = window.setTimeout(() => {
+      const el = document.getElementById(`dashboard-category-${categoryId}`);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      router.replace('/dashboard', { scroll: false });
+    }, 50);
+
+    return () => window.clearTimeout(t);
+  }, [loading, categories, router]);
 
   return (
     <DashboardLayout>

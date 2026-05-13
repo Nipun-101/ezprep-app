@@ -10,6 +10,7 @@ import {
   Zap,
   UserCircle,
   LogOut,
+  Gift,
 } from 'lucide-react';
 import Image from 'next/image';
 import { navigationItems } from '@/lib/mockData';
@@ -29,9 +30,11 @@ const iconMap: Record<string, any> = {
 
 interface SidebarProps {
   onNavigate?: () => void;
+  /** Shown only in the mobile drawer so the early-access message is visible under `lg`. */
+  showEarlyAccessCallout?: boolean;
 }
 
-export default function Sidebar({ onNavigate }: SidebarProps) {
+export default function Sidebar({ onNavigate, showEarlyAccessCallout }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -65,6 +68,19 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
           </div>
         </div>
       </div>
+
+      {showEarlyAccessCallout ? (
+        <div className="px-4 pb-2 -mt-2">
+          <div className="flex items-center gap-3 bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl px-4 py-3 shadow-sm">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-md shrink-0">
+              <Gift className="w-4 h-4 text-white" aria-hidden />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-xs font-semibold text-gray-800">Free Early Access</span>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <nav className="flex-1 overflow-y-auto px-4 pb-4 space-y-1.5">
         {navigationItems.map((item) => {
