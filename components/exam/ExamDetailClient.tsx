@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import ExamIntro from './ExamIntro';
 import PracticeTestCard from './PracticeTestCard';
 import { Button } from '@/components/ui/button';
-import { getMockTestsByExam, ApiMockTest, ApiMockTestExam } from '@/lib/api/exams';
+import { getMockTestsByExam, ApiMockTest, ApiMockTestExam, ApiMockTestSubject } from '@/lib/api/exams';
 import { startMockTestAttempt, resumeAttempt } from '@/lib/api/attempts';
-import { ArrowLeft, BookOpen } from 'lucide-react';
+import { ArrowLeft, BookOpen, Search, ChevronDown } from 'lucide-react';
 
 const STORAGE_KEY_PREFIX = 'ezp:mockAttempt:';
 
@@ -20,10 +20,30 @@ export default function ExamDetailClient({ examId }: ExamDetailClientProps) {
   const router = useRouter();
   const [practiceTests, setPracticeTests] = useState<ApiMockTest[]>([]);
   const [examInfo, setExamInfo] = useState<ApiMockTestExam | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [subjectOptions, setSubjectOptions] = useState<ApiMockTestSubject[]>([]);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [filtering, setFiltering] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [startingTestId, setStartingTestId] = useState<string | null>(null);
   const [startError, setStartError] = useState<string | null>(null);
+
+  const [search, setSearch] = useState('');
+  const [subjectId, setSubjectId] = useState('');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const fetchTests = (searchVal: string, subjectVal: string) => {
+    setFiltering(true);
+    setError(null);
+    getMockTestsByExam(examId, {
+      ...(searchVal ? { search: searchVal } : {}),
+      ...(subjectVal ? { subjectId: subjectVal } : {}),
+    })
+      .then((res) => {
+        setPracticeTests(res.data);
+      })
+      .catch(() => setError('Failed to load tests. Please try again.'))
+      .finally(() => setFiltering(false));
+  };
 
   useEffect(() => {
     getMockTestsByExam(examId)
@@ -31,11 +51,28 @@ export default function ExamDetailClient({ examId }: ExamDetailClientProps) {
         setPracticeTests(res.data);
         if (res.data.length > 0) {
           setExamInfo(res.data[0].exam);
+          const unique = Array.from(
+            new Map(res.data.map((t) => [t.subject.id, t.subject])).values()
+          );
+          setSubjectOptions(unique);
         }
       })
       .catch(() => setError('Failed to load tests. Please try again.'))
-      .finally(() => setLoading(false));
+      .finally(() => setInitialLoading(false));
   }, [examId]);
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      fetchTests(value, subjectId);
+    }, 400);
+  };
+
+  const handleSubjectChange = (value: string) => {
+    setSubjectId(value);
+    fetchTests(search, value);
+  };
 
   const handleStartTest = async (testId: string) => {
     if (startingTestId) return;
@@ -88,19 +125,19 @@ export default function ExamDetailClient({ examId }: ExamDetailClientProps) {
           <span className="font-medium">Back to Dashboard</span>
         </button>
 
-        {loading && (
+        {initialLoading && (
           <div className="flex items-center justify-center py-20">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-red-500 border-t-transparent" />
           </div>
         )}
 
-        {error && (
+        {!initialLoading && error && (
           <div className="rounded-xl bg-red-50 border border-red-200 p-6 text-center text-red-600">
             {error}
           </div>
         )}
 
-        {!loading && !error && (
+        {!initialLoading && (
           <>
             {examInfo && (
               <ExamIntro
@@ -111,16 +148,61 @@ export default function ExamDetailClient({ examId }: ExamDetailClientProps) {
 
             {/* Daily Practice Tests */}
             <section>
-              <div className="mb-6">
+              <div className="mb-4">
                 <h2 className="text-2xl font-bold text-gray-900 mb-1">Daily Practice Tests</h2>
                 <p className="text-gray-600">Master topics with focused practice tests</p>
               </div>
 
-              {practiceTests.length === 0 ? (
+              {/* Search & Filter */}
+              <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    placeholder="Search topics..."
+                    className="w-full pl-9 pr-4 py-2.5 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition"
+                  />
+                </div>
+                {subjectOptions.length > 0 && (
+                  <div className="relative">
+                    <select
+                      value={subjectId}
+                      onChange={(e) => handleSubjectChange(e.target.value)}
+                      className="appearance-none w-full sm:w-52 pl-3 pr-9 py-2.5 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition text-gray-700"
+                    >
+                      <option value="">All Subjects</option>
+                      {subjectOptions.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
+                )}
+              </div>
+
+              {filtering ? (
+                <div className="flex items-center justify-center py-16">
+                  <div className="h-7 w-7 animate-spin rounded-full border-4 border-red-500 border-t-transparent" />
+                </div>
+              ) : error ? (
+                <div className="rounded-xl bg-red-50 border border-red-200 p-6 text-center text-red-600">
+                  {error}
+                </div>
+              ) : practiceTests.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-gray-200">
                   <BookOpen className="w-12 h-12 text-gray-300 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No Practice Tests Yet</h3>
-                  <p className="text-gray-500 text-sm">Practice tests for this exam will be available soon.</p>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                    {search || subjectId ? 'No matching tests found' : 'No Practice Tests Yet'}
+                  </h3>
+                  <p className="text-gray-500 text-sm">
+                    {search || subjectId
+                      ? 'Try a different search term or subject filter.'
+                      : 'Practice tests for this exam will be available soon.'}
+                  </p>
                 </div>
               ) : (
                 <>

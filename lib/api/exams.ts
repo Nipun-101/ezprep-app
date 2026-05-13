@@ -115,9 +115,20 @@ export async function getExamGroupsByCategory(): Promise<ApiExamGroupCategory[]>
   return response.data.data;
 }
 
-export async function getMockTestsByExam(examId: string): Promise<MockTestsByExamResponse> {
+export interface GetMockTestsByExamParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  subjectId?: string;
+}
+
+export async function getMockTestsByExam(
+  examId: string,
+  params?: GetMockTestsByExamParams
+): Promise<MockTestsByExamResponse> {
   const response = await apiClient.get<MockTestsByExamResponse>(
-    `/api/v1/mock-tests/exam/${examId}`
+    `/api/v1/mock-tests/exam/${examId}`,
+    { params }
   );
   return response.data;
 }
