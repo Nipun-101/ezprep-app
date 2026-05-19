@@ -48,7 +48,7 @@ export default function Footer() {
             <div className="flex items-center mb-4">
               <div className="relative h-10 w-32 bg-white rounded-lg p-1">
                 <Image
-                  src="/ezprep-logo.png"
+                  src="/ezprep-logo-1.png"
                   alt="EzPrep"
                   fill
                   className="object-contain object-center"
@@ -78,10 +78,10 @@ export default function Footer() {
                 <Mail className="w-4 h-4 shrink-0 text-teal-500" />
                 <span>support@ezprep.in</span>
               </div>
-              <div className="flex items-center gap-2.5 text-gray-500">
+              {/* <div className="flex items-center gap-2.5 text-gray-500">
                 <Phone className="w-4 h-4 shrink-0 text-teal-500" />
                 <span>+91 9633853218</span>
-              </div>
+              </div> */}
               <div className="flex items-center gap-2.5 text-gray-500">
                 <MapPin className="w-4 h-4 shrink-0 text-teal-500" />
                 <span>Kochi, India</span>

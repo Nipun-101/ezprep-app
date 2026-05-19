@@ -37,7 +37,7 @@ export default function Header() {
             <div className="flex items-center shrink-0">
               <div className="relative h-14 w-36">
                 <Image
-                  src="/ezprep-logo.png"
+                  src="/ezprep-logo-1.png"
                   alt="EzPrep"
                   fill
                   className="object-contain object-center"

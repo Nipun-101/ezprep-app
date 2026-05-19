@@ -59,7 +59,7 @@ export default function Sidebar({ onNavigate, showEarlyAccessCallout }: SidebarP
         <div className="flex items-center">
           <div className="relative h-12 w-36">
             <Image
-              src="/ezprep-logo.png"
+              src="/ezprep-logo-1.png"
               alt="EzPrep"
               fill
               className="object-contain object-center"
