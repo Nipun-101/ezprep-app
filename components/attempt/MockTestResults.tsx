@@ -11,9 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CheckCircle2, XCircle, Circle, TrendingUp, Clock, Languages } from 'lucide-react';
+import { CheckCircle2, XCircle, Circle, TrendingUp, Clock, Languages, ArrowLeft } from 'lucide-react';
 import { AttemptQuestion, AttemptMockTestData, SubmitAttemptResult } from '@/lib/api/attempts';
 import MathText from './MathText';
+
+function formatScore(value: number): string {
+  return parseFloat(value.toFixed(2)).toString();
+}
 
 interface MockTestResultsProps {
   result: SubmitAttemptResult;
@@ -52,7 +56,16 @@ export default function MockTestResults({
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
       <div className="max-w-4xl mx-auto px-3 sm:px-4">
-        <div className="flex justify-end mb-3">
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push(`/dashboard/exam/${mockTestData.exam.id}`)}
+            className="h-9 text-xs sm:text-sm border-teal-200 text-teal-700 hover:bg-teal-50 hover:text-teal-800"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1.5" />
+            {language === 'en' ? 'Back to Exam' : 'പരീക്ഷയിലേക്ക്'}
+          </Button>
           <Select value={language} onValueChange={(v) => setLanguage(v as 'en' | 'ml')}>
             <SelectTrigger className="w-[100px] sm:w-[130px] border hover:border-teal-500 transition-colors text-xs sm:text-sm h-8">
               <Languages className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
@@ -84,8 +97,10 @@ export default function MockTestResults({
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl sm:text-3xl font-bold text-gray-900">{result.score}</span>
-                <span className="text-xs text-gray-500">of {result.totalScore}</span>
+                <span className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  {formatScore(result.score)}
+                </span>
+                <span className="text-xs text-gray-500">of {formatScore(result.totalScore)}</span>
               </div>
             </div>
 
