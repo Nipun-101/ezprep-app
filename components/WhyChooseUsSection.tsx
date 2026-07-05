@@ -59,7 +59,7 @@ export default function WhyChooseUsSection() {
   return (
     <section className="bg-white py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-14">
+        <div id="about-us" className="text-center mb-14">
           <span className="inline-block bg-teal-50 text-teal-600 text-sm font-semibold tracking-widest uppercase px-4 py-1.5 rounded-full mb-4 border border-teal-100">
             Our Edge
           </span>

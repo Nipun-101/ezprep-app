@@ -6,7 +6,7 @@ import { Users, GraduationCap, FileText, BookOpen } from 'lucide-react';
 const stats = [
   {
     icon: Users,
-    value: 50000,
+    value: 1000,
     suffix: '+',
     label: 'Students Enrolled',
     description: 'Aspirants trust EzPrep nationwide',
@@ -16,7 +16,7 @@ const stats = [
   },
   {
     icon: GraduationCap,
-    value: 500,
+    value: 8,
     suffix: '+',
     label: 'Expert Mentors',
     description: 'Top educators & ex-officers',

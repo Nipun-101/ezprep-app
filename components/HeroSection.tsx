@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { isAuthenticated } from '@/lib/auth';
 
@@ -84,18 +85,14 @@ export default function HeroSection() {
             </div>
 
             <div className="hidden lg:block">
-              <div className="relative">
-                <div className="w-full h-80 bg-gradient-to-br from-teal-300 to-emerald-300 rounded-2xl flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 14l9-5-9-5-9 5 9 5z"/>
-                        <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
-                      </svg>
-                    </div>
-                    <p className="text-lg font-medium">Study Illustration</p>
-                  </div>
-                </div>
+              <div className="relative w-full aspect-[4/3] max-w-[32rem] lg:max-w-none ml-auto">
+                <Image
+                  src="/ezprep-banner-image-1.png"
+                  alt="Student studying for government exams with EzPrep"
+                  fill
+                  className="rounded-xl object-cover shadow-md shadow-teal-900/10"
+                  priority
+                />
               </div>
             </div>
           </div>
