@@ -231,7 +231,8 @@ export default function MockTestRunner({
   };
 
   const handleSubmit = async () => {
-    if (isSubmitting) return;
+    if (isSubmitting || isPaused) return;
+    setShowSubmitDialog(false);
     setIsSubmitting(true);
     setSubmitError(null);
     try {
@@ -245,6 +246,7 @@ export default function MockTestRunner({
       onSubmitted(result, language);
     } catch (err: any) {
       setSubmitError(err?.response?.data?.message || 'Failed to submit. Please try again.');
+      setShowSubmitDialog(true);
       setIsSubmitting(false);
     }
   };
@@ -437,6 +439,7 @@ export default function MockTestRunner({
                 {currentQuestionIndex === totalQuestions - 1 ? (
                   <Button
                     onClick={() => setShowSubmitDialog(true)}
+                    disabled={isPaused}
                     className="flex-1 sm:flex-none bg-teal-600 hover:bg-teal-700 text-xs sm:text-sm h-11 sm:h-10 font-semibold"
                   >
                     Submit Test
@@ -493,7 +496,12 @@ export default function MockTestRunner({
         </SheetContent>
       </Sheet>
 
-      <AlertDialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
+      <AlertDialog
+        open={showSubmitDialog}
+        onOpenChange={(open) => {
+          if (!isSubmitting) setShowSubmitDialog(open);
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Submit Test?</AlertDialogTitle>
@@ -511,11 +519,14 @@ export default function MockTestRunner({
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isSubmitting}>Review Again</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleSubmit}
+              onClick={(e) => {
+                e.preventDefault();
+                handleSubmit();
+              }}
               disabled={isSubmitting}
               className="bg-teal-600 hover:bg-teal-700"
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Test'}
+              Submit Test
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -549,6 +560,28 @@ export default function MockTestRunner({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {isSubmitting && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <Card className="max-w-sm w-full p-6 sm:p-8 text-center space-y-5 shadow-2xl border-0">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-full border-4 border-teal-100 border-t-teal-500 animate-spin" />
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
+                Submitting your test
+              </h2>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Evaluating your answers and preparing your results. Please don&apos;t close this
+                page.
+              </p>
+            </div>
+            <div className="flex justify-center gap-1.5 pt-1">
+              <span className="w-2 h-2 rounded-full bg-teal-500 animate-bounce [animation-delay:-0.3s]" />
+              <span className="w-2 h-2 rounded-full bg-teal-500 animate-bounce [animation-delay:-0.15s]" />
+              <span className="w-2 h-2 rounded-full bg-teal-500 animate-bounce" />
+            </div>
+          </Card>
+        </div>
+      )}
 
       {isPaused && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -608,6 +641,7 @@ export default function MockTestRunner({
             {currentQuestionIndex === totalQuestions - 1 ? (
               <Button
                 onClick={() => setShowSubmitDialog(true)}
+                disabled={isPaused}
                 className="flex-1 bg-teal-600 hover:bg-teal-700 text-sm h-12 font-semibold"
               >
                 Submit Test
@@ -751,7 +785,11 @@ function PaletteCard({
       </div>
 
       <div className="pt-4 border-t border-gray-200 mt-4">
-        <Button onClick={onSubmitClick} className="w-full bg-blue-500 hover:bg-blue-600">
+        <Button
+          onClick={onSubmitClick}
+          disabled={isPaused}
+          className="w-full bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none"
+        >
           Submit Test
         </Button>
       </div>
