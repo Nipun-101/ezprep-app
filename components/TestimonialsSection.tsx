@@ -5,57 +5,57 @@ import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 
 const testimonials = [
   {
-    name: "Priya Sharma",
-    exam: "UPSC CSE 2024",
-    rank: "AIR 142",
-    text: "EzPrep's AI analysis pinpointed my weak subjects instantly. Cleared prelims on first attempt.",
+    name: "Amalnath K N",
+    exam: "RRB NTPC 2025",
+    rank: "Selected",
+    text: "EzPrep's AI analysis pinpointed my weak subjects instantly.Helped me to clear the exam in a differnet way. ",
     rating: 5,
-    initials: "PS",
+    initials: "AN",
     color: "from-blue-500 to-cyan-500",
   },
   {
-    name: "Rahul Verma",
-    exam: "SSC CGL",
+    name: "Athul satheeshan",
+    exam: "SSC MTS 2026",
     rank: "Selected",
-    text: "Expert guidance sessions helped me fix my quant strategy. AI reports showed exactly where I was losing marks.",
+    text: "Platform is very user friendly unlike other ssc prep platforms and the content is very good.",
     rating: 5,
-    initials: "RV",
+    initials: "AS",
     color: "from-emerald-500 to-teal-500",
   },
   {
-    name: "Anjali",
-    exam: "IBPS PO",
-    rank: "AIR 38",
-    text: "The AI mock analysis after each test was a game-changer. EzPrep mentors kept me on track every week.",
+    name: "Haritha P K",
+    exam: "KWA grade 2,KPSC",
+    rank: "On Going Student",
+    text: "Topic wise test is very helpful for technical subjects and makes it easier to improve weak topics.",
     rating: 5,
-    initials: "AN",
+    initials: "HA",
     color: "from-orange-500 to-amber-500",
   },
   {
-    name: "Karan Mehta",
-    exam: "RRB NTPC",
+    name: "Shidin K V",
+    exam: "Customs Department",
     rank: "Selected",
     text: "Concise mock tests, smart AI feedback, and mentor support — EzPrep covered everything I needed.",
     rating: 5,
-    initials: "KM",
+    initials: "SK",
     color: "from-rose-500 to-pink-500",
   },
   {
-    name: "Divya Reddy",
-    exam: "SBI PO",
-    rank: "AIR 67",
-    text: "AI analysis showed my speed was the issue, not accuracy. Fixed it in 3 weeks with expert guidance.",
+    name: "Anoop K Ajay",
+    exam: "Excise Department",
+    rank: "Selected",
+    text: "Regular practice made me exam-ready and contributed significantly to my success in the SSC exam.",
     rating: 5,
-    initials: "DR",
+    initials: "AK",
     color: "from-sky-500 to-blue-500",
   },
   {
-    name: "Amit Joshi",
-    exam: "UPSC CMS",
+    name: "Vyshnav T",
+    exam: "RRB JE",
     rank: "Selected",
     text: "EzPrep's personalized AI reports and expert mentors gave me confidence I never had before.",
     rating: 5,
-    initials: "AJ",
+    initials: "VT",
     color: "from-violet-500 to-purple-500",
   },
 ];
@@ -75,7 +75,7 @@ export default function TestimonialsSection() {
   return (
     <section className="bg-gradient-to-b from-white to-slate-50 py-20 px-4 overflow-hidden">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-14">
+        <div id="success-stories" className="text-center mb-14">
           <span className="inline-block text-xs font-semibold tracking-widest text-cyan-600 uppercase mb-3">
             Student Stories
           </span>
@@ -135,7 +135,7 @@ export default function TestimonialsSection() {
           </div>
           <div>
             <p className="text-gray-800 font-bold text-lg">
-              Join 50,000+ aspirants already preparing smarter with EzPrep
+              Join 1000+ aspirants already preparing smarter with EzPrep
             </p>
             <p className="text-gray-500 text-sm mt-1">
               AI-powered insights · Expert mentors · Proven results

@@ -1,13 +1,19 @@
 import Image from 'next/image';
 import { Youtube, Twitter, Linkedin, Send, Mail, Phone, MapPin } from 'lucide-react';
 
+const SUPPORT_EMAIL = 'support@ezprep.in';
+const CONTACT_MAILTO = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('EzPrep Support Request')}&body=${encodeURIComponent('Hi EzPrep team,\n\n')}`;
+
 const footerLinks = {
   Exams: [
-    { label: 'UPSC CSE', href: '#' },
-    { label: 'SSC CGL', href: '#' },
-    { label: 'IBPS PO', href: '#' },
+    { label: 'RRB Group D', href: '#' },
     { label: 'RRB NTPC', href: '#' },
-    { label: 'SBI PO', href: '#' },
+    { label: 'RRB JE', href: '#' },
+    { label: 'SSC MTS', href: '#' },
+    { label: 'SSC CGL', href: '#' },
+    { label: 'KWA grade 2', href: '#' },
+    { label: 'KPSC', href: '#' },
+    
   ],
   Resources: [
     { label: 'Mock Tests', href: '#' },
@@ -17,24 +23,21 @@ const footerLinks = {
     { label: 'Study Material', href: '#' },
   ],
   Company: [
-    { label: 'About Us', href: '#' },
+    { label: 'About Us', href: '#about-us' },
     { label: 'Careers', href: '#' },
     { label: 'Blog', href: '#' },
-    { label: 'Success Stories', href: '#' },
-    { label: 'Press Kit', href: '#' },
+    { label: 'Success Stories', href: '#success-stories' },
   ],
   Support: [
-    { label: 'Help Center', href: '#' },
-    { label: 'Contact Us', href: '#' },
+    { label: 'Contact Us', href: CONTACT_MAILTO, newTab: true },
     { label: 'Report Issue', href: '#' },
     { label: 'Refund Policy', href: '#' },
-    { label: 'Accessibility', href: '#' },
   ],
 };
 
 const socials = [
   { icon: Youtube, label: 'YouTube', href: '#', hoverColor: 'hover:text-red-400' },
-  { icon: Send, label: 'Telegram', href: '#', hoverColor: 'hover:text-sky-400' },
+  { icon: Send, label: 'Telegram', href: 'https://t.me/ezprep', hoverColor: 'hover:text-sky-400' },
   { icon: Twitter, label: 'Twitter / X', href: '#', hoverColor: 'hover:text-slate-300' },
   { icon: Linkedin, label: 'LinkedIn', href: '#', hoverColor: 'hover:text-blue-400' },
 ];
@@ -65,6 +68,8 @@ export default function Footer() {
                 <a
                   key={label}
                   href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={label}
                   className={`w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-500 transition-all duration-200 hover:bg-white/10 hover:border-white/20 hover:-translate-y-0.5 ${hoverColor}`}
                 >
@@ -74,10 +79,15 @@ export default function Footer() {
             </div>
 
             <div className="space-y-2.5 text-sm">
-              <div className="flex items-center gap-2.5 text-gray-500">
+              <a
+                href={CONTACT_MAILTO}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2.5 text-gray-500 hover:text-teal-400 transition-colors w-fit"
+              >
                 <Mail className="w-4 h-4 shrink-0 text-teal-500" />
-                <span>support@ezprep.in</span>
-              </div>
+                <span>{SUPPORT_EMAIL}</span>
+              </a>
               {/* <div className="flex items-center gap-2.5 text-gray-500">
                 <Phone className="w-4 h-4 shrink-0 text-teal-500" />
                 <span>+91 9633853218</span>
@@ -94,13 +104,16 @@ export default function Footer() {
               <div key={category}>
                 <h4 className="text-white font-semibold text-sm mb-4 tracking-wide">{category}</h4>
                 <ul className="space-y-2.5">
-                  {links.map(({ label, href }) => (
-                    <li key={label}>
+                  {links.map((link) => (
+                    <li key={link.label}>
                       <a
-                        href={href}
+                        href={link.href}
+                        {...('newTab' in link && link.newTab
+                          ? { target: '_blank', rel: 'noopener noreferrer' }
+                          : {})}
                         className="text-sm text-gray-500 hover:text-teal-400 transition-colors duration-200 hover:translate-x-0.5 inline-block"
                       >
-                        {label}
+                        {link.label}
                       </a>
                     </li>
                   ))}
@@ -113,11 +126,11 @@ export default function Footer() {
         <div className="py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
           <span>© {new Date().getFullYear()} EzPrep Technologies Pvt. Ltd. All rights reserved.</span>
           <div className="flex items-center gap-5">
-            <a href="#" className="hover:text-gray-400 transition-colors">Privacy Policy</a>
+            <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">Privacy Policy</a>
             <span className="w-px h-3 bg-white/10" />
-            <a href="#" className="hover:text-gray-400 transition-colors">Terms of Service</a>
+            <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">Terms of Service</a>
             <span className="w-px h-3 bg-white/10" />
-            <a href="#" className="hover:text-gray-400 transition-colors">Cookie Policy</a>
+            <a href="/user-policy" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">User Policy</a>
           </div>
         </div>
       </div>

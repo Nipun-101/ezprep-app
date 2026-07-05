@@ -5,13 +5,18 @@ import WhyChooseUsSection from '@/components/WhyChooseUsSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import StatsSection from '@/components/StatsSection';
 import Footer from '@/components/Footer';
+import { getExamGroupsByCategory } from '@/lib/api/exams';
 
-export default function Home() {
+export const revalidate = 86400;
+
+export default async function Home() {
+  const categories = await getExamGroupsByCategory().catch(() => []);
+
   return (
     <main className="min-h-screen bg-white">
       <Header />
       <HeroSection />
-      <ExamsSection />
+      <ExamsSection categories={categories} />
       <WhyChooseUsSection />
       <TestimonialsSection />
       <StatsSection />

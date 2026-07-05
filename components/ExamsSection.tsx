@@ -5,27 +5,19 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { isAuthenticated } from '@/lib/auth';
 import ExamCard from './ExamCard';
-import { getExamGroupsByCategory, ApiExamGroupCategory } from '@/lib/api/exams';
+import { ApiExamGroupCategory } from '@/lib/api/exams';
 
-export default function ExamsSection() {
+interface ExamsSectionProps {
+  categories: ApiExamGroupCategory[];
+}
+
+export default function ExamsSection({ categories }: ExamsSectionProps) {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [categories, setCategories] = useState<ApiExamGroupCategory[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>('');
-  const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState(categories[0]?.id ?? '');
 
   useEffect(() => {
     setIsLoggedIn(isAuthenticated());
-  }, []);
-
-  useEffect(() => {
-    getExamGroupsByCategory()
-      .then((data) => {
-        setCategories(data);
-        if (data.length > 0) setActiveCategory(data[0].id);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
   }, []);
 
   const handleViewAllExams = () => {
@@ -46,10 +38,8 @@ export default function ExamsSection() {
           </p>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center items-center py-24">
-            <div className="w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
-          </div>
+        {categories.length === 0 ? (
+          <p className="text-center text-gray-500 py-12">Exam listings will be available soon.</p>
         ) : (
           <>
             <div className="bg-gray-100 rounded-xl p-1 flex flex-wrap gap-1 mb-8">
@@ -79,21 +69,19 @@ export default function ExamsSection() {
             </div>
 
             {active && (
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-10">
-                  {active.examGroups.map((examGroup) => (
-                    <ExamCard
-                      key={examGroup.id}
-                      id={examGroup.id}
-                      name={examGroup.name}
-                      shortName={examGroup.shortName}
-                      imageUrl={active.imageUrl}
-                      categoryName={active.name}
-                      categoryShortName={active.shortName}
-                    />
-                  ))}
-                </div>
-              </>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-10">
+                {active.examGroups.map((examGroup) => (
+                  <ExamCard
+                    key={examGroup.id}
+                    id={examGroup.id}
+                    name={examGroup.name}
+                    shortName={examGroup.shortName}
+                    imageUrl={active.imageUrl}
+                    categoryName={active.name}
+                    categoryShortName={active.shortName}
+                  />
+                ))}
+              </div>
             )}
 
             <div className="text-center">
