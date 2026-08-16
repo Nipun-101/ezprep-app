@@ -4,9 +4,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   StartAttemptData,
-  resumeAttempt,
+  attemptDetailsToRunnerData,
+  getMockTestAttempt,
   SubmitAttemptResult,
 } from '@/lib/api/attempts';
+import { readCachedAttempt, clearCachedAttempt } from '@/lib/attempt-storage';
+import { computeAttemptSecondsLeft } from '@/lib/attempt-sessions';
+import { loadMathpix } from './MathpixBoundary';
 import MockTestRunner from './MockTestRunner';
 import MockTestResults from './MockTestResults';
 
@@ -14,63 +18,56 @@ interface AttemptPageClientProps {
   attemptId: string;
 }
 
-const STORAGE_KEY_PREFIX = 'ezp:mockAttempt:';
-
-function readCachedAttempt(attemptId: string): StartAttemptData | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const raw = sessionStorage.getItem(`${STORAGE_KEY_PREFIX}${attemptId}`);
-    return raw ? (JSON.parse(raw) as StartAttemptData) : null;
-  } catch {
-    return null;
-  }
-}
-
-function computeInitialSeconds(startedAt: string, durationInMinutes: number, override?: number): number {
-  if (typeof override === 'number') return Math.max(0, override);
-  const startMs = new Date(startedAt).getTime();
-  if (Number.isNaN(startMs)) return durationInMinutes * 60;
-  const elapsedSec = Math.floor((Date.now() - startMs) / 1000);
-  return Math.max(0, durationInMinutes * 60 - elapsedSec);
-}
-
 export default function AttemptPageClient({ attemptId }: AttemptPageClientProps) {
   const router = useRouter();
 
   const [attemptData, setAttemptData] = useState<StartAttemptData | null>(null);
   const [initialSeconds, setInitialSeconds] = useState<number>(0);
+  const [initialPaused, setInitialPaused] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [result, setResult] = useState<SubmitAttemptResult | null>(null);
   const [resultLanguage, setResultLanguage] = useState<'en' | 'ml'>('en');
 
+  // The cache only paints the first frame; the server owns the clock, so the
+  // timer is always reconciled before the countdown is handed to the runner.
   useEffect(() => {
+    void loadMathpix();
     let isMounted = true;
 
-    const cached = readCachedAttempt(attemptId);
-    if (cached) {
-      const secs = computeInitialSeconds(cached.mockTestData.startedAt, cached.mockTestData.durationInMinutes);
-      setAttemptData(cached);
-      setInitialSeconds(secs);
-      setLoading(false);
-      return;
-    }
-
-    resumeAttempt(attemptId)
-      .then((data) => {
+    getMockTestAttempt(attemptId)
+      .then((details) => {
         if (!isMounted) return;
-        setAttemptData({
-          attemptId: data.attemptId,
-          mockTestData: data.mockTestData,
-          questions: data.questions,
-        });
-        setInitialSeconds(data.timeRemaining);
+
+        if (details.status === 'SUBMITTED' || details.status === 'EXPIRED') {
+          clearCachedAttempt(attemptId);
+          router.replace(`/dashboard/attempt/${attemptId}/result`);
+          return;
+        }
+
+        const data = attemptDetailsToRunnerData(details);
+        setAttemptData(data);
+        setInitialSeconds(
+          details.timeRemaining ?? computeAttemptSecondsLeft(data)
+        );
+        setInitialPaused(details.status === 'PAUSED');
         setLoading(false);
       })
       .catch((err) => {
         if (!isMounted) return;
         console.error(err);
+
+        // Offline or a flaky network: fall back to the payload we launched with
+        // so an in-flight test is not lost.
+        const cached = readCachedAttempt(attemptId);
+        if (cached) {
+          setAttemptData(cached);
+          setInitialSeconds(computeAttemptSecondsLeft(cached));
+          setLoading(false);
+          return;
+        }
+
         setError(
           err?.response?.data?.message ||
             'Unable to load this attempt. It may have already been submitted or expired.'
@@ -81,7 +78,7 @@ export default function AttemptPageClient({ attemptId }: AttemptPageClientProps)
     return () => {
       isMounted = false;
     };
-  }, [attemptId]);
+  }, [attemptId, router]);
 
   useEffect(() => {
     if (!result && typeof window !== 'undefined') {
@@ -135,11 +132,18 @@ export default function AttemptPageClient({ attemptId }: AttemptPageClientProps)
       mockTestData={attemptData.mockTestData}
       questions={attemptData.questions}
       initialSecondsLeft={initialSeconds}
-      onSubmitted={(r, lang) => {
-        try {
-          sessionStorage.removeItem(`${STORAGE_KEY_PREFIX}${attemptId}`);
-        } catch {
-          // ignore
+      initialPaused={initialPaused}
+      onSubmitted={(r, lang, sessions) => {
+        clearCachedAttempt(attemptId);
+        if (sessions?.length) {
+          setAttemptData((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  mockTestData: { ...prev.mockTestData, sessions },
+                }
+              : prev
+          );
         }
         setResultLanguage(lang);
         setResult(r);

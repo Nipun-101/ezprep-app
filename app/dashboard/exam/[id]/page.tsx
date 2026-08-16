@@ -1,11 +1,5 @@
-import ExamDetailClient from '@/components/exam/ExamDetailClient';
+import ExamHubClient from '@/components/exam/ExamHubClient';
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default function ExamDetailPage({ params }: PageProps) {
-  return <ExamDetailClient examId={params.id} />;
+export default function ExamDetailPage() {
+  return <ExamHubClient />;
 }

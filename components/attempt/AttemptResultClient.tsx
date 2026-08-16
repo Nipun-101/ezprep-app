@@ -24,8 +24,15 @@ interface AdaptedResults {
   result: SubmitAttemptResult;
 }
 
+function wallClockSeconds(startedAt: string, submittedAt: string): number {
+  const startMs = new Date(startedAt).getTime();
+  const submittedMs = new Date(submittedAt).getTime();
+  if (!Number.isFinite(startMs) || !Number.isFinite(submittedMs)) return 0;
+  return Math.max(0, Math.floor((submittedMs - startMs) / 1000));
+}
+
 function adaptAttemptDetailsToResults(details: AttemptDetails): AdaptedResults {
-  const { test, questions, score, submittedAt, correctAnswers, incorrectAnswers, unansweredQuestions, isPassed, attemptId } = details;
+  const { test, questions = [], score, submittedAt, correctAnswers, incorrectAnswers, unansweredQuestions, isPassed, attemptId } = details;
 
   const mockTestData: AttemptMockTestData = {
     title: test.title,
@@ -38,13 +45,20 @@ function adaptAttemptDetailsToResults(details: AttemptDetails): AdaptedResults {
     exam: test.exam,
     subject: test.subject,
     topic: test.topic,
+    isSessionWise: details.isSessionWise ?? test.isSessionWise,
+    sessions: details.sessions ?? test.sessions,
+    currentSessionIndex: details.currentSessionIndex ?? test.currentSessionIndex,
   };
 
   const adaptedQuestions: AttemptQuestion[] = questions.map((q) => ({
     _id: q._id,
     questionText: q.questionText,
+    optionType: q.optionType,
     options: q.options,
     subject: q.subject,
+    topic: q.topic,
+    sessionOrder: q.sessionOrder,
+    selectedOption: q.selectedOption ?? null,
   }));
 
   const questionResults: SubmittedQuestionResult[] = questions.map((q) => ({
@@ -62,12 +76,9 @@ function adaptAttemptDetailsToResults(details: AttemptDetails): AdaptedResults {
       : undefined,
   }));
 
-  const startMs = new Date(test.startedAt).getTime();
-  const submittedMs = new Date(submittedAt).getTime();
-  const timeTaken =
-    Number.isFinite(startMs) && Number.isFinite(submittedMs)
-      ? Math.max(0, Math.floor((submittedMs - startMs) / 1000))
-      : 0;
+  // The server reports the time actually spent on the paper (all sections,
+  // pauses excluded). Only fall back to the wall clock if it is missing.
+  const timeTaken = details.timeTaken ?? wallClockSeconds(test.startedAt, submittedAt);
 
   const totalScore = test.totalQuestions * test.marksPerQuestion;
 
@@ -77,9 +88,9 @@ function adaptAttemptDetailsToResults(details: AttemptDetails): AdaptedResults {
     totalScore,
     passingScore: test.passingScore,
     passed: isPassed,
-    correctAnswers,
-    incorrectAnswers,
-    unansweredQuestions,
+    correctAnswers: correctAnswers ?? 0,
+    incorrectAnswers: incorrectAnswers ?? 0,
+    unansweredQuestions: unansweredQuestions ?? 0,
     submittedAt,
     timeTaken,
     questionResults,
