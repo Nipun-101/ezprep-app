@@ -17,6 +17,7 @@ import { navigationItems } from '@/lib/mockData';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { logout } from '@/lib/auth';
+import { useCurrentAffairsNotification } from '@/hooks/useCurrentAffairsNotification';
 
 const iconMap: Record<string, any> = {
   LayoutDashboard,
@@ -37,6 +38,7 @@ interface SidebarProps {
 export default function Sidebar({ onNavigate, showEarlyAccessCallout }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const showCurrentAffairsBadge = useCurrentAffairsNotification();
 
   const handleNavigation = (href: string) => {
     router.push(href);
@@ -103,6 +105,12 @@ export default function Sidebar({ onNavigate, showEarlyAccessCallout }: SidebarP
                 isActive ? 'text-white' : 'text-gray-400 group-hover:text-teal-500'
               )} />
               <span className="flex-1 truncate">{item.label}</span>
+              {item.id === 'current-affairs' && showCurrentAffairsBadge ? (
+                <span className="relative flex h-2.5 w-2.5 shrink-0">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-white" />
+                </span>
+              ) : null}
               {item.badge && (
                 <Badge className="bg-emerald-500 text-white text-xs px-2.5 py-0.5 hover:bg-emerald-600 font-semibold shadow-sm">
                   {item.badge}

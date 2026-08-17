@@ -80,7 +80,10 @@ function adaptAttemptDetailsToResults(details: AttemptDetails): AdaptedResults {
   // pauses excluded). Only fall back to the wall clock if it is missing.
   const timeTaken = details.timeTaken ?? wallClockSeconds(test.startedAt, submittedAt);
 
-  const totalScore = test.totalQuestions * test.marksPerQuestion;
+  const totalScore =
+    details.totalScore && details.totalScore > 0
+      ? details.totalScore
+      : test.totalQuestions * test.marksPerQuestion;
 
   const result: SubmitAttemptResult = {
     attemptId,
