@@ -15,6 +15,7 @@ import {
 import { CheckCircle2, XCircle, Circle, TrendingUp, Clock, Languages, ArrowLeft } from 'lucide-react';
 import { AttemptQuestion, AttemptMockTestData, SubmitAttemptResult, SubmittedQuestionResult } from '@/lib/api/attempts';
 import { filterSessionQuestions } from '@/lib/attempt-sessions';
+import ScoreRing from './ScoreRing';
 
 const AnswerKeyList = dynamic(() => import('./AnswerKeyList'), {
   ssr: false,
@@ -142,10 +143,6 @@ export default function MockTestResults({
   const totalAttempted = result.correctAnswers + result.incorrectAnswers;
   const accuracy = totalAttempted > 0 ? ((result.correctAnswers / totalAttempted) * 100).toFixed(1) : '0';
 
-  const percentage = result.totalScore > 0 ? (result.score / result.totalScore) * 100 : 0;
-  const dashLength = 264;
-  const dashArray = `${Math.max(0, Math.min(percentage, 100)) * 2.64} ${dashLength}`;
-
   const timeTakenLabel = formatTimeTaken(result.timeTaken);
 
   const examTitle =
@@ -181,29 +178,11 @@ export default function MockTestResults({
 
         <Card className="p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-200 shadow-sm">
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-            <div className="relative flex-shrink-0">
-              <svg className="w-24 h-24 sm:w-28 sm:h-28" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="42" fill="none" stroke="#e5e7eb" strokeWidth="8" />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="42"
-                  fill="none"
-                  stroke={result.passed ? '#14b8a6' : '#ef4444'}
-                  strokeWidth="8"
-                  strokeLinecap="round"
-                  strokeDasharray={dashArray}
-                  strokeDashoffset="66"
-                  className="transition-all duration-700"
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl sm:text-3xl font-bold text-gray-900">
-                  {formatScore(result.score)}
-                </span>
-                <span className="text-xs text-gray-500">of {formatScore(result.totalScore)}</span>
-              </div>
-            </div>
+            <ScoreRing
+              earned={result.score}
+              max={result.totalScore}
+              formatValue={formatScore}
+            />
 
             <div className="flex-1 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">

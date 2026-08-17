@@ -239,6 +239,8 @@ export interface AttemptDetails {
   incorrectAnswers: number;
   unansweredQuestions: number;
   isPassed: boolean;
+  /** Max possible marks for the paper (sum of per-question marks) */
+  totalScore?: number;
   /** Present while the attempt is in progress or paused */
   timeElapsed?: number;
   timeRemaining?: number;
