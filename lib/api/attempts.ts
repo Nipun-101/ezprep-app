@@ -26,6 +26,30 @@ export interface AttemptQuestion {
   subject: string;
   topic?: string;
   difficultyLevel?: 'easy' | 'medium' | 'hard';
+  sessionOrder?: number;
+  selectedOption?: string | null;
+}
+
+export type AttemptSessionStatus =
+  | 'LOCKED'
+  | 'IN_PROGRESS'
+  | 'PAUSED'
+  | 'SUBMITTED'
+  | 'EXPIRED';
+
+export interface AttemptSession {
+  subject: string;
+  name?: string;
+  order: number;
+  durationInMinutes: number;
+  startIndex: number;
+  endIndex: number;
+  questionIds?: string[];
+  questionCount?: number;
+  status: AttemptSessionStatus | string;
+  startedAt?: string;
+  submittedAt?: string;
+  timeConsumed: number;
 }
 
 export interface AttemptExamRef {
@@ -53,8 +77,11 @@ export interface AttemptMockTestData {
   negativeMarking: number;
   passingScore: number | null;
   exam: AttemptExamRef;
-  subject: AttemptSubjectRef;
-  topic: AttemptTopicRef;
+  subject?: AttemptSubjectRef;
+  topic?: AttemptTopicRef;
+  isSessionWise?: boolean;
+  sessions?: AttemptSession[];
+  currentSessionIndex?: number;
 }
 
 export interface StartAttemptData {
@@ -68,13 +95,18 @@ export interface ResumeAttemptData extends StartAttemptData {
   timeRemaining: number;
   pauseCount: number;
   timeConsumed: number;
+  sessions?: AttemptSession[];
+  currentSessionIndex?: number;
 }
 
 export interface PauseAttemptData {
   attemptId: string;
   testTitle: string | null;
   status: 'PAUSED' | string;
+  /** Running timer only — the current section on session-wise papers */
   timeConsumed: number;
+  /** Whole paper, summed across sections on session-wise papers */
+  totalTimeConsumed?: number;
   timeRemaining: number;
   pausedAt: string;
   pauseCount: number;
@@ -158,11 +190,29 @@ export async function submitAttempt(
   return body?.data ?? body;
 }
 
+export interface CompleteSessionResult {
+  paperCompleted: boolean;
+  sessions: AttemptSession[];
+  currentSessionIndex: number;
+  nextSession?: ResumeAttemptData;
+  results?: SubmitAttemptResult;
+}
+
+export async function completeSession(attemptId: string): Promise<CompleteSessionResult> {
+  const response = await apiClient.post<{ message: string; data: CompleteSessionResult }>(
+    `/api/v1/mock-test-attempts/${attemptId}/sessions/complete`
+  );
+  return response.data.data;
+}
+
 export interface AttemptDetailsQuestion {
   _id: string;
   questionText: AttemptQuestionText;
+  optionType?: 'text' | 'image';
   options: AttemptQuestionOption[];
   subject: string;
+  topic?: string;
+  sessionOrder?: number;
   selectedOption?: string | null;
   correctAnswer: string;
   isCorrect: boolean;
@@ -189,6 +239,14 @@ export interface AttemptDetails {
   incorrectAnswers: number;
   unansweredQuestions: number;
   isPassed: boolean;
+  /** Present while the attempt is in progress or paused */
+  timeElapsed?: number;
+  timeRemaining?: number;
+  /** Present once the attempt is submitted or expired — whole paper, all sections */
+  timeTaken?: number;
+  isSessionWise?: boolean;
+  sessions?: AttemptSession[];
+  currentSessionIndex?: number;
 }
 
 export async function getMockTestAttempt(attemptId: string): Promise<AttemptDetails> {
@@ -196,4 +254,32 @@ export async function getMockTestAttempt(attemptId: string): Promise<AttemptDeta
     `/api/v1/mock-test-attempts/${attemptId}`
   );
   return response.data.data;
+}
+
+/**
+ * Shape the authoritative GET /:attemptId payload like a start/resume payload so
+ * the runner can be driven by it. Unlike the resume endpoint this does not
+ * unpause the attempt, so a reload keeps a paused test paused.
+ */
+export function attemptDetailsToRunnerData(details: AttemptDetails): StartAttemptData {
+  return {
+    attemptId: details.attemptId,
+    mockTestData: {
+      ...details.test,
+      isSessionWise: details.isSessionWise ?? details.test.isSessionWise,
+      sessions: details.sessions ?? details.test.sessions,
+      currentSessionIndex:
+        details.currentSessionIndex ?? details.test.currentSessionIndex,
+    },
+    questions: details.questions.map((q) => ({
+      _id: q._id,
+      questionText: q.questionText,
+      optionType: q.optionType,
+      options: q.options,
+      subject: q.subject,
+      topic: q.topic,
+      sessionOrder: q.sessionOrder,
+      selectedOption: q.selectedOption ?? null,
+    })),
+  };
 }

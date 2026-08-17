@@ -115,6 +115,36 @@ export async function getExamGroupsByCategory(): Promise<ApiExamGroupCategory[]>
   return response.data.data;
 }
 
+export interface ApiExamSubject {
+  subject: string;
+  name?: string;
+  numberOfQuestions: number;
+  marksPerQuestion: number;
+  hasNegativeMarking: boolean;
+  negativeMarksPerQuestion: number;
+  sessionTime?: number;
+}
+
+export interface ApiExamDetail {
+  id: string;
+  name: string;
+  description?: string;
+  duration?: number;
+  totalQuestions?: number;
+  totalMarks?: number;
+  subjects?: ApiExamSubject[];
+  isSessionWise: boolean;
+  hasMultiLingualSupport: boolean;
+  isActive: boolean;
+}
+
+export async function getExamById(examId: string): Promise<ApiExamDetail> {
+  const response = await apiClient.get<{ message: string; data: ApiExamDetail }>(
+    `/api/v1/exams/${examId}`
+  );
+  return response.data.data;
+}
+
 export interface GetMockTestsByExamParams {
   page?: number;
   limit?: number;

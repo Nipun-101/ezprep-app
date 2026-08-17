@@ -14,7 +14,7 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const pathname = usePathname();
   // Pages that already have a contextual search field — hide the global one on mobile
   // to avoid showing two search boxes stacked together.
-  const hideGlobalSearchOnMobile = /^\/dashboard\/exam\/[^/]+$/.test(pathname || '');
+  const hideGlobalSearchOnMobile = /^\/dashboard\/exam\//.test(pathname || '');
 
   const headerRef = useRef<HTMLElement>(null);
   const lastScrollY = useRef(0);

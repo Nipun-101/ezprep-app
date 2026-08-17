@@ -37,21 +37,50 @@ export interface RecentActivityItem {
   timeConsumedMinutes: number;
   submittedAt: string;
   status: RecentActivityStatus;
-  subject: RecentActivitySubject;
-  exam: RecentActivityExam;
-  topic?: RecentActivityTopic;
+  subject: RecentActivitySubject | null;
+  exam: RecentActivityExam | null;
+  topic?: RecentActivityTopic | null;
 }
 
 interface RecentActivityResponse {
   message: string;
   data: RecentActivityItem[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }
 
-export async function getRecentActivity(): Promise<RecentActivityItem[]> {
+export interface RecentActivityPagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+export async function getRecentActivity(params?: {
+  page?: number;
+  limit?: number;
+}): Promise<{ data: RecentActivityItem[]; pagination: RecentActivityPagination }> {
   const response = await apiClient.get<RecentActivityResponse>(
-    '/api/v1/analytics/recent-activity'
+    '/api/v1/analytics/recent-activity',
+    {
+      params: {
+        page: params?.page ?? 1,
+        limit: params?.limit ?? 10,
+      },
+    }
   );
-  return response.data.data;
+  return {
+    data: response.data.data,
+    pagination: response.data.pagination,
+  };
 }
 
 export type SubjectTopicTrend =

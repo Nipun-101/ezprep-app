@@ -8,14 +8,18 @@ import {
   AlertCircle,
   RefreshCw,
   ChevronRight,
+  ChevronLeft,
   Inbox,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   getRecentActivity,
   type RecentActivityItem,
+  type RecentActivityPagination,
   type RecentActivityStatus,
 } from '@/lib/api/analytics';
+
+const PAGE_SIZE = 10;
 
 const scoreConfig = (pct: number) => {
   if (pct >= 80)
@@ -98,15 +102,20 @@ function toTitleCase(str: string): string {
 export default function ProfileActivity() {
   const router = useRouter();
   const [items, setItems] = useState<RecentActivityItem[] | null>(null);
+  const [pagination, setPagination] = useState<RecentActivityPagination | null>(
+    null
+  );
+  const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (pageVal: number) => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getRecentActivity();
-      setItems(data);
+      const result = await getRecentActivity({ page: pageVal, limit: PAGE_SIZE });
+      setItems(result.data);
+      setPagination(result.pagination);
     } catch (err) {
       console.error('Failed to load recent activity', err);
       setError('Could not load recent activity.');
@@ -116,12 +125,11 @@ export default function ProfileActivity() {
   }, []);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    void load(page);
+  }, [load, page]);
 
-  // Mock-test attempts will be supported later. For now we only render practice
-  // items, identified by `testTitle` being null.
-  const practiceItems = (items ?? []).filter((it) => !it.testTitle);
+  const activityItems = items ?? [];
+  const totalSessions = pagination?.total ?? activityItems.length;
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -129,13 +137,12 @@ export default function ProfileActivity() {
         <div>
           <h2 className="text-base font-bold text-gray-900">Recent Activity</h2>
           <p className="text-xs text-gray-400 mt-0.5">
-            Your latest practice sessions
+            Your latest practice and mock tests
           </p>
         </div>
-        {!isLoading && !error && practiceItems.length > 0 && (
+        {!isLoading && !error && totalSessions > 0 && (
           <span className="text-xs font-semibold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full border border-teal-100">
-            {practiceItems.length}{' '}
-            {practiceItems.length === 1 ? 'session' : 'sessions'}
+            {totalSessions} {totalSessions === 1 ? 'session' : 'sessions'}
           </span>
         )}
       </div>
@@ -149,7 +156,7 @@ export default function ProfileActivity() {
           </div>
           <p className="text-sm text-gray-600 mb-4">{error}</p>
           <button
-            onClick={() => void load()}
+            onClick={() => void load(page)}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-xl text-sm font-medium transition-all active:scale-95 shadow-md shadow-teal-200"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -158,7 +165,7 @@ export default function ProfileActivity() {
         </div>
       )}
 
-      {!isLoading && !error && practiceItems.length === 0 && (
+      {!isLoading && !error && activityItems.length === 0 && (
         <div className="px-6 py-12 flex flex-col items-center justify-center text-center">
           <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-3">
             <Inbox className="w-5 h-5 text-gray-400" />
@@ -170,17 +177,19 @@ export default function ProfileActivity() {
         </div>
       )}
 
-      {!isLoading && !error && practiceItems.length > 0 && (
+      {!isLoading && !error && activityItems.length > 0 && (
         <div className="divide-y divide-gray-50">
-          {practiceItems.map((item) => {
+          {activityItems.map((item) => {
             const pct = Math.round(item.scorePercent);
             const score = scoreConfig(pct);
             const status = statusConfig(item.status);
+            const isFullMock = !item.subject;
             const rawTitle =
               item.testTitle?.trim() ||
               item.topic?.name?.trim() ||
               item.subject?.name?.trim() ||
-              '';
+              item.exam?.name?.trim() ||
+              'Untitled test';
             const title = toTitleCase(rawTitle);
             const subjectLabel = toTitleCase(item.subject?.name?.trim() || '');
             const examLabel = toTitleCase(item.exam?.name?.trim() || '');
@@ -202,7 +211,14 @@ export default function ProfileActivity() {
                 }}
                 className="w-full text-left px-6 py-4 flex items-center gap-4 hover:bg-gray-50/60 transition-colors group"
               >
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-md bg-gradient-to-br from-teal-500 to-emerald-400 shadow-teal-200">
+                <div
+                  className={cn(
+                    'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-md',
+                    isFullMock
+                      ? 'bg-gradient-to-br from-indigo-500 to-blue-400 shadow-indigo-200'
+                      : 'bg-gradient-to-br from-teal-500 to-emerald-400 shadow-teal-200'
+                  )}
+                >
                   <BookOpen className="w-4.5 h-4.5 text-white" size={18} />
                 </div>
 
@@ -211,8 +227,13 @@ export default function ProfileActivity() {
                     {title}
                   </div>
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
-                    <span className="text-xs font-semibold text-teal-500">
-                      Practice
+                    <span
+                      className={cn(
+                        'text-xs font-semibold',
+                        isFullMock ? 'text-indigo-500' : 'text-teal-500'
+                      )}
+                    >
+                      {isFullMock ? 'Full Mock' : 'Practice'}
                     </span>
                     {showSubjectChip && (
                       <span className="text-xs text-gray-500 px-1.5 py-0.5 bg-gray-100 rounded-md">
@@ -260,6 +281,37 @@ export default function ProfileActivity() {
           })}
         </div>
       )}
+
+      {!isLoading &&
+        !error &&
+        pagination != null &&
+        pagination.totalPages > 1 && (
+          <div className="px-6 py-3 border-t border-gray-100 flex items-center justify-between gap-3 bg-gray-50/60">
+            <p className="text-xs text-gray-400">
+              Page {pagination.page} of {pagination.totalPages}
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={!pagination.hasPrevPage || isLoading}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                Previous
+              </button>
+              <button
+                type="button"
+                disabled={!pagination.hasNextPage || isLoading}
+                onClick={() => setPage((p) => p + 1)}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
     </div>
   );
 }
