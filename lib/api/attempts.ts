@@ -79,6 +79,8 @@ export interface AttemptMockTestData {
   negativeMarking: number;
   passingScore: number | null;
   exam: AttemptExamRef;
+  /** TOPIC_WISE → Daily Practice, FULL_EXAM → Full Mocks */
+  paperType?: 'TOPIC_WISE' | 'FULL_EXAM';
   subject?: AttemptSubjectRef;
   topic?: AttemptTopicRef;
   isSessionWise?: boolean;
