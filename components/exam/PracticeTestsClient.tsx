@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import PracticeTestCard from './PracticeTestCard';
 import TestListPagination from './TestListPagination';
 import { useLaunchAttempt } from './useLaunchAttempt';
+import { useExamPage } from './ExamLayoutClient';
 import {
   getMockTestsByExam,
   ApiMockTest,
@@ -19,9 +20,9 @@ interface PracticeTestsClientProps {
 const LIMIT = 20;
 
 export default function PracticeTestsClient({ examId }: PracticeTestsClientProps) {
+  const { exam } = useExamPage();
   const { startingTestId, startError, start, resume } = useLaunchAttempt();
   const [practiceTests, setPracticeTests] = useState<ApiMockTest[]>([]);
-  const [subjectOptions, setSubjectOptions] = useState<ApiMockTestSubject[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [filtering, setFiltering] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +32,20 @@ export default function PracticeTestsClient({ examId }: PracticeTestsClientProps
   const [pagination, setPagination] = useState<MockTestsPagination | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
+
+  const subjectOptions = useMemo<ApiMockTestSubject[]>(() => {
+    const subjects = exam?.subjects ?? [];
+    return Array.from(
+      new Map(
+        subjects
+          .filter((s) => s.subject)
+          .map((s) => [
+            s.subject,
+            { id: s.subject, name: s.name?.trim() || 'Subject' },
+          ])
+      ).values()
+    ).sort((a, b) => a.name.localeCompare(b.name));
+  }, [exam?.subjects]);
 
   const scrollToSection = () => {
     sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -58,10 +73,6 @@ export default function PracticeTestsClient({ examId }: PracticeTestsClientProps
       .then((res) => {
         setPracticeTests(res.data);
         setPagination(res.pagination);
-        const unique = Array.from(
-          new Map(res.data.map((t) => [t.subject.id, t.subject])).values()
-        );
-        setSubjectOptions(unique);
       })
       .catch(() => setError('Failed to load tests. Please try again.'))
       .finally(() => setInitialLoading(false));
