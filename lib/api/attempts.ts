@@ -56,6 +56,8 @@ export interface AttemptExamRef {
   id: string;
   name: string;
   description: string;
+  /** When false, hide language toggle during attempt / results. */
+  hasMultiLingualSupport?: boolean;
 }
 
 export interface AttemptSubjectRef {

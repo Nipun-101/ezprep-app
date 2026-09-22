@@ -1,9 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { format, isToday } from 'date-fns';
 import {
   AlertCircle,
+  ArrowLeft,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
@@ -79,79 +81,91 @@ export default function CurrentAffairsView() {
     <div className="space-y-4 sm:space-y-6">
       <div className="relative overflow-hidden rounded-2xl border border-teal-100/80 bg-gradient-to-br from-white via-teal-50/40 to-emerald-50/60 p-4 shadow-sm sm:rounded-3xl sm:p-8">
         <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-teal-200/30 blur-3xl" />
-        <div className="relative flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-teal-100/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-teal-700">
-              <Newspaper className="h-3.5 w-3.5" />
-              Daily digest
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-              Current Affairs
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm text-gray-600 sm:text-base">
-              Swipe through today&apos;s headlines and memory tricks. Use the calendar to
-              revisit previous days.
-            </p>
+        <div className="relative space-y-4 sm:space-y-5">
+          <div className="flex items-center justify-start">
+            <Link
+              href="/dashboard"
+              className="group inline-flex items-center gap-2 rounded-xl border border-teal-200/80 bg-white/90 px-3.5 py-2 text-sm font-semibold text-teal-700 shadow-sm transition hover:border-teal-300 hover:bg-teal-50 hover:shadow active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40"
+            >
+              <ArrowLeft className="h-4 w-4 shrink-0 transition-transform group-hover:-translate-x-0.5" />
+              Exit to Dashboard
+            </Link>
           </div>
 
-          <div className="grid w-full grid-cols-[40px_minmax(0,1fr)_40px] items-center gap-2 lg:w-auto lg:grid-cols-[40px_220px_40px_auto]">
-            <button
-              type="button"
-              onClick={() => shiftDay(-1)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-50 active:scale-95"
-              aria-label="Previous day"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
+          <div className="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-teal-100/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-teal-700">
+                <Newspaper className="h-3.5 w-3.5" />
+                Daily digest
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                Current Affairs
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm text-gray-600 sm:text-base">
+                Swipe through today&apos;s headlines and memory tricks. Use the calendar to
+                revisit previous days.
+              </p>
+            </div>
 
-            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className={cn(
-                    'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-teal-200 bg-white px-2 py-2.5 text-sm font-medium text-gray-800 shadow-sm transition hover:border-teal-300 hover:bg-teal-50/50 active:scale-[0.98] sm:px-4'
-                  )}
-                >
-                  <CalendarDays className="h-4 w-4 text-teal-600" />
-                  {format(selectedDate, 'MMM d, yyyy')}
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => {
-                    if (!date) return;
-                    const key = toDateKey(date);
-                    if (key > todayKey) return;
-                    setSelectedDateKey(key);
-                    setCalendarOpen(false);
-                  }}
-                  disabled={(date) => toDateKey(date) > todayKey}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-
-            <button
-              type="button"
-              onClick={() => shiftDay(1)}
-              disabled={selectedDateKey >= todayKey}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="Next day"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-
-            {!isToday(selectedDate) ? (
+            <div className="grid w-full grid-cols-[40px_minmax(0,1fr)_40px] items-center gap-2 lg:w-auto lg:grid-cols-[40px_220px_40px_auto]">
               <button
                 type="button"
-                onClick={() => setSelectedDateKey(todayKey)}
-                className="col-span-3 rounded-xl bg-teal-500 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-teal-600 active:scale-95 lg:col-span-1"
+                onClick={() => shiftDay(-1)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-50 active:scale-95"
+                aria-label="Previous day"
               >
-                Today
+                <ChevronLeft className="h-4 w-4" />
               </button>
-            ) : null}
+
+              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-teal-200 bg-white px-2 py-2.5 text-sm font-medium text-gray-800 shadow-sm transition hover:border-teal-300 hover:bg-teal-50/50 active:scale-[0.98] sm:px-4'
+                    )}
+                  >
+                    <CalendarDays className="h-4 w-4 text-teal-600" />
+                    {format(selectedDate, 'MMM d, yyyy')}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => {
+                      if (!date) return;
+                      const key = toDateKey(date);
+                      if (key > todayKey) return;
+                      setSelectedDateKey(key);
+                      setCalendarOpen(false);
+                    }}
+                    disabled={(date) => toDateKey(date) > todayKey}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <button
+                type="button"
+                onClick={() => shiftDay(1)}
+                disabled={selectedDateKey >= todayKey}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Next day"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+
+              {!isToday(selectedDate) ? (
+                <button
+                  type="button"
+                  onClick={() => setSelectedDateKey(todayKey)}
+                  className="col-span-3 rounded-xl bg-teal-500 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-teal-600 active:scale-95 lg:col-span-1"
+                >
+                  Today
+                </button>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
