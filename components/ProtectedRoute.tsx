@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { isAuthenticated } from '@/lib/auth';
+import { buildLoginUrl } from '@/lib/safeRedirect';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,18 +14,23 @@ interface ProtectedRouteProps {
  * Higher-order component to protect routes that require authentication
  * Usage: Wrap your page content with <ProtectedRoute>...</ProtectedRoute>
  */
-export default function ProtectedRoute({ 
-  children, 
-  redirectTo = '/login' 
+export default function ProtectedRoute({
+  children,
+  redirectTo,
 }: ProtectedRouteProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = () => {
       if (!isAuthenticated()) {
-        router.push(redirectTo);
+        const returnTo =
+          typeof window !== 'undefined'
+            ? `${window.location.pathname}${window.location.search}`
+            : pathname;
+        router.push(redirectTo ?? buildLoginUrl(returnTo));
         return;
       }
       setIsAuthorized(true);
@@ -32,7 +38,7 @@ export default function ProtectedRoute({
     };
 
     checkAuth();
-  }, [router, redirectTo]);
+  }, [router, redirectTo, pathname]);
 
   if (isLoading) {
     return (

@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { getAuthToken } from '@/lib/auth';
+import { getAuthToken, removeAuthToken } from '@/lib/auth';
+import { buildLoginUrl } from '@/lib/safeRedirect';
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -19,6 +20,10 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.response?.status === 401 && typeof window !== 'undefined') {
+      removeAuthToken();
+      window.location.href = buildLoginUrl();
+    }
     return Promise.reject(error);
   }
 );

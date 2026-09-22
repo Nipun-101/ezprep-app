@@ -3,6 +3,7 @@
  */
 
 import { AUTH_TOKEN_COOKIE, LOGOUT_RESUME_PATH_COOKIE } from '@/lib/authCookieNames';
+import { buildLoginUrl, isSafeRedirectPath } from '@/lib/safeRedirect';
 
 /**
  * Helper function to set a cookie
@@ -64,9 +65,8 @@ export async function makeAuthenticatedRequest<T = any>(
   const token = getAuthToken();
 
   if (!token) {
-    // Redirect to login if no token
     if (typeof window !== 'undefined') {
-      window.location.href = '/login';
+      window.location.href = buildLoginUrl();
     }
     throw new Error('No authentication token found');
   }
@@ -88,7 +88,7 @@ export async function makeAuthenticatedRequest<T = any>(
   if (response.status === 401) {
     removeAuthToken();
     if (typeof window !== 'undefined') {
-      window.location.href = '/login';
+      window.location.href = buildLoginUrl();
     }
     throw new Error('Unauthorized - Token expired');
   }
@@ -129,14 +129,9 @@ export function isTokenExpired(token: string): boolean {
  */
 export function logout(): void {
   if (typeof window !== 'undefined') {
-    const path = window.location.pathname || '';
-    // Remember where they left off so middleware can send them back after sign-in instead of /
-    if (
-      path &&
-      path !== '/' &&
-      path !== '/login' &&
-      isSafeLogoutResumePath(path)
-    ) {
+    const path = `${window.location.pathname || ''}${window.location.search || ''}`;
+    // Remember where they left off so middleware can send them back after sign-in
+    if (isSafeRedirectPath(path)) {
       setCookie(LOGOUT_RESUME_PATH_COOKIE, path, 7);
     }
   }
@@ -144,10 +139,4 @@ export function logout(): void {
   if (typeof window !== 'undefined') {
     window.location.href = '/';
   }
-}
-
-function isSafeLogoutResumePath(pathname: string): boolean {
-  if (!pathname.startsWith('/') || pathname.startsWith('//')) return false;
-  if (pathname.includes('..')) return false;
-  return true;
 }
