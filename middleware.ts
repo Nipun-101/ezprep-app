@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { AUTH_TOKEN_COOKIE, LOGOUT_RESUME_PATH_COOKIE } from '@/lib/authCookieNames';
+import { getSafeRedirectPath, isSafeRedirectPath } from '@/lib/safeRedirect';
 
 // Routes that require authentication
 const protectedRoutes = ['/dashboard', '/complete-profile'];
@@ -11,20 +12,17 @@ const authRoutes = ['/login'];
 /** Public home / marketing route — authenticated users skip it */
 const landingPath = '/';
 
-function isSafeResumePath(pathname: string): boolean {
-  if (!pathname.startsWith('/') || pathname.startsWith('//')) return false;
-  if (pathname.includes('..')) return false;
-  // Don't loop into auth-only or public home via resume
-  if (pathname === landingPath || pathname === '/login') return false;
-  return true;
-}
-
 function redirectAuthenticatedUser(request: NextRequest): NextResponse {
-  const raw = request.cookies.get(LOGOUT_RESUME_PATH_COOKIE)?.value;
+  const fromQuery = request.nextUrl.searchParams.get('redirect');
+  const fromCookie = request.cookies.get(LOGOUT_RESUME_PATH_COOKIE)?.value;
+
   let targetPath = '/dashboard';
-  if (raw && isSafeResumePath(raw)) {
-    targetPath = raw;
+  if (fromQuery && isSafeRedirectPath(fromQuery)) {
+    targetPath = getSafeRedirectPath(fromQuery);
+  } else if (fromCookie && isSafeRedirectPath(fromCookie)) {
+    targetPath = getSafeRedirectPath(fromCookie);
   }
+
   const res = NextResponse.redirect(new URL(targetPath, request.url));
   res.cookies.set(LOGOUT_RESUME_PATH_COOKIE, '', {
     maxAge: 0,
@@ -37,26 +35,23 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(AUTH_TOKEN_COOKIE)?.value;
 
-  // Check if the route is protected
-  const isProtectedRoute = protectedRoutes.some(route => 
-    pathname.startsWith(route)
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    pathname.startsWith(route),
   );
 
-  // Check if the route is an auth route
-  const isAuthRoute = authRoutes.some(route => 
-    pathname.startsWith(route)
-  );
+  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
   const isLanding = pathname === landingPath;
 
-  // Redirect to login if trying to access protected route without token
+  // Unauthenticated users hitting protected routes → login, then back here
   if (isProtectedRoute && !token) {
+    const returnTo = `${pathname}${request.nextUrl.search}`;
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
+    loginUrl.searchParams.set('redirect', returnTo);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Authenticated users cannot use the marketing home or login — go to dashboard or last logout path
+  // Authenticated users cannot use marketing home or login
   if (token && (isLanding || isAuthRoute)) {
     return redirectAuthenticatedUser(request);
   }
@@ -64,7 +59,6 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Configure which routes the middleware should run on
 export const config = {
   matcher: [
     /*

@@ -3,7 +3,8 @@ import apiClient from './client';
 export interface CurrentAffairItem {
   id: string;
   title: string;
-  description: string;
+  /** Bullet points about the event (API may omit when empty). */
+  description?: string[];
   memoryTrick?: string;
   date: string;
   imageUrl?: string;
@@ -11,6 +12,21 @@ export interface CurrentAffairItem {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+/**
+ * Normalize description from API (string[] preferred; legacy string tolerated).
+ */
+export function coerceDescriptionPoints(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter(
+      (item): item is string => typeof item === 'string' && item.trim().length > 0,
+    );
+  }
+  if (typeof value === 'string' && value.trim()) {
+    return [value.trim()];
+  }
+  return [];
 }
 
 export interface CurrentAffairsPagination {

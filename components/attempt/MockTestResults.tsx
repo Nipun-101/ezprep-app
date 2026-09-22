@@ -164,16 +164,18 @@ export default function MockTestResults({
             <ArrowLeft className="w-4 h-4 mr-1.5" />
             {language === 'en' ? 'Back to Exam' : 'പരീക്ഷയിലേക്ക്'}
           </Button>
-          <Select value={language} onValueChange={(v) => setLanguage(v as 'en' | 'ml')}>
-            <SelectTrigger className="w-[100px] sm:w-[130px] border hover:border-teal-500 transition-colors text-xs sm:text-sm h-8">
-              <Languages className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="en">English</SelectItem>
-              <SelectItem value="ml">മലയാളം</SelectItem>
-            </SelectContent>
-          </Select>
+          {mockTestData.exam.hasMultiLingualSupport ? (
+            <Select value={language} onValueChange={(v) => setLanguage(v as 'en' | 'ml')}>
+              <SelectTrigger className="w-[100px] sm:w-[130px] border hover:border-teal-500 transition-colors text-xs sm:text-sm h-8">
+                <Languages className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="ml">മലയാളം</SelectItem>
+              </SelectContent>
+            </Select>
+          ) : null}
         </div>
 
         <Card className="p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-200 shadow-sm">

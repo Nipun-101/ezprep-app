@@ -6,6 +6,7 @@ import { Sparkles, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { setAuthToken, getAuthToken } from '@/lib/auth';
+import { getSafeRedirectPath } from '@/lib/safeRedirect';
 
 type WidgetNotice =
   | { kind: 'dismissed'; message: string }
@@ -55,6 +56,13 @@ function normalizeMsg91Failure(error: unknown): WidgetNotice {
 }
 
 const VERIFY_CLOSED_REDIRECT_SECONDS = 30;
+
+function resolvePostLoginPath(): string {
+  if (typeof window === 'undefined') return '/dashboard';
+  return getSafeRedirectPath(
+    new URLSearchParams(window.location.search).get('redirect'),
+  );
+}
 
 // Extend window interface for MSG91
 declare global {
@@ -122,12 +130,7 @@ export default function LoginPage() {
 
         if (result.data?.accessToken) {
           setAuthToken(result.data.accessToken);
-
-          if (result.data.isNewUser) {
-            router.push('/dashboard');
-          } else {
-            router.push('/dashboard');
-          }
+          router.replace(resolvePostLoginPath());
         } else {
           throw new Error('No access token received from backend');
         }
@@ -161,7 +164,9 @@ export default function LoginPage() {
     // Check if user is already logged in
     const token = getAuthToken();
     if (token) {
-      router.push('/dashboard');
+      // Keep cookie in sync so middleware allows the post-login destination
+      setAuthToken(token);
+      router.replace(resolvePostLoginPath());
       return;
     }
 

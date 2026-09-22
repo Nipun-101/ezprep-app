@@ -48,7 +48,11 @@ export default function PracticeTestCard({
   const { label, loadingLabel, className, Icon } = ACTION_CONFIG[action];
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-md transition-shadow">
+    <div
+      className={`bg-white rounded-lg border border-gray-200 p-5 hover:shadow-md transition-all ${
+        disabled ? 'opacity-50 pointer-events-none' : ''
+      }`}
+    >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-gray-900 text-lg leading-snug mb-1 truncate">
@@ -87,7 +91,7 @@ export default function PracticeTestCard({
       <Button
         onClick={onAction}
         disabled={disabled || isActing}
-        className={`w-full disabled:bg-gray-300 disabled:text-gray-500 ${className}`}
+        className={`w-full disabled:opacity-100 ${className}`}
       >
         {isActing ? (
           <>

@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Mail, BookOpen, ArrowRight } from 'lucide-react';
 import { getAuthToken } from '@/lib/auth';
+import { buildLoginUrl } from '@/lib/safeRedirect';
 
 export default function CompleteProfilePage() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function CompleteProfilePage() {
     // Check if user has auth token
     const token = getAuthToken();
     if (!token) {
-      router.push('/login');
+      router.push(buildLoginUrl('/complete-profile'));
     }
   }, [router]);
 

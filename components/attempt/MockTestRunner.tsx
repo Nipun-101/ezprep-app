@@ -489,16 +489,18 @@ export default function MockTestRunner({
                 isPaused={isPaused || isSubmitting}
                 onTick={handleTick}
               />
-              <Select value={language} onValueChange={(v) => setLanguage(v as 'en' | 'ml')}>
-                <SelectTrigger className="w-[85px] sm:w-[120px] border-2 hover:border-teal-500 transition-colors text-xs sm:text-sm h-8 sm:h-9">
-                  <Languages className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="ml">മലയാളം</SelectItem>
-                </SelectContent>
-              </Select>
+              {mockTestData.exam.hasMultiLingualSupport ? (
+                <Select value={language} onValueChange={(v) => setLanguage(v as 'en' | 'ml')}>
+                  <SelectTrigger className="w-[85px] sm:w-[120px] border-2 hover:border-teal-500 transition-colors text-xs sm:text-sm h-8 sm:h-9">
+                    <Languages className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="ml">മലയാളം</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : null}
             </div>
           </div>
         </div>

@@ -11,6 +11,7 @@ import {
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Download, Lightbulb } from 'lucide-react';
 import type { CurrentAffairItem } from '@/lib/api/current-affairs';
+import { coerceDescriptionPoints } from '@/lib/api/current-affairs';
 import { cn } from '@/lib/utils';
 
 const SWIPE_THRESHOLD = 96;
@@ -60,9 +61,12 @@ function CurrentAffairCard({
   exiting: boolean;
   exitDirection: 'left' | 'right' | null;
 }) {
-  const hasTextContent = Boolean(
-    item.title?.trim() || item.description?.trim() || item.memoryTrick?.trim()
-  );
+  const descriptionPoints = coerceDescriptionPoints(item.description);
+  const title = typeof item.title === 'string' ? item.title.trim() : '';
+  const memoryTrick =
+    typeof item.memoryTrick === 'string' ? item.memoryTrick.trim() : '';
+  const hasPointsOrTrick = descriptionPoints.length > 0 || Boolean(memoryTrick);
+  const showText = hasPointsOrTrick || (!item.imageUrl && Boolean(title));
 
   const downloadImage = async () => {
     if (!item.imageUrl) return;
@@ -103,12 +107,11 @@ function CurrentAffairCard({
   return (
     <article
       className={cn(
-        'absolute inset-x-0 top-0 mx-auto w-full max-w-lg max-h-full',
+        'absolute inset-x-0 top-0 mx-auto flex w-full max-w-lg max-h-full flex-col',
         'rounded-3xl border border-white/60 bg-white shadow-xl shadow-teal-100/60',
-        'overflow-hidden transition-[transform,opacity] duration-300 ease-out',
-        item.imageUrl && !hasTextContent && 'h-full',
+        'overflow-y-auto overscroll-contain transition-[transform,opacity] duration-300 ease-out',
         isTop && !exiting && 'touch-pan-y cursor-grab active:cursor-grabbing',
-        !isTop && 'pointer-events-none'
+        !isTop && 'pointer-events-none overflow-hidden'
       )}
       style={style}
     >
@@ -130,23 +133,15 @@ function CurrentAffairCard({
       )}
 
       {item.imageUrl ? (
-        <div
-          className={cn(
-            'relative w-full bg-gray-950',
-            hasTextContent ? 'h-40 xs:h-44 sm:h-52' : 'h-full'
-          )}
-        >
+        <div className="relative aspect-[4/5] w-full shrink-0 bg-zinc-950">
           <Image
             src={item.imageUrl}
             alt={item.title || `Current affairs for ${item.date}`}
             fill
-            className={hasTextContent ? 'object-cover' : 'object-contain'}
+            className="object-contain"
             sizes="(max-width: 768px) 100vw, 512px"
             unoptimized
           />
-          {hasTextContent ? (
-            <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/10" />
-          ) : null}
           {isTop ? (
             <button
               type="button"
@@ -164,26 +159,30 @@ function CurrentAffairCard({
           ) : null}
         </div>
       ) : (
-        <div className="h-20 bg-gradient-to-br from-teal-500 via-emerald-500 to-cyan-500 sm:h-28" />
+        <div className="h-16 shrink-0 bg-gradient-to-br from-teal-500 via-emerald-500 to-cyan-500 sm:h-20" />
       )}
 
-      {hasTextContent ? (
-      <div className="max-h-[calc(100%-10rem)] space-y-3 overflow-y-auto p-4 pt-4 sm:max-h-[calc(100%-13rem)] sm:space-y-4 sm:p-6 sm:pt-5">
-        {item.title?.trim() ? (
-          <h3 className="text-lg font-bold leading-snug text-gray-900 sm:text-xl">
-            {item.title}
+      {showText ? (
+      <div className="space-y-3 p-4 sm:space-y-4 sm:p-5">
+        {title ? (
+          <h3 className="text-base font-bold leading-snug text-gray-900 sm:text-lg">
+            {title}
           </h3>
         ) : null}
-        {item.description?.trim() ? (
-          <p className="text-sm leading-relaxed text-gray-600">{item.description}</p>
+        {descriptionPoints.length > 0 ? (
+          <ul className="list-disc space-y-1.5 pl-4 text-sm leading-relaxed text-gray-600">
+            {descriptionPoints.map((point, pointIndex) => (
+              <li key={`${item.id}-desc-${pointIndex}`}>{point}</li>
+            ))}
+          </ul>
         ) : null}
-        {item.memoryTrick?.trim() ? (
+        {memoryTrick ? (
           <div className="rounded-2xl border border-amber-100 bg-amber-50/80 p-3 sm:p-4">
             <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-amber-700">
               <Lightbulb className="h-3.5 w-3.5" />
               Memory trick
             </div>
-            <p className="text-sm text-amber-900/90">{item.memoryTrick}</p>
+            <p className="text-sm leading-relaxed text-amber-900/90">{memoryTrick}</p>
           </div>
         ) : null}
       </div>
@@ -202,12 +201,14 @@ export default function CurrentAffairsSwipeStack({
   const [exitDirection, setExitDirection] = useState<'left' | 'right' | null>(null);
   const pointerIdRef = useRef<number | null>(null);
   const startRef = useRef({ x: 0, y: 0 });
+  const axisRef = useRef<'x' | 'y' | null>(null);
 
   useEffect(() => {
     setStack(items);
     setDrag({ x: 0, y: 0, active: false });
     setExiting(false);
     setExitDirection(null);
+    axisRef.current = null;
   }, [items]);
 
   const dismissTop = useCallback(
@@ -233,29 +234,46 @@ export default function CurrentAffairsSwipeStack({
     if (exiting || stack.length === 0) return;
     pointerIdRef.current = event.pointerId;
     startRef.current = { x: event.clientX, y: event.clientY };
+    axisRef.current = null;
     setDrag({ x: 0, y: 0, active: true });
-    event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (!drag.active || pointerIdRef.current !== event.pointerId) return;
+    const dx = event.clientX - startRef.current.x;
+    const dy = event.clientY - startRef.current.y;
+
+    if (!axisRef.current) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      axisRef.current = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      if (axisRef.current === 'x') {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      }
+    }
+
+    if (axisRef.current === 'y') return;
+
     setDrag({
-      x: event.clientX - startRef.current.x,
-      y: (event.clientY - startRef.current.y) * 0.35,
+      x: dx,
+      y: dy * 0.35,
       active: true,
     });
   };
 
   const onPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!drag.active || pointerIdRef.current !== event.pointerId) return;
-    event.currentTarget.releasePointerCapture(event.pointerId);
+    if (pointerIdRef.current !== event.pointerId) return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
     pointerIdRef.current = null;
+    const axis = axisRef.current;
+    axisRef.current = null;
 
-    if (drag.x > SWIPE_THRESHOLD) {
+    if (axis === 'x' && drag.x > SWIPE_THRESHOLD) {
       dismissTop('right');
       return;
     }
-    if (drag.x < -SWIPE_THRESHOLD) {
+    if (axis === 'x' && drag.x < -SWIPE_THRESHOLD) {
       dismissTop('left');
       return;
     }
@@ -303,7 +321,7 @@ export default function CurrentAffairsSwipeStack({
       </div>
 
       <div
-        className="relative mx-auto h-[min(68svh,540px)] min-h-[400px] max-w-lg select-none sm:h-[560px]"
+        className="relative mx-auto h-[min(76dvh,700px)] w-full max-w-lg select-none"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
