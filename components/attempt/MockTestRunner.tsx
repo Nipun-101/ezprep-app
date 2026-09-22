@@ -128,6 +128,12 @@ export default function MockTestRunner({
   }, []);
 
   const isSessionWise = Boolean(mockTestData.isSessionWise);
+  const isFullMock = mockTestData.paperType
+    ? mockTestData.paperType === 'FULL_EXAM'
+    : !mockTestData.subject && !mockTestData.topic;
+  const exitHref = mockTestData.exam?.id
+    ? `/dashboard/exam/${mockTestData.exam.id}/${isFullMock ? 'full-mocks' : 'practice'}`
+    : '/dashboard';
   const activeSession = getCurrentSession(mockTestData);
   const visibleQuestions = useMemo(
     () => visibleAttemptQuestions(questions, mockTestData),
@@ -292,6 +298,7 @@ export default function MockTestRunner({
       setPausedConsumedSeconds(result.timeConsumed);
       setPausedTotalConsumedSeconds(result.totalTimeConsumed ?? result.timeConsumed);
       setIsPaused(true);
+      setMobileSheetOpen(false);
       // The cached payload still holds a running clock; drop it so a reload
       // reads the paused state from the server instead.
       clearCachedAttempt(attemptId);
@@ -435,7 +442,7 @@ export default function MockTestRunner({
       }
       isActiveRef.current = false;
       clearCachedAttempt(attemptId);
-      router.push('/dashboard');
+      router.push(exitHref);
     } catch (err: any) {
       setExitError(err?.response?.data?.message || 'Could not save your progress. Please try again.');
       setIsExitPausing(false);
@@ -700,67 +707,45 @@ export default function MockTestRunner({
           if (!isSubmitting) setShowSubmitDialog(open);
         }}
       >
-        <AlertDialogContent className={isSessionWise ? 'max-w-3xl' : undefined}>
+        <AlertDialogContent className="max-h-[90dvh] w-[calc(100%-1.5rem)] max-w-lg overflow-y-auto p-4 sm:max-w-2xl sm:p-6">
           {isSessionWise ? (
             <>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-center text-xl">Exam Summary</AlertDialogTitle>
+              <AlertDialogHeader className="min-w-0 space-y-3 text-center sm:text-center">
+                <AlertDialogTitle className="text-center text-lg sm:text-xl">
+                  Exam Summary
+                </AlertDialogTitle>
                 <AlertDialogDescription asChild>
-                  <div className="space-y-4 pt-2">
-                    <div className="overflow-x-auto rounded-md border border-gray-300">
-                      <table className="w-full min-w-[560px] border-collapse text-sm text-center">
-                        <thead>
-                          <tr className="bg-sky-100 text-gray-800">
-                            <th className="border border-gray-300 px-3 py-2 font-semibold">
-                              Section Name
-                            </th>
-                            <th className="border border-gray-300 px-3 py-2 font-semibold">
-                              No of Questions
-                            </th>
-                            <th className="border border-gray-300 px-3 py-2 font-semibold">
-                              Answered
-                            </th>
-                            <th className="border border-gray-300 px-3 py-2 font-semibold">
-                              Not Answered
-                            </th>
-                            <th className="border border-gray-300 px-3 py-2 font-semibold">
-                              Marked for Review
-                            </th>
-                            <th className="border border-gray-300 px-3 py-2 font-semibold">
-                              Not Visited
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr className="text-gray-800">
-                            <td className="border border-gray-300 px-3 py-2 font-medium">
-                              {sectionSummary.sectionName}
-                            </td>
-                            <td className="border border-gray-300 px-3 py-2">
-                              {sectionSummary.total}
-                            </td>
-                            <td className="border border-gray-300 px-3 py-2">
-                              {sectionSummary.answered}
-                            </td>
-                            <td className="border border-gray-300 px-3 py-2">
-                              {sectionSummary.notAnswered}
-                            </td>
-                            <td className="border border-gray-300 px-3 py-2">
-                              {sectionSummary.marked}
-                            </td>
-                            <td className="border border-gray-300 px-3 py-2">
-                              {sectionSummary.notVisited}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                    <p className="text-center text-sm text-gray-700">
+                  <div className="min-w-0 space-y-4 pt-1 text-left">
+                    <p className="truncate text-center text-sm font-semibold text-gray-900">
+                      {sectionSummary.sectionName}
+                    </p>
+                    <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
+                      {(
+                        [
+                          ['Questions', sectionSummary.total],
+                          ['Answered', sectionSummary.answered],
+                          ['Not answered', sectionSummary.notAnswered],
+                          ['Marked', sectionSummary.marked],
+                          ['Not visited', sectionSummary.notVisited],
+                        ] as const
+                      ).map(([label, value]) => (
+                        <div
+                          key={label}
+                          className="rounded-lg border border-gray-200 bg-sky-50/70 px-2.5 py-2 text-center"
+                        >
+                          <dt className="text-[11px] font-medium leading-tight text-gray-500">
+                            {label}
+                          </dt>
+                          <dd className="mt-0.5 text-base font-semibold text-gray-900">{value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <p className="text-center text-sm leading-relaxed text-gray-700">
                       Are you sure you want to submit
                       {lastSession ? ' the test?' : ' this section?'}
                     </p>
                     {!lastSession && (
-                      <p className="text-center text-xs text-amber-700">
+                      <p className="text-center text-xs leading-relaxed text-amber-700">
                         You cannot return to this section after moving ahead.
                       </p>
                     )}
@@ -770,15 +755,17 @@ export default function MockTestRunner({
                   </div>
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <AlertDialogFooter className="sm:justify-center gap-3">
-                <AlertDialogCancel disabled={isSubmitting}>Back</AlertDialogCancel>
+              <AlertDialogFooter className="gap-2 sm:justify-center">
+                <AlertDialogCancel disabled={isSubmitting} className="w-full sm:w-auto">
+                  Back
+                </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={(e) => {
                     e.preventDefault();
                     handleConfirmSubmit();
                   }}
                   disabled={isSubmitting}
-                  className="bg-teal-600 hover:bg-teal-700"
+                  className="w-full bg-teal-600 hover:bg-teal-700 sm:w-auto"
                 >
                   {submitLabel}
                 </AlertDialogAction>
@@ -922,7 +909,11 @@ export default function MockTestRunner({
                 disabled={isResuming || isExitPausing}
                 className="w-full h-11"
               >
-                {isExitPausing ? 'Saving & Exiting...' : 'Exit to Dashboard'}
+                {isExitPausing
+                  ? 'Saving & Exiting...'
+                  : isFullMock
+                    ? 'Exit to Full Mocks'
+                    : 'Exit to Practice'}
               </Button>
             </div>
           </Card>
