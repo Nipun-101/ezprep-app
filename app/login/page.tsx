@@ -3,60 +3,39 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Sparkles, CheckCircle2, AlertCircle, Info } from 'lucide-react';
+import { Sparkles, CheckCircle2, AlertCircle, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { setAuthToken, getAuthToken } from '@/lib/auth';
 import { getSafeRedirectPath } from '@/lib/safeRedirect';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 
-type WidgetNotice =
-  | { kind: 'dismissed'; message: string }
-  | { kind: 'error'; message: string };
-
-function normalizeMsg91Failure(error: unknown): WidgetNotice {
+function isOtpCancelled(error: unknown): boolean {
   const e =
     error && typeof error === 'object'
-      ? (error as {
-          closeByUser?: boolean;
-          message?: unknown;
-          type?: unknown;
-        })
+      ? (error as { closeByUser?: boolean; message?: unknown; type?: unknown })
       : null;
-
-  const rawMsg =
-    typeof e?.message === 'string' ? e.message.trim() : '';
-
-  if (e?.closeByUser === true) {
-    return {
-      kind: 'dismissed',
-      message:
-        rawMsg ||
-        'You closed verification. Continue below whenever you’re ready.',
-    };
-  }
-
+  if (e?.closeByUser === true) return true;
+  const rawMsg = typeof e?.message === 'string' ? e.message.toLowerCase() : '';
   const typeStr = typeof e?.type === 'string' ? e.type.toLowerCase() : '';
-  if (rawMsg.toLowerCase().includes('cancel') || typeStr.includes('cancel')) {
-    return {
-      kind: 'dismissed',
-      message:
-        rawMsg ||
-        'You closed verification. Continue below whenever you’re ready.',
-    };
-  }
-
-  if (rawMsg) {
-    return { kind: 'error', message: rawMsg };
-  }
-
-  return {
-    kind: 'error',
-    message:
-      "That OTP doesn’t match or something went wrong. Please try again, or tap resend if you didn’t receive a code.",
-  };
+  return rawMsg.includes('cancel') || typeStr.includes('cancel');
 }
 
-const VERIFY_CLOSED_REDIRECT_SECONDS = 30;
+function otpErrorMessage(error: unknown): string {
+  const e =
+    error && typeof error === 'object'
+      ? (error as { message?: unknown })
+      : null;
+  const rawMsg = typeof e?.message === 'string' ? e.message.trim() : '';
+  return (
+    rawMsg ||
+    "That code didn’t match or something went wrong. Please try again."
+  );
+}
+
+function apiBaseUrl(): string {
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+}
 
 function resolvePostLoginPath(): string {
   if (typeof window === 'undefined') return '/dashboard';
@@ -76,11 +55,9 @@ export default function LoginPage() {
   const router = useRouter();
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [widgetNotice, setWidgetNotice] = useState<WidgetNotice | null>(null);
-  const [redirectSecondsLeft, setRedirectSecondsLeft] = useState<number | null>(
-    null,
-  );
+  const [widgetNotice, setWidgetNotice] = useState<string | null>(null);
   const scriptRef = useRef<HTMLScriptElement | null>(null);
+  const [showMobileOtp, setShowMobileOtp] = useState(false);
 
   const getOtpWidgetConfig = (): Parameters<
     Window['initSendOTP']
@@ -95,7 +72,6 @@ export default function LoginPage() {
       const payload = data as { message?: string };
       console.log('MSG91 OTP verification successful:', data);
       setWidgetNotice(null);
-      setRedirectSecondsLeft(null);
       setIsVerifying(true);
 
       try {
@@ -103,18 +79,14 @@ export default function LoginPage() {
 
         if (!accessToken) {
           console.error('Access token missing in MSG91 callback data.');
-          setWidgetNotice({
-            kind: 'error',
-            message:
-              'We could not finish sign-in from that OTP. Please try again.',
-          });
+          setWidgetNotice(
+            'We could not finish sign-in from that OTP. Please try again.',
+          );
           setIsVerifying(false);
           return;
         }
 
-        const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        const response = await fetch(`${apiUrl}/api/v1/auth/verify-otp`, {
+        const response = await fetch(`${apiBaseUrl()}/api/v1/auth/verify-otp`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -137,18 +109,16 @@ export default function LoginPage() {
         }
       } catch (error) {
         console.error('Error during verification:', error);
-        setWidgetNotice({
-          kind: 'error',
-          message:
-            'Something went wrong while completing sign-in. Please try verifying again in a moment.',
-        });
+        setWidgetNotice(
+          'Something went wrong while completing sign-in. Please try verifying again in a moment.',
+        );
         setIsVerifying(false);
       }
     },
     failure: (error: unknown) => {
-      console.error('MSG91 OTP verification failed:', error);
-      setWidgetNotice(normalizeMsg91Failure(error));
       setIsVerifying(false);
+      setShowMobileOtp(false);
+      setWidgetNotice(isOtpCancelled(error) ? null : otpErrorMessage(error));
     },
   });
 
@@ -162,16 +132,18 @@ export default function LoginPage() {
   mountOtpWidgetRef.current = mountOtpWidget;
 
   useEffect(() => {
-    // Check if user is already logged in
     const token = getAuthToken();
     if (token) {
-      // Keep cookie in sync so middleware allows the post-login destination
       setAuthToken(token);
       router.replace(resolvePostLoginPath());
+    }
+  }, [router]);
+
+  useEffect(() => {
+    if (!showMobileOtp) {
       return;
     }
 
-    // Load MSG91 widget script
     if (!scriptRef.current) {
       const script = document.createElement('script');
       script.src = 'https://verify.msg91.com/otp-provider.js';
@@ -182,52 +154,18 @@ export default function LoginPage() {
       };
       document.body.appendChild(script);
       scriptRef.current = script;
+    } else if (typeof window.initSendOTP === 'function') {
+      mountOtpWidgetRef.current();
     }
 
     return () => {
-      // Cleanup script on unmount
       if (scriptRef.current && document.body.contains(scriptRef.current)) {
         document.body.removeChild(scriptRef.current);
         scriptRef.current = null;
+        setIsScriptLoaded(false);
       }
     };
-  }, [router]);
-
-  useEffect(() => {
-    if (widgetNotice?.kind !== 'dismissed') {
-      setRedirectSecondsLeft(null);
-      return;
-    }
-
-    setRedirectSecondsLeft(VERIFY_CLOSED_REDIRECT_SECONDS);
-    let remaining = VERIFY_CLOSED_REDIRECT_SECONDS;
-
-    const id = window.setInterval(() => {
-      remaining -= 1;
-      if (remaining <= 0) {
-        window.clearInterval(id);
-        setRedirectSecondsLeft(null);
-        setWidgetNotice(null);
-        router.push('/');
-        return;
-      }
-      setRedirectSecondsLeft(remaining);
-    }, 1000);
-
-    return () => window.clearInterval(id);
-  }, [widgetNotice, router]);
-
-  const handleBackToVerification = () => {
-    setWidgetNotice(null);
-    setRedirectSecondsLeft(null);
-    mountOtpWidget();
-  };
-
-  const handleBackToHomeFromBanner = () => {
-    setWidgetNotice(null);
-    setRedirectSecondsLeft(null);
-    router.push('/');
-  };
+  }, [showMobileOtp]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-teal-50/30 flex items-center justify-center p-4">
@@ -245,7 +183,7 @@ export default function LoginPage() {
         </div>
 
         {/* Login Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8">
+        <div className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8">
           {isVerifying ? (
             <div className="text-center py-8">
               <div className="w-16 h-16 border-4 border-teal-500/30 border-t-teal-500 rounded-full animate-spin mx-auto mb-4" />
@@ -255,95 +193,62 @@ export default function LoginPage() {
             <>
               <div className="mb-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-2">Login or Sign Up</h2>
-                <p className="text-sm text-gray-600">We'll send you an OTP for verification</p>
+                <p className="text-sm text-gray-600">
+                  Choose Google or your mobile number. Either one signs you into the same EzPrep account.
+                </p>
               </div>
 
               {widgetNotice && (
-                <Alert
-                  variant={widgetNotice.kind === 'error' ? 'destructive' : 'default'}
-                  className={
-                    widgetNotice.kind === 'dismissed'
-                      ? 'border-teal-200/80 bg-teal-50/60 text-teal-900 [&>svg]:text-teal-700'
-                      : undefined
-                  }
-                >
-                  {widgetNotice.kind === 'error' ? (
-                    <AlertCircle className="h-4 w-4" />
-                  ) : (
-                    <Info className="h-4 w-4" />
-                  )}
-                  <div className="flex flex-1 flex-col gap-3">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <AlertTitle className="text-sm font-semibold">
-                          {widgetNotice.kind === 'error'
-                            ? 'Could not verify'
-                            : widgetNotice.message.toLowerCase().includes(
-                                  'magic link',
-                                )
-                              ? 'Magic link sent'
-                              : 'OTP verification window closed'}
-                        </AlertTitle>
-                        <AlertDescription className="text-sm opacity-95">
-                          {widgetNotice.message}
-                        </AlertDescription>
-                        {widgetNotice.kind === 'dismissed' && (
-                          <p className="text-xs text-teal-800/85 pt-1">
-                            Going to home in{' '}
-                            <span className="font-semibold tabular-nums">
-                              {redirectSecondsLeft ?? VERIFY_CLOSED_REDIRECT_SECONDS}
-                            </span>{' '}
-                            {(redirectSecondsLeft ?? VERIFY_CLOSED_REDIRECT_SECONDS) ===
-                            1
-                              ? 'second'
-                              : 'seconds'}
-                            …
-                          </p>
-                        )}
-                      </div>
-                      {widgetNotice.kind === 'error' && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 shrink-0 self-start text-xs sm:self-center"
-                          onClick={() => setWidgetNotice(null)}
-                        >
-                          Dismiss
-                        </Button>
-                      )}
-                    </div>
-                    {widgetNotice.kind === 'dismissed' && (
-                      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                        <Button
-                          type="button"
-                          size="sm"
-                          className="w-full sm:w-auto bg-teal-600 text-white hover:bg-teal-700"
-                          onClick={handleBackToVerification}
-                        >
-                          Back to verification
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="w-full sm:w-auto border-teal-300 text-teal-900 hover:bg-teal-100/60"
-                          onClick={handleBackToHomeFromBanner}
-                        >
-                          Back to home
-                        </Button>
-                      </div>
-                    )}
-                  </div>
+                <Alert variant="destructive" className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle className="text-sm font-semibold">
+                    Could not verify
+                  </AlertTitle>
+                  <AlertDescription className="text-sm">
+                    {widgetNotice}
+                  </AlertDescription>
                 </Alert>
               )}
 
-              {/* MSG91 Widget Container */}
-              <div id="msg91-otp-widget" className="mb-6">
-                {!isScriptLoaded && (
-                  <div className="text-center py-4">
-                    <div className="w-8 h-8 border-3 border-teal-500/30 border-t-teal-500 rounded-full animate-spin mx-auto" />
-                    <p className="text-sm text-gray-600 mt-2">Loading...</p>
+              <div className="mb-6 space-y-4">
+                <GoogleSignInButton
+                  disabled={isVerifying}
+                  onError={(message) => setWidgetNotice(message)}
+                />
+
+                <div className="flex items-center gap-3">
+                  <span className="h-px flex-1 bg-gray-200" />
+                  <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                    or
+                  </span>
+                  <span className="h-px flex-1 bg-gray-200" />
+                </div>
+
+                {!showMobileOtp ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setWidgetNotice(null);
+                      setShowMobileOtp(true);
+                    }}
+                    className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-teal-200 bg-teal-50 px-4 text-sm font-semibold text-teal-800 transition hover:border-teal-300 hover:bg-teal-100"
+                  >
+                    <Phone className="h-4 w-4" />
+                    Continue with mobile number
+                  </button>
+                ) : (
+                  <div>
+                    <p className="mb-3 text-center text-sm text-gray-600">
+                      We&apos;ll send a one-time code to your mobile number
+                    </p>
+                    <div id="msg91-otp-widget">
+                      {!isScriptLoaded && (
+                        <div className="py-4 text-center">
+                          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-3 border-teal-500/30 border-t-teal-500" />
+                          <p className="mt-2 text-sm text-gray-600">Loading...</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

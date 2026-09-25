@@ -142,7 +142,7 @@ export default function TestimonialsSection() {
             </p>
           </div>
           <a
-            href="#"
+            href="/login"
             className="sm:ml-auto shrink-0 bg-gradient-to-r from-cyan-500 to-sky-600 text-white text-sm font-semibold px-6 py-3 rounded-xl shadow hover:shadow-md transition-all hover:-translate-y-0.5"
           >
             Start Free Today
