@@ -109,7 +109,11 @@ export default function UserPolicyPage() {
             <h2 className="text-xl font-bold text-gray-900 mb-3">How we enforce this policy</h2>
             <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-4">
               EzPrep may review, remove, or restrict user content at any time if we believe it
-              violates this User Policy, our Terms of Service, or applicable law — with or without
+              violates this User Policy, our{' '}
+              <Link href="/terms" className="text-teal-600 hover:text-teal-700 font-medium">
+                Terms of Service
+              </Link>
+              , or applicable law — with or without
               prior notice.
             </p>
             <p className="text-gray-600 text-sm sm:text-base leading-relaxed">

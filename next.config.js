@@ -4,7 +4,15 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: { unoptimized: true },
-  // Removed 'output: export' to enable API routes
+  async redirects() {
+    return [
+      {
+        source: '/terms-of-service',
+        destination: '/terms',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

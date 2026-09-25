@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -145,13 +146,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 <div className="text-center pt-2">
                   <p className="text-xs text-gray-500 leading-relaxed">
                     By continuing, you agree to our{' '}
-                    <button className="text-teal-600 font-medium hover:underline">
+                    <Link href="/terms" className="text-teal-600 font-medium hover:underline">
                       Terms
-                    </button>{' '}
+                    </Link>{' '}
                     and{' '}
-                    <button className="text-teal-600 font-medium hover:underline">
+                    <Link href="/privacy-policy" className="text-teal-600 font-medium hover:underline">
                       Privacy Policy
-                    </button>
+                    </Link>
                   </p>
                 </div>
               </>
