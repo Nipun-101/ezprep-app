@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Sparkles, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -367,13 +368,13 @@ export default function LoginPage() {
               <div className="text-center pt-6">
                 <p className="text-xs text-gray-500 leading-relaxed">
                   By continuing, you agree to our{' '}
-                  <button className="text-teal-600 font-medium hover:underline">
+                  <Link href="/terms" className="text-teal-600 font-medium hover:underline">
                     Terms
-                  </button>{' '}
+                  </Link>{' '}
                   and{' '}
-                  <button className="text-teal-600 font-medium hover:underline">
+                  <Link href="/privacy-policy" className="text-teal-600 font-medium hover:underline">
                     Privacy Policy
-                  </button>
+                  </Link>
                 </p>
               </div>
             </>

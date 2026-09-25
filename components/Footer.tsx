@@ -128,7 +128,7 @@ export default function Footer() {
           <div className="flex items-center gap-5">
             <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">Privacy Policy</a>
             <span className="w-px h-3 bg-white/10" />
-            <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">Terms of Service</a>
+            <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">Terms of Service</a>
             <span className="w-px h-3 bg-white/10" />
             <a href="/user-policy" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">User Policy</a>
           </div>
