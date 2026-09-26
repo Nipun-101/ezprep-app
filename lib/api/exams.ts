@@ -9,6 +9,8 @@ export interface ApiExam {
   totalMarks: number;
   testsCount: number;
   subjectsCount: number;
+  /** Nearby exam or one with a high number of sign-ups. Absent values mean not trending. */
+  trending?: boolean;
 }
 
 export interface ApiExamCategory {
