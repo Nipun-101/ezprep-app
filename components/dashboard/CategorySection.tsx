@@ -26,6 +26,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
             key={exam.id}
             name={exam.title}
             imageUrl={category.imageUrl}
+            trending={exam.trending === true}
             onClick={() => handleExamClick(exam.id)}
           />
         ))}
