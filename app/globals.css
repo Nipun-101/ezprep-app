@@ -115,6 +115,61 @@
 .mathpix-inline p {
   margin: 0;
 }
+@keyframes trending-badge-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 6px 16px rgba(168, 85, 247, 0.55);
+  }
+}
+
+@keyframes trending-shimmer {
+  0% {
+    transform: translateX(-130%);
+  }
+  100% {
+    transform: translateX(130%);
+  }
+}
+
+@keyframes trending-flame {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  35% {
+    transform: scale(1.28) rotate(-10deg);
+  }
+  70% {
+    transform: scale(0.9) rotate(8deg);
+  }
+}
+
+.trending-badge {
+  animation: trending-badge-pulse 1.5s ease-in-out infinite;
+}
+
+.trending-badge-shimmer {
+  animation: trending-shimmer 1.6s ease-in-out infinite;
+}
+
+.trending-badge-flame {
+  transform-origin: center bottom;
+  animation: trending-flame 0.85s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trending-badge,
+  .trending-badge-shimmer,
+  .trending-badge-flame {
+    animation: none;
+  }
+}
+
 /* Defensive: hide raw loader scrollers/wrappers that mathpix loader injects */
 .mathpix-content .mathjax_md_help,
 .mathpix-content .mathpix-render-elem {

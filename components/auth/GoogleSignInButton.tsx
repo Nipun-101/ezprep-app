@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { startGoogleSignIn } from '@/lib/googleAuth';
+import { cn } from '@/lib/utils';
 
 function GoogleMark() {
   return (
@@ -29,9 +30,11 @@ function GoogleMark() {
 export default function GoogleSignInButton({
   disabled,
   onError,
+  className,
 }: {
   disabled?: boolean;
   onError: (message: string) => void;
+  className?: string;
 }) {
   const [pending, setPending] = useState(false);
 
@@ -52,7 +55,10 @@ export default function GoogleSignInButton({
       type="button"
       onClick={() => void handleClick()}
       disabled={disabled || pending}
-      className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-800 shadow-sm transition hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+      className={cn(
+        'flex h-12 w-full items-center justify-center gap-3 rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-800 shadow-sm transition hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60',
+        className,
+      )}
     >
       <GoogleMark />
       {pending ? 'Opening Google…' : 'Continue with Google'}

@@ -156,10 +156,11 @@ export async function startMockTestAttempt(mockTestId: string): Promise<StartAtt
   return response.data.data;
 }
 
+/** A null selectedOptionId clears the answer, so the question scores as unanswered. */
 export async function patchAttemptAnswer(
   attemptId: string,
   questionId: string,
-  selectedOptionId: string
+  selectedOptionId: string | null
 ): Promise<void> {
   await apiClient.patch(`/api/v1/mock-test-attempts/${attemptId}/answer`, {
     questionId,
