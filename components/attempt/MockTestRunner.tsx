@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -25,6 +26,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import {
   ChevronLeft,
   ChevronRight,
+  Check,
   Flag,
   X,
   Languages,
@@ -125,6 +127,22 @@ export default function MockTestRunner({
 
   useEffect(() => {
     void loadMathpix();
+  }, []);
+
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const lockScroll = () => {
+      const locked = desktop.matches ? 'hidden' : '';
+      document.documentElement.style.overflow = locked;
+      document.body.style.overflow = locked;
+    };
+    lockScroll();
+    desktop.addEventListener('change', lockScroll);
+    return () => {
+      desktop.removeEventListener('change', lockScroll);
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    };
   }, []);
 
   const isSessionWise = Boolean(mockTestData.isSessionWise);
@@ -241,12 +259,14 @@ export default function MockTestRunner({
     };
   }, [questionStatuses, activeSession?.name, mockTestData, totalQuestions]);
 
-  const handleOptionSelect = (optionId: string) => {
-    if (!currentQuestion) return;
-    const questionId = currentQuestion._id;
+  const saveAnswer = (questionId: string, optionId: string | null) => {
     setAnswers((prev) => {
       const next = new Map(prev);
-      next.set(questionId, optionId);
+      if (optionId === null) {
+        next.delete(questionId);
+      } else {
+        next.set(questionId, optionId);
+      }
       return next;
     });
     patchAttemptAnswer(attemptId, questionId, optionId).catch((err) => {
@@ -254,13 +274,17 @@ export default function MockTestRunner({
     });
   };
 
+  /** Tapping the selected option again clears it. */
+  const handleOptionSelect = (optionId: string) => {
+    if (!currentQuestion) return;
+    const questionId = currentQuestion._id;
+    saveAnswer(questionId, answers.get(questionId) === optionId ? null : optionId);
+  };
+
   const handleClearResponse = () => {
     if (!currentQuestion) return;
-    setAnswers((prev) => {
-      const next = new Map(prev);
-      next.delete(currentQuestion._id);
-      return next;
-    });
+    if (!answers.has(currentQuestion._id)) return;
+    saveAnswer(currentQuestion._id, null);
   };
 
   const handleMarkForReview = () => {
@@ -476,17 +500,28 @@ export default function MockTestRunner({
 
   return (
     <MathpixBoundary>
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-teal-50/30 pb-20 lg:pb-6">
-      <div className="border-b bg-white shadow-md sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
-          <div className="flex items-center justify-between gap-2 sm:gap-4">
-            <div className="flex-1 min-w-0">
-              <h1 className="text-sm sm:text-lg font-bold text-gray-900 truncate leading-tight">
-                {examTitle}
-              </h1>
-              <p className="text-xs text-gray-500 leading-tight">
-                Q {currentQuestionIndex + 1}/{totalQuestions} · {sessionLabel}
-              </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-sky-50/30 pb-20 lg:flex lg:h-screen lg:h-[100dvh] lg:flex-col lg:overflow-hidden lg:pb-0">
+      <div className="sticky top-0 z-40 shrink-0 border-b bg-white shadow-md">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2">
+          <div className="flex items-center justify-between gap-2 sm:gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-2.5">
+              <div className="relative h-7 w-[4.25rem] shrink-0 overflow-hidden sm:h-8 sm:w-20">
+                <Image
+                  src="/ezprep-logo-1.png"
+                  alt="EzPrep"
+                  fill
+                  className="object-contain object-center scale-[1.65] mix-blend-multiply"
+                  priority
+                />
+              </div>
+              <div className="min-w-0 border-l border-gray-200 pl-2.5">
+                <h1 className="text-sm sm:text-base font-bold text-gray-900 truncate leading-tight">
+                  {examTitle}
+                </h1>
+                <p className="text-xs text-gray-500 leading-tight">
+                  Q {currentQuestionIndex + 1}/{totalQuestions} · {sessionLabel}
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
               <AttemptTimer
@@ -498,7 +533,7 @@ export default function MockTestRunner({
               />
               {mockTestData.exam.hasMultiLingualSupport ? (
                 <Select value={language} onValueChange={(v) => setLanguage(v as 'en' | 'ml')}>
-                  <SelectTrigger className="w-[85px] sm:w-[120px] border-2 hover:border-teal-500 transition-colors text-xs sm:text-sm h-8 sm:h-9">
+                  <SelectTrigger className="w-[85px] sm:w-[120px] border-2 hover:border-sky-500 transition-colors text-xs sm:text-sm h-8 sm:h-9">
                     <Languages className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                     <SelectValue />
                   </SelectTrigger>
@@ -514,29 +549,29 @@ export default function MockTestRunner({
       </div>
 
       {isSessionWise && activeSession && (
-        <div className="border-b bg-white">
+        <div className="shrink-0 border-b bg-white">
           <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2">
-            <span className="inline-flex items-center rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm">
+            <span className="inline-flex items-center rounded-md bg-sky-600 px-3 py-1.5 text-sm font-semibold uppercase text-white shadow-sm">
               {activeSession.name || `Section ${(activeSession.order ?? 0) + 1}`}
             </span>
           </div>
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
-        <div className="grid lg:grid-cols-[1fr,340px] gap-4 sm:gap-6">
-          <div className="space-y-4 sm:space-y-6">
-            <Card className="p-4 sm:p-6 lg:p-8 shadow-lg border-0">
-              <div className="space-y-4 sm:space-y-6">
-                <div className="flex items-start justify-between gap-2 sm:gap-4 pb-3 sm:pb-4 border-b border-gray-100">
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900">
+      <div className="mx-auto w-full max-w-7xl px-3 sm:px-4 py-4 sm:py-6 lg:min-h-0 lg:flex-1 lg:overflow-hidden lg:py-3">
+        <div className="grid gap-4 sm:gap-6 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_300px] lg:grid-rows-[minmax(0,1fr)] lg:gap-4">
+          <div className="space-y-4 sm:space-y-6 lg:grid lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto] lg:gap-2.5 lg:space-y-0">
+            <Card className="border-0 p-4 shadow-lg sm:p-6 lg:h-full lg:min-h-0 lg:overflow-y-auto lg:p-5">
+              <div className="space-y-4 sm:space-y-6 lg:space-y-4">
+                <div className="flex items-start justify-between gap-2 sm:gap-4 pb-3 sm:pb-4 border-b border-gray-100 lg:pb-3">
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900 lg:text-base">
                     Question No {currentQuestionIndex + 1}
                   </h2>
                   {currentQuestion.difficultyLevel && (
                     <span
                       className={`px-3 sm:px-4 py-1 sm:py-1.5 text-xs font-semibold rounded-full shadow-sm whitespace-nowrap ${
                         currentQuestion.difficultyLevel === 'easy'
-                          ? 'bg-green-500 text-white'
+                          ? 'bg-sky-500 text-white'
                           : currentQuestion.difficultyLevel === 'medium'
                           ? 'bg-amber-500 text-white'
                           : 'bg-red-500 text-white'
@@ -548,7 +583,7 @@ export default function MockTestRunner({
                   )}
                 </div>
 
-                <div className="prose max-w-none text-sm sm:text-base text-gray-800 leading-relaxed">
+                <div className="prose max-w-none text-sm sm:text-base text-gray-800 leading-relaxed lg:text-[15px]">
                   <MathText text={currentQuestion.questionText[language].text} />
                   {currentQuestion.questionText[language].imageUrl && (
                     <img
@@ -559,23 +594,23 @@ export default function MockTestRunner({
                   )}
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-3 lg:space-y-2.5">
                   {currentQuestion.options.map((option) => {
                     const isSelected = currentAnswerId === option.id;
                     return (
                       <button
                         key={option.id}
                         onClick={() => handleOptionSelect(option.id)}
-                        className={`w-full text-left p-4 sm:p-4 rounded-lg border-2 transition-all active:scale-[0.98] ${
+                        className={`w-full text-left p-4 sm:p-4 lg:px-4 lg:py-3 rounded-lg border-2 transition-all active:scale-[0.98] ${
                           isSelected
-                            ? 'border-teal-500 bg-teal-50 shadow-md'
-                            : 'border-gray-200 hover:border-teal-300 hover:bg-gray-50 active:bg-gray-100'
+                            ? 'border-sky-600 bg-sky-50 shadow-md'
+                            : 'border-gray-200 hover:border-sky-300 hover:bg-gray-50 active:bg-gray-100'
                         }`}
                       >
                         <div className="flex items-start gap-3">
                           <div
                             className={`w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                              isSelected ? 'border-teal-500 bg-teal-500' : 'border-gray-300'
+                              isSelected ? 'border-sky-600 bg-sky-600' : 'border-gray-300'
                             }`}
                           >
                             {isSelected && (
@@ -586,7 +621,7 @@ export default function MockTestRunner({
                             <MathText
                               text={option[language]}
                               inline
-                              className="text-sm sm:text-base text-gray-800 leading-relaxed"
+                              className="text-sm sm:text-base text-gray-800 leading-relaxed lg:text-[15px]"
                             />
                           ) : (
                             <img
@@ -603,8 +638,8 @@ export default function MockTestRunner({
               </div>
             </Card>
 
-            <div className="space-y-3">
-              <div className="flex gap-2 sm:gap-3">
+            <div className="space-y-3 lg:space-y-0">
+              <div className="flex gap-2 sm:gap-3 lg:hidden">
                 <Button
                   onClick={handleMarkForReview}
                   variant="outline"
@@ -626,39 +661,55 @@ export default function MockTestRunner({
                 </Button>
               </div>
 
-              <div className="hidden lg:flex gap-2 sm:gap-3">
+              <div className="hidden items-center gap-2.5 border-t border-gray-200 pt-2.5 lg:flex">
                 <Button
                   onClick={goPrevious}
                   disabled={currentQuestionIndex === 0}
                   variant="outline"
-                  className="flex-1 sm:flex-none text-xs sm:text-sm h-11 sm:h-10 min-w-[100px]"
+                  className="h-12 px-4 text-[15px]"
                 >
-                  <ChevronLeft className="w-4 h-4 mr-1 sm:mr-2" />
+                  <ChevronLeft className="mr-1.5 h-4 w-4" />
                   Previous
+                </Button>
+                <Button
+                  onClick={handleMarkForReview}
+                  variant="outline"
+                  className="h-12 border-purple-200 px-4 text-[15px] hover:bg-purple-50"
+                >
+                  <Flag className="mr-1.5 h-4 w-4" />
+                  Mark for Review & Next
+                </Button>
+                <Button
+                  onClick={handleClearResponse}
+                  variant="outline"
+                  className="h-12 px-4 text-[15px]"
+                >
+                  <X className="mr-1.5 h-4 w-4" />
+                  Clear Response
                 </Button>
 
                 {currentQuestionIndex === totalQuestions - 1 ? (
                   <Button
                     onClick={() => setShowSubmitDialog(true)}
                     disabled={isPaused}
-                    className="flex-1 sm:flex-none bg-teal-600 hover:bg-teal-700 text-xs sm:text-sm h-11 sm:h-10 font-semibold"
+                    className="ml-auto h-12 min-w-[170px] bg-sky-600 px-7 text-[15px] font-semibold hover:bg-sky-700"
                   >
                     {submitLabel}
                   </Button>
                 ) : (
                   <Button
                     onClick={goNext}
-                    className="flex-1 sm:flex-none bg-teal-600 hover:bg-teal-700 text-xs sm:text-sm h-11 sm:h-10 font-semibold"
+                    className="ml-auto h-12 min-w-[170px] bg-sky-600 px-7 text-[15px] font-semibold hover:bg-sky-700"
                   >
                     Save & Next
-                    <ChevronRight className="w-4 h-4 ml-1 sm:ml-2" />
+                    <ChevronRight className="ml-1.5 h-4 w-4" />
                   </Button>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="hidden lg:block">
+          <div className="hidden lg:block lg:h-full lg:min-h-0">
             <PaletteCard
               totalQuestions={totalQuestions}
               currentQuestion={currentQuestionIndex}
@@ -765,7 +816,7 @@ export default function MockTestRunner({
                     handleConfirmSubmit();
                   }}
                   disabled={isSubmitting}
-                  className="w-full bg-teal-600 hover:bg-teal-700 sm:w-auto"
+                  className="w-full bg-sky-600 hover:bg-sky-700 sm:w-auto"
                 >
                   {submitLabel}
                 </AlertDialogAction>
@@ -779,7 +830,7 @@ export default function MockTestRunner({
                   <div className="space-y-2">
                     <p>Are you sure you want to submit the test?</p>
                     <div className="mt-4 space-y-1 text-sm">
-                      <p className="text-green-600 font-medium">Answered: {answeredCount}</p>
+                      <p className="text-sky-600 font-medium">Answered: {answeredCount}</p>
                       <p className="text-red-600 font-medium">Not Answered: {unansweredCount}</p>
                     </div>
                     {submitError && <p className="text-sm text-red-600">{submitError}</p>}
@@ -794,7 +845,7 @@ export default function MockTestRunner({
                     handleConfirmSubmit();
                   }}
                   disabled={isSubmitting}
-                  className="bg-teal-600 hover:bg-teal-700"
+                  className="bg-sky-600 hover:bg-sky-700"
                 >
                   Submit Test
                 </AlertDialogAction>
@@ -836,7 +887,7 @@ export default function MockTestRunner({
       {isSubmitting && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
           <Card className="max-w-sm w-full p-6 sm:p-8 text-center space-y-5 shadow-2xl border-0">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-full border-4 border-teal-100 border-t-teal-500 animate-spin" />
+            <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-full border-4 border-sky-100 border-t-sky-500 animate-spin" />
             <div>
               <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
                 {completingLabel}
@@ -847,9 +898,9 @@ export default function MockTestRunner({
               </p>
             </div>
             <div className="flex justify-center gap-1.5 pt-1">
-              <span className="w-2 h-2 rounded-full bg-teal-500 animate-bounce [animation-delay:-0.3s]" />
-              <span className="w-2 h-2 rounded-full bg-teal-500 animate-bounce [animation-delay:-0.15s]" />
-              <span className="w-2 h-2 rounded-full bg-teal-500 animate-bounce" />
+              <span className="w-2 h-2 rounded-full bg-sky-500 animate-bounce [animation-delay:-0.3s]" />
+              <span className="w-2 h-2 rounded-full bg-sky-500 animate-bounce [animation-delay:-0.15s]" />
+              <span className="w-2 h-2 rounded-full bg-sky-500 animate-bounce" />
             </div>
           </Card>
         </div>
@@ -882,7 +933,7 @@ export default function MockTestRunner({
                   <p className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold">
                     Remaining
                   </p>
-                  <p className="mt-0.5 font-bold text-teal-700 tabular-nums">
+                  <p className="mt-0.5 font-bold text-sky-700 tabular-nums">
                     {formatDuration(secondsLeft)}
                   </p>
                 </div>
@@ -898,7 +949,7 @@ export default function MockTestRunner({
               <Button
                 onClick={handleResume}
                 disabled={isResuming}
-                className="w-full bg-teal-600 hover:bg-teal-700 h-11"
+                className="w-full bg-sky-600 hover:bg-sky-700 h-11"
               >
                 <Play className="w-4 h-4 mr-2" />
                 {isResuming ? 'Resuming...' : 'Resume Test'}
@@ -936,7 +987,7 @@ export default function MockTestRunner({
             <Button
               onClick={() => setMobileSheetOpen(true)}
               variant="outline"
-              className="h-12 w-12 p-0 border-2 border-teal-200 text-teal-600 hover:bg-teal-50"
+              className="h-12 w-12 p-0 border-2 border-sky-200 text-sky-600 hover:bg-sky-50"
             >
               <LayoutGrid className="w-5 h-5" />
             </Button>
@@ -945,14 +996,14 @@ export default function MockTestRunner({
               <Button
                 onClick={() => setShowSubmitDialog(true)}
                 disabled={isPaused}
-                className="flex-1 bg-teal-600 hover:bg-teal-700 text-sm h-12 font-semibold"
+                className="flex-1 bg-sky-600 hover:bg-sky-700 text-sm h-12 font-semibold"
               >
                 {submitLabel}
               </Button>
             ) : (
               <Button
                 onClick={goNext}
-                className="flex-1 bg-teal-600 hover:bg-teal-700 text-sm h-12 font-semibold"
+                className="flex-1 bg-sky-600 hover:bg-sky-700 text-sm h-12 font-semibold"
               >
                 Save & Next
                 <ChevronRight className="w-4 h-4 ml-1" />
@@ -996,7 +1047,7 @@ function PaletteCard({
   const count = (status: QuestionStatus) => questionStatuses.filter((s) => s === status).length;
 
   const statusClass = (status: QuestionStatus, isCurrent: boolean) => {
-    if (isCurrent) return 'ring-2 ring-teal-500 ring-offset-2 bg-teal-500 text-white';
+    if (isCurrent) return 'ring-2 ring-sky-600 ring-offset-2 bg-sky-600 text-white';
     switch (status) {
       case 'answered':
         return 'bg-green-500 text-white hover:bg-green-600';
@@ -1005,7 +1056,7 @@ function PaletteCard({
       case 'marked':
         return 'bg-purple-500 text-white hover:bg-purple-600';
       case 'marked-answered':
-        return 'bg-blue-500 text-white hover:bg-blue-600';
+        return 'bg-purple-600 text-white hover:bg-purple-700';
       default:
         return 'bg-gray-300 text-gray-700 hover:bg-gray-400';
     }
@@ -1013,10 +1064,10 @@ function PaletteCard({
 
   const content = (
     <div className="flex flex-col h-full">
-      <div className="flex-1 space-y-6 overflow-y-auto">
-        <div className="flex items-center gap-4 pb-4 border-b border-gray-200">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
-            <User className="w-8 h-8 text-gray-600" />
+      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto lg:space-y-4">
+        <div className="flex items-center gap-4 pb-4 border-b border-gray-200 lg:gap-3 lg:pb-3">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center lg:h-11 lg:w-11">
+            <User className="w-8 h-8 text-gray-600 lg:h-5 lg:w-5" />
           </div>
           <div className="text-xs text-gray-500">
             <div className="font-semibold text-gray-700 truncate">{testTitle}</div>
@@ -1055,8 +1106,9 @@ function PaletteCard({
               <span className="font-medium text-gray-700">Marked</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-md bg-blue-500 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+              <div className="relative w-7 h-7 rounded-md bg-purple-500 flex items-center justify-center text-white font-bold text-xs shadow-sm">
                 {count('marked-answered')}
+                <Check className="absolute -bottom-0.5 -right-1 h-3 w-3 rounded-full bg-green-500 p-0.5 text-white" strokeWidth={3} />
               </div>
               <span className="font-medium text-gray-700">Marked & Answered</span>
             </div>
@@ -1081,12 +1133,15 @@ function PaletteCard({
                 <button
                   key={index}
                   onClick={() => onQuestionSelect(index)}
-                  className={`h-10 rounded-md font-bold text-sm transition-all shadow-sm ${statusClass(
+                  className={`relative h-10 rounded-md font-bold text-sm transition-all shadow-sm lg:h-9 lg:text-[13px] ${statusClass(
                     status,
                     isCurrent
                   )}`}
                 >
                   {index + 1}
+                  {status === 'marked-answered' && !isCurrent && (
+                    <Check className="absolute -bottom-0.5 -right-1 h-3.5 w-3.5 rounded-full bg-green-500 p-0.5 text-white" strokeWidth={3} />
+                  )}
                 </button>
               );
             })}
@@ -1098,7 +1153,7 @@ function PaletteCard({
         <Button
           onClick={onSubmitClick}
           disabled={isPaused}
-          className="w-full bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:pointer-events-none"
+          className="w-full bg-sky-600 hover:bg-sky-700 disabled:opacity-50 disabled:pointer-events-none"
         >
           {submitLabel}
         </Button>
@@ -1111,7 +1166,7 @@ function PaletteCard({
   }
 
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-gray-100 rounded-lg shadow-lg p-6 h-fit sticky top-24 border border-gray-200">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-gray-200 bg-gradient-to-b from-gray-50 to-gray-100 p-4 shadow-lg">
       {content}
     </div>
   );

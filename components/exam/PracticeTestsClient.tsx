@@ -103,7 +103,7 @@ export default function PracticeTestsClient({ examId }: PracticeTestsClientProps
   return (
     <section ref={sectionRef} className="scroll-mt-28">
       <div className="mb-4">
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">Daily Practice Tests</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-1">Topic Wise Tests</h2>
         <p className="text-gray-600">Master topics with focused practice tests</p>
       </div>
 

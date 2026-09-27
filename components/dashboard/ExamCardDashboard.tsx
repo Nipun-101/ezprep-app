@@ -25,18 +25,24 @@ export default function ExamCardDashboard({
       className={cn(
         'relative flex h-full w-full flex-col items-center justify-start p-6 rounded-2xl transition-all duration-300 group bg-white',
         trending &&
-          'shadow-[0_2px_6px_-1px_rgba(15,23,42,0.08),0_8px_18px_-6px_rgba(249,115,22,0.28)]',
+          'shadow-[0_2px_6px_-1px_rgba(15,23,42,0.08),0_8px_18px_-6px_rgba(139,92,246,0.35)]',
         isActive
           ? trending
-            ? 'hover:shadow-[0_3px_8px_-1px_rgba(15,23,42,0.08),0_12px_22px_-6px_rgba(249,115,22,0.36)] hover:-translate-y-1 cursor-pointer'
+            ? 'hover:shadow-[0_3px_8px_-1px_rgba(15,23,42,0.08),0_12px_22px_-6px_rgba(139,92,246,0.45)] hover:-translate-y-1 cursor-pointer'
             : 'hover:shadow-lg hover:shadow-gray-200/60 hover:-translate-y-1 cursor-pointer'
           : 'opacity-50 cursor-not-allowed hover:shadow-none'
       )}
     >
       {trending ? (
-        <span className="pointer-events-none absolute top-2 left-1/2 z-10 inline-flex -translate-x-1/2 items-center gap-0.5 rounded-full bg-gradient-to-r from-orange-500 to-rose-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm shadow-orange-200">
-          <Flame className="h-3 w-3 fill-current" aria-hidden />
-          Trending
+        <span className="pointer-events-none absolute top-2 left-1/2 z-10 -translate-x-1/2">
+          <span className="trending-badge relative inline-flex items-center gap-0.5 overflow-hidden rounded-full bg-gradient-to-r from-violet-600 via-fuchsia-500 to-purple-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+            <span
+              className="trending-badge-shimmer pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/70 to-transparent"
+              aria-hidden
+            />
+            <Flame className="trending-badge-flame relative h-3 w-3 fill-current" aria-hidden />
+            <span className="relative">Trending</span>
+          </span>
         </span>
       ) : null}
       <div

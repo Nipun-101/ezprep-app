@@ -120,7 +120,7 @@ export default function ExamHubClient() {
             <BookOpen className="w-5 h-5" />
           </div>
           <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-teal-700">
-            Daily Practice Tests
+            Topic Wise Tests
           </h3>
           <p className="text-sm text-gray-500">
             Topic-wise drills to master one subject at a time.

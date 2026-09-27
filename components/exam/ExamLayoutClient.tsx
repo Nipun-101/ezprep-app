@@ -48,7 +48,7 @@ export default function ExamLayoutClient({ examId, children }: ExamLayoutClientP
 
   const navItems = [
     { href: `/dashboard/exam/${examId}`, label: 'Overview', exact: true },
-    { href: `/dashboard/exam/${examId}/practice`, label: 'Daily Practice', exact: false },
+    { href: `/dashboard/exam/${examId}/practice`, label: 'Topic Wise', exact: false },
     { href: `/dashboard/exam/${examId}/full-mocks`, label: 'Full Mocks', exact: false },
   ];
 
