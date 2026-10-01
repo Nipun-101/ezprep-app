@@ -59,6 +59,7 @@ import {
   mergeAnswers,
   isLastSession,
 } from '@/lib/attempt-sessions';
+import { examTestExitLabel, examTestListPath } from '@/lib/exam-test-routes';
 
 interface MockTestRunnerProps {
   attemptId: string;
@@ -146,12 +147,13 @@ export default function MockTestRunner({
   }, []);
 
   const isSessionWise = Boolean(mockTestData.isSessionWise);
-  const isFullMock = mockTestData.paperType
-    ? mockTestData.paperType === 'FULL_EXAM'
-    : !mockTestData.subject && !mockTestData.topic;
+  const treatMissingAsFullMock = !mockTestData.subject && !mockTestData.topic;
   const exitHref = mockTestData.exam?.id
-    ? `/dashboard/exam/${mockTestData.exam.id}/${isFullMock ? 'full-mocks' : 'practice'}`
+    ? examTestListPath(mockTestData.exam.id, mockTestData.paperType, {
+        treatMissingAsFullMock,
+      })
     : '/dashboard';
+  const exitLabel = examTestExitLabel(mockTestData.paperType, treatMissingAsFullMock);
   const activeSession = getCurrentSession(mockTestData);
   const visibleQuestions = useMemo(
     () => visibleAttemptQuestions(questions, mockTestData),
@@ -960,11 +962,7 @@ export default function MockTestRunner({
                 disabled={isResuming || isExitPausing}
                 className="w-full h-11"
               >
-                {isExitPausing
-                  ? 'Saving & Exiting...'
-                  : isFullMock
-                    ? 'Exit to Full Mocks'
-                    : 'Exit to Practice'}
+                {isExitPausing ? 'Saving & Exiting...' : exitLabel}
               </Button>
             </div>
           </Card>

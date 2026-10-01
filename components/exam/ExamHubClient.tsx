@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Clock, HelpCircle, BookMarked, Layers, BookOpen, FileText } from 'lucide-react';
+import { Clock, HelpCircle, BookMarked, Layers, BookOpen, FileText, Zap } from 'lucide-react';
 import ExamIntro from './ExamIntro';
 import { useExamPage } from './ExamLayoutClient';
 import { ApiExamSubject } from '@/lib/api/exams';
@@ -111,7 +111,7 @@ export default function ExamHubClient() {
         )}
       </section>
 
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         <Link
           href={`/dashboard/exam/${examId}/practice`}
           className="group bg-white rounded-xl border border-gray-200 p-6 hover:border-teal-400 hover:shadow-md transition"
@@ -138,6 +138,20 @@ export default function ExamHubClient() {
           </h3>
           <p className="text-sm text-gray-500">
             Complete exam simulation with the real paper pattern.
+          </p>
+        </Link>
+        <Link
+          href={`/dashboard/exam/${examId}/sprint-tests`}
+          className="group bg-white rounded-xl border border-gray-200 p-6 hover:border-teal-400 hover:shadow-md transition"
+        >
+          <div className="w-11 h-11 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center mb-4">
+            <Zap className="w-5 h-5" />
+          </div>
+          <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-amber-800">
+            Sprint Tests
+          </h3>
+          <p className="text-sm text-gray-500">
+            Short timed papers to build speed on this exam.
           </p>
         </Link>
       </div>

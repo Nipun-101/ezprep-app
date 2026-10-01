@@ -15,6 +15,7 @@ import {
 import { CheckCircle2, XCircle, Circle, TrendingUp, Clock, Languages, ArrowLeft } from 'lucide-react';
 import { AttemptQuestion, AttemptMockTestData, SubmitAttemptResult, SubmittedQuestionResult } from '@/lib/api/attempts';
 import { filterSessionQuestions } from '@/lib/attempt-sessions';
+import { examTestListPath } from '@/lib/exam-test-routes';
 import ScoreRing from './ScoreRing';
 
 const AnswerKeyList = dynamic(() => import('./AnswerKeyList'), {
@@ -402,11 +403,17 @@ export default function MockTestResults({
             Back to Dashboard
           </Button>
           <Button
-            onClick={() => router.push(`/dashboard/exam/${mockTestData.exam.id}`)}
+            onClick={() =>
+              router.push(
+                mockTestData.paperType === 'SPRINT'
+                  ? examTestListPath(mockTestData.exam.id, 'SPRINT')
+                  : `/dashboard/exam/${mockTestData.exam.id}`
+              )
+            }
             className="bg-teal-600 hover:bg-teal-700"
             size="lg"
           >
-            More Practice Tests
+            {mockTestData.paperType === 'SPRINT' ? 'More Sprint Tests' : 'More Practice Tests'}
           </Button>
         </div>
       </div>
