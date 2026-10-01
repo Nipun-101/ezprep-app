@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, createContext, useContext } from 'react';
+import { useEffect, useRef, useState, createContext, useContext } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -33,6 +33,7 @@ interface ExamLayoutClientProps {
 export default function ExamLayoutClient({ examId, children }: ExamLayoutClientProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const navRef = useRef<HTMLElement>(null);
   const [exam, setExam] = useState<ApiExamDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,10 +47,16 @@ export default function ExamLayoutClient({ examId, children }: ExamLayoutClientP
       .finally(() => setLoading(false));
   }, [examId]);
 
+  useEffect(() => {
+    const active = navRef.current?.querySelector<HTMLElement>('[data-active="true"]');
+    active?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+  }, [pathname, examId]);
+
   const navItems = [
     { href: `/dashboard/exam/${examId}`, label: 'Overview', exact: true },
     { href: `/dashboard/exam/${examId}/practice`, label: 'Topic Wise', exact: false },
     { href: `/dashboard/exam/${examId}/full-mocks`, label: 'Full Mocks', exact: false },
+    { href: `/dashboard/exam/${examId}/sprint-tests`, label: 'Sprint Tests', exact: false },
   ];
 
   return (
@@ -72,7 +79,10 @@ export default function ExamLayoutClient({ examId, children }: ExamLayoutClientP
             )}
           </div>
 
-          <nav className="flex gap-1 overflow-x-auto border-b border-gray-200 -mx-1 px-1">
+          <nav
+            ref={navRef}
+            className="flex gap-1 overflow-x-auto border-b border-gray-200 -mx-1 px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          >
             {navItems.map((item) => {
               const active = item.exact
                 ? pathname === item.href
@@ -81,6 +91,7 @@ export default function ExamLayoutClient({ examId, children }: ExamLayoutClientP
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-active={active ? 'true' : undefined}
                   className={cn(
                     'shrink-0 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors',
                     active

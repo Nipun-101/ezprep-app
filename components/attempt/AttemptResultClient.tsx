@@ -43,6 +43,7 @@ function adaptAttemptDetailsToResults(details: AttemptDetails): AdaptedResults {
     negativeMarking: test.negativeMarking,
     passingScore: test.passingScore,
     exam: test.exam,
+    paperType: test.paperType,
     subject: test.subject,
     topic: test.topic,
     isSessionWise: details.isSessionWise ?? test.isSessionWise,
