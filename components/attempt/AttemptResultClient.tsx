@@ -58,6 +58,7 @@ function adaptAttemptDetailsToResults(details: AttemptDetails): AdaptedResults {
     options: q.options,
     subject: q.subject,
     topic: q.topic,
+    difficultyLevel: q.difficultyLevel,
     sessionOrder: q.sessionOrder,
     selectedOption: q.selectedOption ?? null,
   }));
