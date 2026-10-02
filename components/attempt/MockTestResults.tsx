@@ -17,6 +17,7 @@ import { AttemptQuestion, AttemptMockTestData, SubmitAttemptResult, SubmittedQue
 import { filterSessionQuestions } from '@/lib/attempt-sessions';
 import { examTestListPath } from '@/lib/exam-test-routes';
 import ScoreRing from './ScoreRing';
+import PerformanceBadge from './PerformanceBadge';
 
 const AnswerKeyList = dynamic(() => import('./AnswerKeyList'), {
   ssr: false,
@@ -180,27 +181,37 @@ export default function MockTestResults({
         </div>
 
         <Card className="p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-200 shadow-sm">
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-            <ScoreRing
-              earned={result.score}
-              max={result.totalScore}
-              formatValue={formatScore}
-            />
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-6">
+            <h1 className="order-1 whitespace-nowrap text-lg font-bold text-gray-900 sm:hidden">
+              {language === 'en' ? 'Test Completed' : 'ടെസ്റ്റ് പൂർത്തിയായി'}
+            </h1>
+            <div className="order-2 sm:order-1">
+              <ScoreRing
+                earned={result.score}
+                max={result.totalScore}
+                formatValue={formatScore}
+              />
+            </div>
 
-            <div className="flex-1 text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                <h1 className="text-lg sm:text-xl font-bold text-gray-900">
+            <div className="order-3 w-full flex-1 text-center sm:order-2 sm:text-left">
+              <div className="mb-1 hidden sm:flex sm:items-center sm:justify-start sm:gap-2">
+                <h1 className="whitespace-nowrap text-xl font-bold text-gray-900">
                   {language === 'en' ? 'Test Completed' : 'ടെസ്റ്റ് പൂർത്തിയായി'}
                 </h1>
-                {result.passingScore !== null && (
-                  <span
-                    className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                      result.passed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                    }`}
-                  >
-                    {result.passed ? 'PASSED' : 'FAILED'}
-                  </span>
-                )}
+                <PerformanceBadge
+                  score={result.score}
+                  totalScore={result.totalScore}
+                  bands={mockTestData.exam.performanceBands}
+                  language={language}
+                />
+              </div>
+              <div className="mb-1 flex justify-center sm:hidden">
+                <PerformanceBadge
+                  score={result.score}
+                  totalScore={result.totalScore}
+                  bands={mockTestData.exam.performanceBands}
+                  language={language}
+                />
               </div>
               <p className="text-sm text-gray-500 mb-3 truncate">{examTitle}</p>
 

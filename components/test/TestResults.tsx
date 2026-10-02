@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CheckCircle2, XCircle, Circle, TrendingUp, Clock, Languages } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import ScoreRing from '@/components/attempt/ScoreRing';
+import PerformanceBadge from '@/components/attempt/PerformanceBadge';
 
 interface TestResultsProps {
   test: Test;
@@ -45,8 +46,6 @@ export default function TestResults({ test, answers, initialLanguage = 'en' }: T
 
     const totalMarks = correctAnswers * test.marksPerQuestion - wrongAnswers * test.negativeMarking;
     const maxMarks = test.totalQuestions * test.marksPerQuestion;
-    const percentage = (totalMarks / maxMarks) * 100;
-    const isPassed = totalMarks >= test.passingScore;
 
     return {
       correctAnswers,
@@ -54,8 +53,6 @@ export default function TestResults({ test, answers, initialLanguage = 'en' }: T
       unattempted,
       totalMarks,
       maxMarks,
-      percentage,
-      isPassed,
     };
   };
 
@@ -84,21 +81,31 @@ export default function TestResults({ test, answers, initialLanguage = 'en' }: T
         </div>
 
         <Card className="p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-200 shadow-sm">
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-            <ScoreRing earned={results.totalMarks} max={results.maxMarks} />
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-6">
+            <h1 className="order-1 whitespace-nowrap text-lg font-bold text-gray-900 sm:hidden">
+              {language === 'en' ? 'Test Completed' : 'ടെസ്റ്റ് പൂർത്തിയായി'}
+            </h1>
+            <div className="order-2 sm:order-1">
+              <ScoreRing earned={results.totalMarks} max={results.maxMarks} />
+            </div>
 
-            <div className="flex-1 text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                <h1 className="text-lg sm:text-xl font-bold text-gray-900">
+            <div className="order-3 w-full flex-1 text-center sm:order-2 sm:text-left">
+              <div className="mb-1 hidden sm:flex sm:items-center sm:justify-start sm:gap-2">
+                <h1 className="whitespace-nowrap text-xl font-bold text-gray-900">
                   {language === 'en' ? 'Test Completed' : 'ടെസ്റ്റ് പൂർത്തിയായി'}
                 </h1>
-                <span
-                  className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                    results.isPassed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                  }`}
-                >
-                  {results.isPassed ? 'PASSED' : 'FAILED'}
-                </span>
+                <PerformanceBadge
+                  score={results.totalMarks}
+                  totalScore={results.maxMarks}
+                  language={language}
+                />
+              </div>
+              <div className="mb-1 flex justify-center sm:hidden">
+                <PerformanceBadge
+                  score={results.totalMarks}
+                  totalScore={results.maxMarks}
+                  language={language}
+                />
               </div>
               <p className="text-sm text-gray-500 mb-3">{test.title}</p>
 
