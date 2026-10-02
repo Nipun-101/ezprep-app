@@ -34,6 +34,8 @@ import {
   Pause,
   Play,
   User,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
 import {
   AttemptQuestion,
@@ -74,6 +76,10 @@ interface MockTestRunnerProps {
   ) => void;
 }
 
+/** Question text and options only. The zoom buttons stay at normal size. */
+const QUESTION_ZOOM_STEPS = [0.8, 0.9, 1, 1.1, 1.25, 1.4, 1.6];
+const DEFAULT_QUESTION_ZOOM_INDEX = QUESTION_ZOOM_STEPS.indexOf(1);
+
 function formatDuration(totalSeconds: number): string {
   const seconds = Math.max(0, Math.floor(totalSeconds));
   const hours = Math.floor(seconds / 3600);
@@ -105,6 +111,8 @@ export default function MockTestRunner({
   const [visited, setVisited] = useState<Set<number>>(new Set([0]));
 
   const [language, setLanguage] = useState<'en' | 'ml'>('en');
+  const [questionZoomIndex, setQuestionZoomIndex] = useState(DEFAULT_QUESTION_ZOOM_INDEX);
+  const questionZoom = QUESTION_ZOOM_STEPS[questionZoomIndex];
   const [isPaused, setIsPaused] = useState(initialPaused);
   const [pausedConsumedSeconds, setPausedConsumedSeconds] = useState<number | null>(null);
   const [pausedTotalConsumedSeconds, setPausedTotalConsumedSeconds] = useState<number | null>(
@@ -496,13 +504,15 @@ export default function MockTestRunner({
   const sessionLabel =
     activeSession?.name || mockTestData.subject?.name || mockTestData.exam.name;
 
+  const questionCardStyle = { zoom: questionZoom } as React.CSSProperties;
+
   if (!currentQuestion) {
     return null;
   }
 
   return (
     <MathpixBoundary>
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-sky-50/30 pb-20 lg:flex lg:h-screen lg:h-[100dvh] lg:flex-col lg:overflow-hidden lg:pb-0">
+    <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-gray-50 via-white to-sky-50/30 pb-20 lg:flex lg:h-screen lg:h-[100dvh] lg:flex-col lg:overflow-hidden lg:pb-0">
       <div className="sticky top-0 z-40 shrink-0 border-b bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2">
           <div className="flex items-center justify-between gap-2 sm:gap-3">
@@ -525,7 +535,35 @@ export default function MockTestRunner({
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setQuestionZoomIndex((index) => Math.max(0, index - 1))}
+                  disabled={questionZoomIndex === 0}
+                  className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
+                  aria-label="Zoom out question"
+                >
+                  <ZoomOut className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Zoom (-)</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() =>
+                    setQuestionZoomIndex((index) =>
+                      Math.min(QUESTION_ZOOM_STEPS.length - 1, index + 1)
+                    )
+                  }
+                  disabled={questionZoomIndex === QUESTION_ZOOM_STEPS.length - 1}
+                  className="h-8 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm"
+                  aria-label="Zoom in question"
+                >
+                  <ZoomIn className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Zoom (+)</span>
+                </Button>
+              </div>
               <AttemptTimer
                 key={activeSession?.order ?? 'paper'}
                 initialSeconds={secondsLeft}
@@ -563,28 +601,18 @@ export default function MockTestRunner({
       <div className="mx-auto w-full max-w-7xl px-3 sm:px-4 py-4 sm:py-6 lg:min-h-0 lg:flex-1 lg:overflow-hidden lg:py-3">
         <div className="grid gap-4 sm:gap-6 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_300px] lg:grid-rows-[minmax(0,1fr)] lg:gap-4">
           <div className="space-y-4 sm:space-y-6 lg:grid lg:h-full lg:min-h-0 lg:grid-rows-[minmax(0,1fr)_auto] lg:gap-2.5 lg:space-y-0">
-            <Card className="border-0 p-4 shadow-lg sm:p-6 lg:h-full lg:min-h-0 lg:overflow-y-auto lg:p-5">
+            <Card className="min-w-0 overflow-x-hidden border-0 p-4 shadow-lg sm:p-6 lg:h-full lg:min-h-0 lg:overflow-y-auto lg:p-5">
               <div className="space-y-4 sm:space-y-6 lg:space-y-4">
-                <div className="flex items-start justify-between gap-2 sm:gap-4 pb-3 sm:pb-4 border-b border-gray-100 lg:pb-3">
+                <div className="pb-3 sm:pb-4 border-b border-gray-100 lg:pb-3">
                   <h2 className="text-base sm:text-lg font-bold text-gray-900 lg:text-base">
                     Question No {currentQuestionIndex + 1}
                   </h2>
-                  {currentQuestion.difficultyLevel && (
-                    <span
-                      className={`px-3 sm:px-4 py-1 sm:py-1.5 text-xs font-semibold rounded-full shadow-sm whitespace-nowrap ${
-                        currentQuestion.difficultyLevel === 'easy'
-                          ? 'bg-sky-500 text-white'
-                          : currentQuestion.difficultyLevel === 'medium'
-                          ? 'bg-amber-500 text-white'
-                          : 'bg-red-500 text-white'
-                      }`}
-                    >
-                      {currentQuestion.difficultyLevel.charAt(0).toUpperCase() +
-                        currentQuestion.difficultyLevel.slice(1)}
-                    </span>
-                  )}
                 </div>
 
+                <div
+                  className="min-w-0 space-y-4 break-words [overflow-wrap:anywhere] sm:space-y-6 lg:space-y-4"
+                  style={questionCardStyle}
+                >
                 <div className="prose max-w-none text-sm sm:text-base text-gray-800 leading-relaxed lg:text-[15px]">
                   <MathText text={currentQuestion.questionText[language].text} />
                   {currentQuestion.questionText[language].imageUrl && (
@@ -596,46 +624,47 @@ export default function MockTestRunner({
                   )}
                 </div>
 
-                <div className="space-y-3 lg:space-y-2.5">
+                <div className="grid auto-rows-fr gap-2.5 lg:gap-2">
                   {currentQuestion.options.map((option) => {
                     const isSelected = currentAnswerId === option.id;
                     return (
                       <button
                         key={option.id}
                         onClick={() => handleOptionSelect(option.id)}
-                        className={`w-full text-left p-4 sm:p-4 lg:px-4 lg:py-3 rounded-lg border-2 transition-all active:scale-[0.98] ${
+                        className={`flex w-full items-center text-left px-3 py-2.5 sm:px-4 lg:py-2 rounded-lg border-2 transition-all active:scale-[0.98] ${
                           isSelected
                             ? 'border-sky-600 bg-sky-50 shadow-md'
                             : 'border-gray-200 hover:border-sky-300 hover:bg-gray-50 active:bg-gray-100'
                         }`}
                       >
-                        <div className="flex items-start gap-3">
+                        <div className="flex w-full min-w-0 items-center gap-3">
                           <div
-                            className={`w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                            className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                               isSelected ? 'border-sky-600 bg-sky-600' : 'border-gray-300'
                             }`}
                           >
                             {isSelected && (
-                              <div className="w-3 h-3 sm:w-2.5 sm:h-2.5 rounded-full bg-white" />
+                              <div className="w-2 h-2 rounded-full bg-white" />
                             )}
                           </div>
                           {option.type === 'text' ? (
                             <MathText
                               text={option[language]}
                               inline
-                              className="text-sm sm:text-base text-gray-800 leading-relaxed lg:text-[15px]"
+                              className="min-w-0 flex-1 text-sm sm:text-base text-gray-800 leading-relaxed lg:text-[15px] [&_#preview]:!block [&_#preview]:!p-0"
                             />
                           ) : (
                             <img
                               src={option.imageUrl || undefined}
                               alt={`Option`}
-                              className="max-w-full h-auto rounded"
+                              className="min-w-0 max-w-full h-auto rounded"
                             />
                           )}
                         </div>
                       </button>
                     );
                   })}
+                </div>
                 </div>
               </div>
             </Card>

@@ -219,6 +219,7 @@ export interface AttemptDetailsQuestion {
   options: AttemptQuestionOption[];
   subject: string;
   topic?: string;
+  difficultyLevel?: 'easy' | 'medium' | 'hard';
   sessionOrder?: number;
   selectedOption?: string | null;
   correctAnswer: string;
