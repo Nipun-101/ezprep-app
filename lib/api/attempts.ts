@@ -58,6 +58,8 @@ export interface AttemptExamRef {
   description: string;
   /** When false, hide language toggle during attempt / results. */
   hasMultiLingualSupport?: boolean;
+  /** Score-percent cutoffs for the result message. Missing values use app defaults. */
+  performanceBands?: { key: string; minPercent: number }[];
 }
 
 export interface AttemptSubjectRef {
