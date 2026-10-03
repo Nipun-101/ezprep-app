@@ -71,7 +71,7 @@ export default function HeroSection() {
               <div className="flex flex-wrap justify-center lg:justify-start gap-6 md:gap-8">
                 <div className="flex items-center space-x-2 text-gray-700">
                   <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
-                  <span className="font-medium">10,000+ Questions</span>
+                  <span className="font-medium">50,000+ Questions</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-700">
                   <div className="w-2 h-2 bg-teal-500 rounded-full"></div>

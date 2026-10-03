@@ -135,7 +135,7 @@ export default function TestimonialsSection() {
           </div>
           <div>
             <p className="text-gray-800 font-bold text-lg">
-              Join 1000+ aspirants already preparing smarter with EzPrep
+              Join 3500+ aspirants already preparing smarter with EzPrep
             </p>
             <p className="text-gray-500 text-sm mt-1">
               AI-powered insights · Expert mentors · Proven results

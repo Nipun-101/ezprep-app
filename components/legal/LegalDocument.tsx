@@ -11,6 +11,7 @@ const RELATED = [
   { href: '/privacy-policy', label: 'Privacy Policy' },
   { href: '/terms', label: 'Terms of Service' },
   { href: '/user-policy', label: 'User Policy' },
+  { href: '/delete-account', label: 'Delete account' },
 ];
 
 const linkClass = 'text-teal-600 hover:text-teal-700 font-medium';
