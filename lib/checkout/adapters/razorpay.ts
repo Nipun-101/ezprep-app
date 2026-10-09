@@ -1,0 +1,133 @@
+import {
+  CheckoutAdapter,
+  CheckoutOpenResult,
+  OpenCheckoutInput,
+  RazorpaySuccessPayload,
+} from './types';
+
+const SCRIPT_SRC = 'https://checkout.razorpay.com/v1/checkout.js';
+
+interface RazorpayFailedResponse {
+  error?: {
+    description?: string;
+    reason?: string;
+  };
+}
+
+interface RazorpayInstance {
+  open: () => void;
+  on: (event: 'payment.failed', handler: (response: RazorpayFailedResponse) => void) => void;
+}
+
+interface RazorpayConstructor {
+  new (options: Record<string, unknown>): RazorpayInstance;
+}
+
+declare global {
+  interface Window {
+    Razorpay?: RazorpayConstructor;
+  }
+}
+
+let scriptPromise: Promise<void> | null = null;
+
+function publicKeyId(): string {
+  return process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.trim() ?? '';
+}
+
+function loadCheckoutScript(): Promise<void> {
+  if (typeof window === 'undefined') {
+    return Promise.reject(new Error('Payment could not be started. Please try again.'));
+  }
+  if (window.Razorpay) return Promise.resolve();
+  if (scriptPromise) return scriptPromise;
+
+  scriptPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = SCRIPT_SRC;
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => {
+      scriptPromise = null;
+      reject(new Error('Payment could not be started. Please try again.'));
+    };
+    document.body.appendChild(script);
+  });
+  return scriptPromise;
+}
+
+function isSuccessPayload(value: unknown): value is RazorpaySuccessPayload {
+  if (!value || typeof value !== 'object') return false;
+  const payload = value as Record<string, unknown>;
+  return (
+    typeof payload.razorpay_order_id === 'string' &&
+    payload.razorpay_order_id.trim().length > 0 &&
+    typeof payload.razorpay_payment_id === 'string' &&
+    payload.razorpay_payment_id.trim().length > 0 &&
+    typeof payload.razorpay_signature === 'string' &&
+    payload.razorpay_signature.trim().length > 0
+  );
+}
+
+export const razorpayCheckoutAdapter: CheckoutAdapter = {
+  provider: 'razorpay',
+
+  async open(input: OpenCheckoutInput): Promise<CheckoutOpenResult> {
+    const key = publicKeyId();
+    const serverKey = input.serverKeyId?.trim() ?? '';
+    if (!key || (serverKey && serverKey !== key)) {
+      throw new Error('Card checkout is not configured.');
+    }
+    if (!input.providerOrderId.trim()) {
+      throw new Error('Payment could not be started. Please try again.');
+    }
+
+    await loadCheckoutScript();
+    const Razorpay = window.Razorpay;
+    if (!Razorpay) {
+      throw new Error('Payment could not be started. Please try again.');
+    }
+
+    return new Promise((resolve) => {
+      let settled = false;
+      const finish = (result: CheckoutOpenResult) => {
+        if (settled) return;
+        settled = true;
+        resolve(result);
+      };
+
+      const checkout = new Razorpay({
+        key,
+        amount: input.amount,
+        currency: input.currency,
+        order_id: input.providerOrderId,
+        name: 'EzPrep',
+        description: input.description,
+        prefill: input.prefillName ? { name: input.prefillName } : undefined,
+        handler: (response: unknown) => {
+          if (!isSuccessPayload(response)) {
+            finish({
+              outcome: 'failed',
+              message: 'Payment could not be confirmed.',
+            });
+            return;
+          }
+          finish({ outcome: 'success', payload: response });
+        },
+        modal: {
+          ondismiss: () => finish({ outcome: 'dismissed' }),
+        },
+        theme: { color: '#0d9488' },
+      });
+
+      checkout.on('payment.failed', (response) => {
+        const message =
+          response.error?.description?.trim() ||
+          response.error?.reason?.trim() ||
+          'Payment failed.';
+        finish({ outcome: 'failed', message });
+      });
+      checkout.open();
+    });
+  },
+};
