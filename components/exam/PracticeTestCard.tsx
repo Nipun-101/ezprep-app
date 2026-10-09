@@ -1,9 +1,11 @@
 'use client';
 
-import { Clock, HelpCircle, BookMarked, Minus, Loader2, Play, RotateCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Clock, HelpCircle, BookMarked, Minus, Play, RotateCcw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { ApiMockTest, UserAttemptAction } from '@/lib/api/exams';
+import LockedTestBadge from './access/LockedTestBadge';
+import PaperCardAction from './access/PaperCardAction';
+import { isStartBlocked } from './access/paper-access';
 
 interface PracticeTestCardProps {
   test: ApiMockTest;
@@ -46,6 +48,7 @@ export default function PracticeTestCard({
   const negativeMarking = test.negativeMarking > 0;
   const action = test.userAttemptAction ?? 'START';
   const { label, loadingLabel, className, Icon } = ACTION_CONFIG[action];
+  const blocked = isStartBlocked(test);
 
   return (
     <div
@@ -55,9 +58,12 @@ export default function PracticeTestCard({
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 text-lg leading-snug mb-1 truncate">
-            {displayTitle}
-          </h3>
+          <div className="mb-1 flex items-center gap-2">
+            <h3 className="min-w-0 flex-1 truncate font-semibold text-lg leading-snug text-gray-900">
+              {displayTitle}
+            </h3>
+            {blocked ? <LockedTestBadge /> : null}
+          </div>
           <p className="text-sm text-gray-500">{test.subject.name}</p>
         </div>
         {negativeMarking && (
@@ -88,23 +94,17 @@ export default function PracticeTestCard({
         )}
       </div>
 
-      <Button
-        onClick={onAction}
-        disabled={disabled || isActing}
-        className={`w-full disabled:opacity-100 ${className}`}
-      >
-        {isActing ? (
-          <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            {loadingLabel}
-          </>
-        ) : (
-          <>
-            <Icon className="w-4 h-4 mr-2" />
-            {label}
-          </>
-        )}
-      </Button>
+      <PaperCardAction
+        testId={test.id}
+        blocked={blocked}
+        disabled={disabled}
+        isActing={isActing}
+        onAction={onAction}
+        label={label}
+        loadingLabel={loadingLabel}
+        className={className}
+        Icon={Icon}
+      />
     </div>
   );
 }

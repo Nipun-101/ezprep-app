@@ -1,10 +1,12 @@
 'use client';
 
-import { Clock, HelpCircle, BookMarked, Minus, Loader2, Play, RotateCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Clock, HelpCircle, BookMarked, Minus, Play, RotateCcw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { UserAttemptAction } from '@/lib/api/exams';
 import { ApiSprintTest } from '@/lib/api/sprint-tests';
+import LockedTestBadge from './access/LockedTestBadge';
+import PaperCardAction from './access/PaperCardAction';
+import { isStartBlocked } from './access/paper-access';
 
 interface SprintTestCardProps {
   test: ApiSprintTest;
@@ -47,6 +49,7 @@ export default function SprintTestCard({
   const negativeMarking = test.negativeMarking > 0;
   const action = test.userAttemptAction ?? 'START';
   const { label, loadingLabel, className, Icon } = ACTION_CONFIG[action];
+  const blocked = isStartBlocked(test);
 
   return (
     <div
@@ -56,9 +59,12 @@ export default function SprintTestCard({
     >
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 text-lg leading-snug line-clamp-2 min-h-[1.75rem]">
-            {displayTitle}
-          </h3>
+          <div className="flex items-start gap-2">
+            <h3 className="min-h-[1.75rem] min-w-0 flex-1 font-semibold text-lg leading-snug text-gray-900 line-clamp-2">
+              {displayTitle}
+            </h3>
+            {blocked ? <LockedTestBadge /> : null}
+          </div>
           <p className="mt-1 text-sm leading-5 text-gray-500 line-clamp-2 min-h-5">
             {test.description?.trim() || 'One timer for the whole paper'}
           </p>
@@ -98,23 +104,18 @@ export default function SprintTestCard({
         </span>
       </p>
 
-      <Button
-        onClick={onAction}
-        disabled={disabled || isActing}
-        className={`mt-auto w-full disabled:opacity-100 ${className}`}
-      >
-        {isActing ? (
-          <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            {loadingLabel}
-          </>
-        ) : (
-          <>
-            <Icon className="w-4 h-4 mr-2" />
-            {label}
-          </>
-        )}
-      </Button>
+      <PaperCardAction
+        testId={test.id}
+        blocked={blocked}
+        disabled={disabled}
+        isActing={isActing}
+        onAction={onAction}
+        label={label}
+        loadingLabel={loadingLabel}
+        className={className}
+        Icon={Icon}
+        buttonClassName="mt-auto"
+      />
     </div>
   );
 }

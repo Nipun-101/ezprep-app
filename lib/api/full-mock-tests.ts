@@ -1,5 +1,5 @@
 import apiClient from './client';
-import { UserAttemptAction, MockTestsPagination } from './exams';
+import { UserAttemptAction, MockTestsPagination, AccessMode, PaperAccess } from './exams';
 
 export interface ApiFullMockSubjectConfig {
   subject: string;
@@ -38,6 +38,8 @@ export interface ApiFullMockTest {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  accessMode?: AccessMode;
+  access?: PaperAccess;
   userAttemptAction: UserAttemptAction;
   resumeAttemptId?: string;
 }

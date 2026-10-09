@@ -45,6 +45,14 @@ export interface ApiMockTestTopic {
 
 export type UserAttemptAction = 'START' | 'RETAKE' | 'RESUME';
 
+export type AccessMode = 'FREE' | 'ENTITLED';
+
+/** Backend-computed access. Missing means the client does not lock the paper. */
+export interface PaperAccess {
+  allowed: boolean;
+  reason: string;
+}
+
 export interface ApiMockTest {
   id: string;
   title: string | null;
@@ -64,6 +72,8 @@ export interface ApiMockTest {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  accessMode?: AccessMode;
+  access?: PaperAccess;
   userAttemptAction: UserAttemptAction;
   resumeAttemptId?: string;
 }
