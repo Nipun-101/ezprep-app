@@ -30,6 +30,7 @@ declare global {
 }
 
 let scriptPromise: Promise<void> | null = null;
+let checkoutOpen = false;
 
 function publicKeyId(): string {
   return process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.trim() ?? '';
@@ -82,17 +83,23 @@ export const razorpayCheckoutAdapter: CheckoutAdapter = {
       throw new Error('Payment could not be started. Please try again.');
     }
 
+    if (checkoutOpen) {
+      throw new Error('Payment could not be started. Please try again.');
+    }
+
     await loadCheckoutScript();
     const Razorpay = window.Razorpay;
     if (!Razorpay) {
       throw new Error('Payment could not be started. Please try again.');
     }
 
+    checkoutOpen = true;
     return new Promise((resolve) => {
       let settled = false;
       const finish = (result: CheckoutOpenResult) => {
         if (settled) return;
         settled = true;
+        checkoutOpen = false;
         resolve(result);
       };
 
@@ -127,7 +134,17 @@ export const razorpayCheckoutAdapter: CheckoutAdapter = {
           'Payment failed.';
         finish({ outcome: 'failed', message });
       });
-      checkout.open();
+      try {
+        checkout.open();
+      } catch (error) {
+        finish({
+          outcome: 'failed',
+          message:
+            error instanceof Error && error.message
+              ? error.message
+              : 'Payment could not be started. Please try again.',
+        });
+      }
     });
   },
 };

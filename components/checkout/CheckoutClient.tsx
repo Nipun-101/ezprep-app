@@ -176,8 +176,12 @@ export default function CheckoutClient() {
     } catch (error) {
       setNotice(checkoutStartMessage(error));
     } finally {
-      payingRef.current = false;
-      setPaying(false);
+      // The click that closes Razorpay can land on Pay securely once the modal
+      // is gone. Hold the lock through that second click.
+      window.setTimeout(() => {
+        payingRef.current = false;
+        setPaying(false);
+      }, 600);
     }
   };
 
