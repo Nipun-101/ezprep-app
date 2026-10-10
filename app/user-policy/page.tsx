@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
+import { brand } from '@/lib/brand';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'User Policy | EzPrep',
+  title: `User Policy | ${brand.name}`,
   description:
-    'Acceptable use guidelines for EzPrep — how to use our exam preparation platform responsibly and respectfully.',
+    `Acceptable use guidelines for ${brand.name} — how to use our exam preparation platform responsibly and respectfully.`,
 };
 
 const prohibitedContent = [
@@ -23,19 +24,19 @@ const prohibitedContent = [
 ];
 
 const prohibitedActivities = [
-  'Copy, frame, mirror, or reuse EzPrep branding, logos, layouts, or platform elements without our written permission.',
+  `Copy, frame, mirror, or reuse ${brand.name} branding, logos, layouts, or platform elements without our written permission.`,
   'Access or interfere with non-public areas of our systems, servers, or provider infrastructure.',
-  'Probe, scan, or attempt to breach the security of EzPrep or our service partners.',
+  `Probe, scan, or attempt to breach the security of ${brand.name} or our service partners.`,
   'Bypass or disable security, access controls, or content protection measures on the platform.',
   'Scrape, crawl, harvest, or bulk-download content using bots, scripts, or automated tools outside our approved interfaces.',
   'Send spam, unsolicited promotions, chain messages, or other unauthorized solicitations through the platform.',
-  'Use hidden metadata, tags, or branding that misrepresents affiliation with EzPrep.',
-  'Use EzPrep for unauthorized commercial purposes or in ways not permitted by our Terms of Service.',
+  `Use hidden metadata, tags, or branding that misrepresents affiliation with ${brand.name}.`,
+  `Use ${brand.name} for unauthorized commercial purposes or in ways not permitted by our Terms of Service.`,
   'Forge headers or send communications that misrepresent their origin through our Services.',
-  'Reverse engineer, decompile, or disassemble software used to deliver EzPrep.',
+  `Reverse engineer, decompile, or disassemble software used to deliver ${brand.name}.`,
   'Disrupt platform availability through viruses, flooding, overloading, or similar attacks.',
   'Collect personal information from other users without their clear consent.',
-  'Impersonate another person, organisation, or misrepresent your relationship with EzPrep.',
+  `Impersonate another person, organisation, or misrepresent your relationship with ${brand.name}.`,
   'Violate any applicable law, regulation, or exam-board integrity rules while using the platform.',
   'Ask other users for passwords, OTPs, tokens, or other account credentials.',
   'Share your login details with friends, relatives, or anyone else to study from a single account.',
@@ -64,7 +65,7 @@ export default function UserPolicyPage() {
               User Policy
             </h1>
             <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-              EzPrep helps aspirants prepare for government and competitive exams online. To keep
+              {brand.name} helps aspirants prepare for government and competitive exams online. To keep
               the platform reliable, fair, and safe for everyone, please use our Services only in
               ways described in this Acceptable Use Policy.
             </p>
@@ -75,7 +76,7 @@ export default function UserPolicyPage() {
               Content you must not post or share
             </h2>
             <p className="text-gray-600 mb-4 leading-relaxed">
-              You agree not to upload, publish, or distribute user content on EzPrep that includes:
+              You agree not to upload, publish, or distribute user content on {brand.name} that includes:
             </p>
             <ul className="space-y-3">
               {prohibitedContent.map((item) => (
@@ -93,7 +94,7 @@ export default function UserPolicyPage() {
             </h2>
             <p className="text-gray-600 mb-4 leading-relaxed">
               When using mock tests, study materials, mentorship features, or any other part of
-              EzPrep, you agree not to:
+              {brand.name}, you agree not to:
             </p>
             <ul className="space-y-3">
               {prohibitedActivities.map((item) => (
@@ -108,7 +109,7 @@ export default function UserPolicyPage() {
           <section className="mb-10 rounded-2xl border border-teal-100 bg-teal-50/60 px-5 py-6 sm:px-6">
             <h2 className="text-xl font-bold text-gray-900 mb-3">How we enforce this policy</h2>
             <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-4">
-              EzPrep may review, remove, or restrict user content at any time if we believe it
+              {brand.name} may review, remove, or restrict user content at any time if we believe it
               violates this User Policy, our{' '}
               <Link href="/terms" className="text-teal-600 hover:text-teal-700 font-medium">
                 Terms of Service
@@ -118,7 +119,7 @@ export default function UserPolicyPage() {
             </p>
             <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
               We may also suspend or permanently close accounts when we determine, at our sole
-              discretion, that a user has breached these rules. EzPrep is not liable for actions
+              discretion, that a user has breached these rules. {brand.name} is not liable for actions
               taken to protect the platform and its community.
             </p>
           </section>
@@ -127,14 +128,14 @@ export default function UserPolicyPage() {
             <p className="text-sm text-gray-500">
               Questions about this policy? Contact us at{' '}
               <a
-                href="mailto:support@ezprep.in"
+                href={`mailto:${brand.supportEmail}`}
                 className="text-teal-600 hover:text-teal-700 font-medium"
               >
-                support@ezprep.in
+                {brand.supportEmail}
               </a>
               .
             </p>
-            <p className="text-sm text-gray-400 mt-4">Last updated: May 25, 2026</p>
+            <p className="text-sm text-gray-400 mt-4">Last updated: 11 October 2026</p>
           </section>
         </div>
       </article>

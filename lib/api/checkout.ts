@@ -12,6 +12,7 @@ export interface CheckoutOrder {
   expiresAt?: string;
   paidAt?: string;
   tax?: OrderTaxView;
+  confirmation?: 'PENDING_CAPTURE';
 }
 
 export interface RazorpayVerifyPayload {
@@ -28,6 +29,13 @@ export async function createCheckoutOrder(body: {
   const response = await apiClient.post<{ message: string; data: CheckoutOrder }>(
     '/api/v1/checkout/orders',
     body
+  );
+  return response.data.data;
+}
+
+export async function getCheckoutOrder(orderId: string): Promise<CheckoutOrder> {
+  const response = await apiClient.get<{ message: string; data: CheckoutOrder }>(
+    `/api/v1/checkout/orders/${orderId}`
   );
   return response.data.data;
 }

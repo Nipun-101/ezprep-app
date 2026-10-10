@@ -1,5 +1,11 @@
 import axios from 'axios';
 
+export function apiErrorCode(error: unknown): string | undefined {
+  if (!axios.isAxiosError(error)) return undefined;
+  const code = error.response?.data?.details?.code;
+  return typeof code === 'string' && code.trim() ? code.trim() : undefined;
+}
+
 export function apiErrorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
     const message = error.response?.data?.message;

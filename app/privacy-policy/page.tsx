@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { brand } from '@/lib/brand';
 import Link from 'next/link';
 import {
   LegalContact,
@@ -10,15 +11,16 @@ import {
 } from '@/components/legal/LegalDocument';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | EzPrep',
+  title: `Privacy Policy | ${brand.name}`,
   description:
-    'How EzPrep collects, uses, and protects your personal information, including data received when you sign in with Google.',
+    `How ${brand.name} collects, uses, and protects your personal information, including data received when you sign in with Google.`,
 };
 
 const SECTIONS: LegalNavItem[] = [
   { id: 'google-sign-in', title: 'Google Sign-In' },
   { id: 'general', title: 'General' },
   { id: 'information-we-collect', title: 'Information we collect' },
+  { id: 'payments', title: 'Payments and billing' },
   { id: 'how-we-use', title: 'How we use information' },
   { id: 'sharing', title: 'Sharing with third parties' },
   { id: 'your-choices', title: 'Your choices' },
@@ -50,8 +52,8 @@ export default function PrivacyPolicyPage() {
   return (
     <LegalDocument
       title="Privacy Policy"
-      lede="How EzPrep collects, uses, and protects your information when you prepare for exams with us — including data received if you sign in with Google."
-      updated="26 September 2026"
+      lede={`How ${brand.name} collects, uses, and protects your information when you prepare for exams with us — including data received if you sign in with Google.`}
+      updated="11 October 2026"
       currentPath="/privacy-policy"
       sections={SECTIONS}
     >
@@ -62,17 +64,17 @@ export default function PrivacyPolicyPage() {
               Sign in with Google
             </p>
             <h2 className="mt-1 text-lg sm:text-xl font-bold text-white">
-              What EzPrep receives from your Google account
+              What {brand.name} receives from your Google account
             </h2>
           </div>
 
           <div className="px-5 py-5 sm:px-6 sm:py-6 space-y-4 text-sm sm:text-base text-gray-600 leading-relaxed">
             <p>
-              When you choose to sign in with Google, EzPrep may receive your Google account email
+              When you choose to sign in with Google, {brand.name} may receive your Google account email
               address, name, profile picture, and a unique Google account identifier.
             </p>
             <p>
-              This information is used to create and authenticate your EzPrep account. EzPrep does
+              This information is used to create and authenticate your {brand.name} account. {brand.name} does
               not access your Gmail, Google Drive, contacts, calendar, or other Google services.
             </p>
           </div>
@@ -108,13 +110,13 @@ export default function PrivacyPolicyPage() {
 
           <div className="border-t border-teal-100 px-5 py-4 sm:px-6 text-sm text-gray-600 leading-relaxed space-y-3">
             <p>
-              We use Google account data only to provide and secure the EzPrep service: creating
+              We use Google account data only to provide and secure the {brand.name} service: creating
               your account, signing you in, showing your name and profile picture in the app, and
               contacting you about your account. We do not sell Google user data, and we do not use
               it for advertising.
             </p>
             <p>
-              EzPrep&apos;s use and transfer of information received from Google APIs adheres to the{' '}
+              {brand.name}&apos;s use and transfer of information received from Google APIs adheres to the{' '}
               <a
                 href="https://developers.google.com/terms/api-services-user-data-policy"
                 target="_blank"
@@ -126,7 +128,7 @@ export default function PrivacyPolicyPage() {
               , including the Limited Use requirements.
             </p>
             <p>
-              You can remove EzPrep&apos;s access at any time from your{' '}
+              You can remove {brand.name}&apos;s access at any time from your{' '}
               <a
                 href="https://myaccount.google.com/permissions"
                 target="_blank"
@@ -135,9 +137,9 @@ export default function PrivacyPolicyPage() {
               >
                 Google Account permissions
               </a>
-              . To ask us to delete personal data already stored by EzPrep, email{' '}
-              <a href="mailto:support@ezprep.in" className={legalLinkClass}>
-                support@ezprep.in
+              . To ask us to delete personal data already stored by {brand.name}, email{' '}
+              <a href={`mailto:${brand.supportEmail}`} className={legalLinkClass}>
+                {brand.supportEmail}
               </a>
               .
             </p>
@@ -147,7 +149,7 @@ export default function PrivacyPolicyPage() {
 
       <LegalSection id="general" title="General">
         <p>
-          By using, accessing, or participating in the EzPrep service (the &quot;Service&quot;), you
+          By using, accessing, or participating in the {brand.name} service (the &quot;Service&quot;), you
           agree to this Privacy Policy. Capitalised terms not defined here have the meanings given
           in our{' '}
           <Link href="/terms" className={legalLinkClass}>
@@ -156,7 +158,7 @@ export default function PrivacyPolicyPage() {
           .
         </p>
         <p>
-          EzPrep Technologies Pvt. Ltd. (&quot;EzPrep&quot;, &quot;we&quot;, or &quot;us&quot;) is
+          {brand.legalName} (&quot;{brand.name}&quot;, &quot;we&quot;, or &quot;us&quot;) is
           the operator of the Service. This policy explains what we collect, why we collect it, and
           the choices you have.
         </p>
@@ -164,7 +166,7 @@ export default function PrivacyPolicyPage() {
 
       <LegalSection id="information-we-collect" title="Information we collect">
         <p>
-          When you sign in with your mobile number, EzPrep uses our authentication partners to
+          When you sign in with your mobile number, {brand.name} uses our authentication partners to
           verify your identity and link your account to your phone number. When you sign in with
           Google, we receive the Google account details described above. Either method helps us
           secure access to mock tests, study materials, and other features tied to your profile.
@@ -190,9 +192,20 @@ export default function PrivacyPolicyPage() {
           ]}
         />
         <p>
-          As you use EzPrep, you may update your profile, attempt mock tests, bookmark content,
+          As you use {brand.name}, you may update your profile, attempt mock tests, bookmark content,
           generate performance analytics, and send messages or feedback. We store this information
           to operate the Service, personalise your experience, and improve our products.
+        </p>
+        <p id="payments">
+          <strong className="text-gray-800">Payments and billing.</strong> When you buy a plan, we
+          collect the billing name, state, and address you enter at checkout. We use them to issue
+          the GST tax invoice the law requires and to apply the correct tax. Payments are processed
+          by Razorpay. You enter your card, UPI, or bank details on Razorpay&apos;s checkout, and we
+          never receive or store them. Razorpay tells us whether a payment succeeded, the payment
+          method type, and a payment reference. We share with Razorpay only what it needs to process
+          the payment, such as the amount, an order reference, and an internal account identifier.
+          Invoices and payment records are kept for as long as tax law requires, currently at least
+          six years, even if you delete your account.
         </p>
       </LegalSection>
 
@@ -216,7 +229,7 @@ export default function PrivacyPolicyPage() {
 
       <LegalSection id="sharing" title="Sharing information with third parties">
         <p>
-          EzPrep shares personally identifiable information only when reasonably necessary to
+          {brand.name} shares personally identifiable information only when reasonably necessary to
           provide the Service, comply with law, protect our users, or with your consent. For
           example:
         </p>
@@ -227,7 +240,7 @@ export default function PrivacyPolicyPage() {
             'If you sign in with Google, Google processes that sign-in under its own terms. We receive only the account details listed in this policy.',
             'Mobile SDKs or notification services may collect device identifiers, app usage data, or similar technical information to deliver push alerts and measure engagement, subject to your device permissions.',
             'We may disclose information when required by law, court order, or government request, or when we believe disclosure is necessary to prevent fraud, protect rights, or address security issues.',
-            'If EzPrep or relevant parts of our business are acquired or transferred, your information may be passed to the successor entity, still subject to this Privacy Policy.',
+            `If ${brand.name} or relevant parts of our business are acquired or transferred, your information may be passed to the successor entity, still subject to this Privacy Policy.`,
           ]}
         />
         <p>
@@ -239,10 +252,10 @@ export default function PrivacyPolicyPage() {
       <LegalSection id="your-choices" title="Your choices and opt-out options">
         <LegalList
           items={[
-            'Google access: Open your Google Account permissions and remove EzPrep to stop future sign-in data from being shared with us.',
-            'Push notifications: You can disable push alerts in your device Settings under Notifications and adjust permissions for the EzPrep app or browser.',
+            `Google access: Open your Google Account permissions and remove ${brand.name} to stop future sign-in data from being shared with us.`,
+            `Push notifications: You can disable push alerts in your device Settings under Notifications and adjust permissions for the ${brand.name} app or browser.`,
             'Interest-based advertising: On Android, open Google Settings → Ads to opt out of personalised ads. On iOS, use Settings → Privacy → Apple Advertising. Device menus may vary by version.',
-            'Marketing emails: Use the unsubscribe link in promotional messages where provided, or contact support@ezprep.in.',
+            `Marketing emails: Use the unsubscribe link in promotional messages where provided, or contact ${brand.supportEmail}.`,
             'Cookies: Use your browser settings to block or delete cookies. Some sign-in and preference features may stop working.',
           ]}
         />
@@ -266,8 +279,8 @@ export default function PrivacyPolicyPage() {
         </p>
         <p>
           To request deletion of your personal data, email{' '}
-          <a href="mailto:support@ezprep.in" className={legalLinkClass}>
-            support@ezprep.in
+          <a href={`mailto:${brand.supportEmail}`} className={legalLinkClass}>
+            {brand.supportEmail}
           </a>
           . We may retain limited records where the law requires it, or where we need them to
           prevent fraud or complete an outstanding transaction.
@@ -277,7 +290,7 @@ export default function PrivacyPolicyPage() {
       <LegalSection id="analytics" title="Analytics and customer support tools">
         <p>
           We use third-party analytics and support tools to understand how users interact with
-          EzPrep and to respond to enquiries. These providers may receive limited account
+          {brand.name} and to respond to enquiries. These providers may receive limited account
           information — such as signup date, email, or mobile number — and usage data through
           cookies or similar technologies. They process this data on our behalf to help us improve
           the Service and communicate with you.
@@ -293,10 +306,10 @@ export default function PrivacyPolicyPage() {
         <p>
           The Service may contain links to external websites. We are not responsible for the
           privacy practices of other sites. We encourage you to read their privacy statements when
-          you leave EzPrep.
+          you leave {brand.name}.
         </p>
         <p>
-          EzPrep may embed or integrate third-party content — including{' '}
+          {brand.name} may embed or integrate third-party content — including{' '}
           <a
             href="https://www.youtube.com/t/terms"
             target="_blank"
@@ -318,7 +331,7 @@ export default function PrivacyPolicyPage() {
           . We use YouTube services to display video content and related metadata where applicable.
         </p>
         <p>
-          EzPrep is an independent ed-tech company offering exam preparation for Union and State
+          {brand.name} is an independent ed-tech company offering exam preparation for Union and State
           government examinations. We do not represent any government department, exam authority, or
           private organisation unless explicitly stated in a specific partnership.
         </p>
@@ -326,11 +339,11 @@ export default function PrivacyPolicyPage() {
 
       <LegalSection id="children" title="Children">
         <p>
-          EzPrep is intended for people preparing for competitive examinations. We do not knowingly
+          {brand.name} is intended for people preparing for competitive examinations. We do not knowingly
           collect personal information from children under 13. If you believe a child has provided
           us with personal information, contact{' '}
-          <a href="mailto:support@ezprep.in" className={legalLinkClass}>
-            support@ezprep.in
+          <a href={`mailto:${brand.supportEmail}`} className={legalLinkClass}>
+            {brand.supportEmail}
           </a>{' '}
           and we will take steps to delete it.
         </p>

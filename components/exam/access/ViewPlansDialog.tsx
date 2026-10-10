@@ -19,6 +19,7 @@ import {
   sellableOffers,
 } from '@/lib/api/catalog';
 import { formatDurationPreset, formatPaiseAsRupees } from '@/lib/commerce-money';
+import Link from 'next/link';
 
 export type ViewPlansTarget =
   | { kind: 'exam'; examId: string }
@@ -33,6 +34,7 @@ interface ViewPlansDialogProps {
 export default function ViewPlansDialog({ open, onOpenChange, target }: ViewPlansDialogProps) {
   const router = useRouter();
   const [products, setProducts] = useState<CatalogProduct[]>([]);
+  const [commerceEnabled, setCommerceEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
@@ -51,7 +53,10 @@ export default function ViewPlansDialog({ open, onOpenChange, target }: ViewPlan
       : getProductsForMockTest(mockTestId as string);
     request
       .then((data) => {
-        if (!cancelled) setProducts(data);
+        if (!cancelled) {
+          setProducts(data.products);
+          setCommerceEnabled(data.commerceEnabled);
+        }
       })
       .catch(() => {
         if (!cancelled) {
@@ -115,10 +120,16 @@ export default function ViewPlansDialog({ open, onOpenChange, target }: ViewPlan
             </div>
           ) : rows.length === 0 ? (
             <p className="py-6 text-center text-sm text-gray-500">
-              No plans are available for this yet.
+              {commerceEnabled
+                ? 'No plans are available for this yet.'
+                : 'Purchases are not available yet.'}
             </p>
           ) : (
-            <ul className="mt-4 space-y-3">
+            <div className="mt-4 space-y-3">
+              {commerceEnabled ? null : (
+                <p className="text-sm text-gray-600">Purchases are not available yet.</p>
+              )}
+              <ul className="space-y-3">
               {rows.map(({ product, offers }) => (
                 <li key={product.id} className="rounded-xl border border-gray-200 bg-white p-3 sm:p-4">
                   <h3 className="break-words font-semibold text-gray-900">{product.name}</h3>
@@ -140,22 +151,15 @@ export default function ViewPlansDialog({ open, onOpenChange, target }: ViewPlan
                             <p className="text-sm text-gray-600">
                               {paise != null ? formatPaiseAsRupees(paise) : '—'}
                             </p>
+                            <OwnershipNote product={product} />
                           </div>
-                          <Button
-                            type="button"
-                            className="h-11 w-full shrink-0 bg-teal-600 text-white hover:bg-teal-700 sm:h-10 sm:w-auto"
+                          <PlanAction
+                            product={product}
+                            commerceEnabled={commerceEnabled}
+                            opening={openingOfferId === offer.id}
                             disabled={openingOfferId !== null}
-                            onClick={() => buy(offer.id)}
-                          >
-                            {openingOfferId === offer.id ? (
-                              <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Opening checkout
-                              </>
-                            ) : (
-                              'Buy'
-                            )}
-                          </Button>
+                            onBuy={() => buy(offer.id)}
+                          />
                         </li>
                       );
                     })}
@@ -163,6 +167,7 @@ export default function ViewPlansDialog({ open, onOpenChange, target }: ViewPlan
                 </li>
               ))}
             </ul>
+            </div>
           )}
         </div>
 
@@ -174,5 +179,79 @@ export default function ViewPlansDialog({ open, onOpenChange, target }: ViewPlan
         ) : null}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function planOwnership(product: CatalogProduct): 'lifetime' | 'extend' | 'buy' {
+  if (product.coveredForLife || product.ownedUntil === null) return 'lifetime';
+  if (typeof product.ownedUntil === 'string' && product.ownedUntil) return 'extend';
+  return 'buy';
+}
+
+function formatAccessDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+function OwnershipNote({ product }: { product: CatalogProduct }) {
+  const ownership = planOwnership(product);
+  if (ownership === 'lifetime') {
+    return (
+      <p className="mt-1 text-sm text-gray-600">
+        You already have lifetime access.{' '}
+        <Link href="/dashboard/subscriptions" className="text-teal-700 underline">
+          Subscriptions
+        </Link>
+      </p>
+    );
+  }
+  if (ownership === 'extend' && product.ownedUntil) {
+    const date = formatAccessDate(product.ownedUntil);
+    return (
+      <div className="mt-1 space-y-1 text-sm text-gray-600">
+        <p>Active until {date}</p>
+        <p>Starts after your current access ends on {date}.</p>
+      </div>
+    );
+  }
+  return null;
+}
+
+function PlanAction({
+  product,
+  commerceEnabled,
+  opening,
+  disabled,
+  onBuy,
+}: {
+  product: CatalogProduct;
+  commerceEnabled: boolean;
+  opening: boolean;
+  disabled: boolean;
+  onBuy: () => void;
+}) {
+  if (!commerceEnabled || planOwnership(product) === 'lifetime') return null;
+  const label = planOwnership(product) === 'extend' ? 'Extend' : 'Buy';
+  return (
+    <Button
+      type="button"
+      className="h-11 w-full shrink-0 bg-teal-600 text-white hover:bg-teal-700 sm:h-10 sm:w-auto"
+      disabled={disabled}
+      onClick={onBuy}
+    >
+      {opening ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Opening checkout
+        </>
+      ) : (
+        label
+      )}
+    </Button>
   );
 }

@@ -18,10 +18,14 @@ export interface CatalogProduct {
   description?: string;
   status: string;
   offers: CatalogOffer[];
+  coveredForLife?: boolean;
+  /** Omitted when the user has no payment row. Null is lifetime. */
+  ownedUntil?: string | null;
 }
 
 interface CatalogProductsResponse {
   message: string;
+  commerceEnabled?: boolean;
   data: CatalogProduct[];
 }
 
@@ -53,44 +57,64 @@ export function sellableOffers(product: CatalogProduct): CatalogOffer[] {
 export async function listCatalogProducts(params: {
   page?: number;
   limit?: number;
-}): Promise<{ data: CatalogProduct[]; pagination: CatalogPagination }> {
+}): Promise<{ data: CatalogProduct[]; pagination: CatalogPagination; commerceEnabled: boolean }> {
   const response = await apiClient.get<CatalogListResponse>('/api/v1/catalog/products', {
     params,
   });
   return {
     data: response.data.data ?? [],
     pagination: response.data.pagination,
+    commerceEnabled: response.data.commerceEnabled !== false,
   };
 }
 
-/** Finds one offer by paging the published catalog. Price display only. */
-export async function findCatalogOffer(offerId: string): Promise<{
-  product: CatalogProduct;
-  offer: CatalogOffer;
-} | null> {
-  let page = 1;
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    const result = await listCatalogProducts({ page, limit: 100 });
-    for (const product of result.data) {
-      const offer = (product.offers ?? []).find((item) => item.id === offerId);
-      if (offer) return { product, offer };
-    }
-    if (!result.pagination?.hasNextPage) return null;
-    page += 1;
-  }
-  return null;
+export interface CatalogOfferMatch {
+  product: CatalogProduct | null;
+  offer: CatalogOffer | null;
+  commerceEnabled: boolean;
 }
 
-export async function getProductsForExam(examId: string): Promise<CatalogProduct[]> {
+/** Finds one offer by paging the published catalog. Price display only. */
+export async function findCatalogOffer(offerId: string): Promise<CatalogOfferMatch> {
+  let page = 1;
+  let commerceEnabled = true;
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const result = await listCatalogProducts({ page, limit: 100 });
+    commerceEnabled = result.commerceEnabled;
+    if (!commerceEnabled) {
+      return { product: null, offer: null, commerceEnabled: false };
+    }
+    for (const product of result.data) {
+      const offer = (product.offers ?? []).find((item) => item.id === offerId);
+      if (offer) return { product, offer, commerceEnabled };
+    }
+    if (!result.pagination?.hasNextPage) break;
+    page += 1;
+  }
+  return { product: null, offer: null, commerceEnabled };
+}
+
+export interface CoveringProductsResult {
+  products: CatalogProduct[];
+  commerceEnabled: boolean;
+}
+
+export async function getProductsForExam(examId: string): Promise<CoveringProductsResult> {
   const response = await apiClient.get<CatalogProductsResponse>(
     `/api/v1/catalog/products/for-exam/${examId}`
   );
-  return response.data.data ?? [];
+  return {
+    products: response.data.data ?? [],
+    commerceEnabled: response.data.commerceEnabled !== false,
+  };
 }
 
-export async function getProductsForMockTest(mockTestId: string): Promise<CatalogProduct[]> {
+export async function getProductsForMockTest(mockTestId: string): Promise<CoveringProductsResult> {
   const response = await apiClient.get<CatalogProductsResponse>(
     `/api/v1/catalog/products/for-mock-test/${mockTestId}`
   );
-  return response.data.data ?? [];
+  return {
+    products: response.data.data ?? [],
+    commerceEnabled: response.data.commerceEnabled !== false,
+  };
 }

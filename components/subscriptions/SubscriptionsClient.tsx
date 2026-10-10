@@ -117,6 +117,12 @@ export default function SubscriptionsClient() {
     }
   };
 
+  const pendingInvoices = invoicesError
+    ? []
+    : orders.filter(
+        (order) => order.status === 'PAID' && !invoices.some((invoice) => invoice.orderId === order.id)
+      );
+
   if (loading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
@@ -145,6 +151,9 @@ export default function SubscriptionsClient() {
               <p className="mt-2 text-sm text-gray-500">
                 {formatWhen(card.startsAt)} – {card.expiresAt ? formatWhen(card.expiresAt) : 'Lifetime'}
               </p>
+              {isFutureStart(card.startsAt) ? (
+                <p className="mt-1 text-sm text-gray-500">Starts {formatWhen(card.startsAt)}</p>
+              ) : null}
             </li>
           ))}
         </ul>
@@ -188,10 +197,16 @@ export default function SubscriptionsClient() {
         <h2 className="text-lg font-semibold text-gray-900">Invoices</h2>
         {invoicesError ? <ErrorText message={invoicesError} /> : null}
         {downloadError ? <p className="text-sm text-red-600">{downloadError}</p> : null}
-        {!invoicesError && invoices.length === 0 ? (
+        {!invoicesError && invoices.length === 0 && pendingInvoices.length === 0 ? (
           <p className="text-sm text-gray-600">No invoices yet.</p>
         ) : null}
         <ul className="space-y-3">
+          {pendingInvoices.map((order) => (
+            <li key={order.id} className="rounded-xl border border-gray-200 bg-white p-4">
+              <p className="font-semibold text-gray-900">{order.orderNumber}</p>
+              <p className="text-sm text-gray-500">Invoice is being prepared</p>
+            </li>
+          ))}
           {invoices.map((invoice) => (
             <li
               key={invoice.id}
@@ -312,6 +327,11 @@ function combinedExpiry(rows: MyEntitlement[]): string | null {
 
 function orderStatusLabel(status: string): string {
   return ORDER_STATUS_LABELS[status] ?? status;
+}
+
+function isFutureStart(value: string): boolean {
+  const time = new Date(value).getTime();
+  return Number.isFinite(time) && time > Date.now();
 }
 
 function formatWhen(value?: string | null): string {

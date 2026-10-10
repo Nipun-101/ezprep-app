@@ -1,3 +1,4 @@
+import { dismissIsCheckoutTimeout } from '../poll-order-status';
 import {
   CheckoutAdapter,
   CheckoutOpenResult,
@@ -96,6 +97,7 @@ export const razorpayCheckoutAdapter: CheckoutAdapter = {
     checkoutOpen = true;
     return new Promise((resolve) => {
       let settled = false;
+      let lastError: string | null = null;
       const finish = (result: CheckoutOpenResult) => {
         if (settled) return;
         settled = true;
@@ -111,28 +113,37 @@ export const razorpayCheckoutAdapter: CheckoutAdapter = {
         name: input.merchantName?.trim() || 'EzPrep',
         description: input.description,
         prefill: input.prefillName ? { name: input.prefillName } : undefined,
+        ...(typeof input.timeoutSeconds === 'number' && input.timeoutSeconds > 0
+          ? { timeout: input.timeoutSeconds }
+          : {}),
         handler: (response: unknown) => {
           if (!isSuccessPayload(response)) {
-            finish({
-              outcome: 'failed',
-              message: 'Payment could not be confirmed.',
-            });
+            finish({ outcome: 'confirm' });
             return;
           }
           finish({ outcome: 'success', payload: response });
         },
         modal: {
-          ondismiss: () => finish({ outcome: 'dismissed' }),
+          ondismiss: () => {
+            if (dismissIsCheckoutTimeout(input.expiresAt, Date.now())) {
+              finish({ outcome: 'expired' });
+              return;
+            }
+            if (lastError) {
+              finish({ outcome: 'failed', message: lastError });
+              return;
+            }
+            finish({ outcome: 'dismissed' });
+          },
         },
         theme: { color: '#0d9488' },
       });
 
       checkout.on('payment.failed', (response) => {
-        const message =
+        lastError =
           response.error?.description?.trim() ||
           response.error?.reason?.trim() ||
           'Payment failed.';
-        finish({ outcome: 'failed', message });
       });
       try {
         checkout.open();
