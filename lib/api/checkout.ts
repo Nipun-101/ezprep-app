@@ -1,3 +1,4 @@
+import { OrderTaxView } from '../commerce-money';
 import { BillingInput } from './billing';
 import apiClient from './client';
 
@@ -10,6 +11,7 @@ export interface CheckoutOrder {
   providerData: Record<string, unknown>;
   expiresAt?: string;
   paidAt?: string;
+  tax?: OrderTaxView;
 }
 
 export interface RazorpayVerifyPayload {

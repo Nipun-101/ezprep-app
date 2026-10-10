@@ -11,6 +11,7 @@ export interface OpenCheckoutInput {
   serverKeyId?: string;
   description?: string;
   prefillName?: string;
+  merchantName?: string;
 }
 
 export type CheckoutOpenResult =

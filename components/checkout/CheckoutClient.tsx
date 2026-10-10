@@ -25,7 +25,7 @@ import { CheckoutOrder, createCheckoutOrder, verifyCheckoutOrder } from '@/lib/a
 import { apiErrorMessage } from '@/lib/api/errors';
 import { getMyProfile } from '@/lib/api/users';
 import { checkoutService } from '@/lib/checkout/CheckoutService';
-import { formatDurationPreset, formatPaiseAsRupees } from '@/lib/commerce-money';
+import { formatDurationPreset, formatPaiseAsRupees, gstBreakdownLine } from '@/lib/commerce-money';
 
 const CLOSED_STATUSES = new Set(['EXPIRED', 'FAILED', 'CANCELLED', 'REFUNDED']);
 
@@ -59,7 +59,7 @@ export default function CheckoutClient() {
   );
   const [paying, setPaying] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
-  const [paid, setPaid] = useState(false);
+  const [paidOrder, setPaidOrder] = useState<CheckoutOrder | null>(null);
 
   useEffect(() => {
     if (!offerId) return;
@@ -128,7 +128,7 @@ export default function CheckoutClient() {
       }
 
       if (order.status === 'PAID') {
-        setPaid(true);
+        setPaidOrder(order);
         return;
       }
       if (orderIsClosed(order) || order.status !== 'PENDING_PAYMENT') {
@@ -152,6 +152,7 @@ export default function CheckoutClient() {
         serverKeyId: providerString(order.providerData, 'keyId'),
         description: product?.name,
         prefillName: billing.name,
+        merchantName: providerString(order.providerData, 'merchantName') || undefined,
       });
 
       if (result.outcome === 'dismissed') {
@@ -169,7 +170,7 @@ export default function CheckoutClient() {
           setNotice('Payment could not be confirmed.');
           return;
         }
-        setPaid(true);
+        setPaidOrder(verified);
       } catch (error) {
         setNotice(apiErrorMessage(error, 'Payment could not be confirmed.'));
       }
@@ -194,11 +195,17 @@ export default function CheckoutClient() {
     );
   }
 
-  if (paid) {
+  if (paidOrder) {
     return (
       <CheckoutCard>
         <h1 className="text-2xl font-bold text-gray-900">Payment received</h1>
         <p className="mt-2 text-sm text-gray-600">Payment received. Your access is active.</p>
+        <p className="mt-4 text-sm font-medium text-gray-900">
+          {formatPaiseAsRupees(paidOrder.tax?.grossAmount ?? paidOrder.amount)}
+        </p>
+        {paidOrder.tax ? (
+          <p className="mt-1 text-sm text-gray-600">{gstBreakdownLine(paidOrder.tax)}</p>
+        ) : null}
         <Button asChild className="mt-6 bg-teal-600 text-white hover:bg-teal-700">
           <Link href="/dashboard/subscriptions">View subscriptions</Link>
         </Button>
@@ -231,6 +238,9 @@ export default function CheckoutClient() {
               {offer ? formatDurationPreset(offer.durationPreset) : ''}
               {price != null ? ` · ${formatPaiseAsRupees(price)}` : ''}
             </p>
+            {price != null ? (
+              <p className="mt-1 text-sm text-gray-600">Price includes GST</p>
+            ) : null}
           </div>
           <BillingForm
             values={values}

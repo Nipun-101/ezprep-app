@@ -1,3 +1,4 @@
+import { OrderTaxView } from '../commerce-money';
 import apiClient from './client';
 
 export interface MyOrderItem {
@@ -16,6 +17,7 @@ export interface MyOrder {
   paidAt?: string;
   expiresAt?: string;
   items: MyOrderItem[];
+  tax?: OrderTaxView;
 }
 
 export interface MyOrdersPage {

@@ -108,7 +108,7 @@ export const razorpayCheckoutAdapter: CheckoutAdapter = {
         amount: input.amount,
         currency: input.currency,
         order_id: input.providerOrderId,
-        name: 'EzPrep',
+        name: input.merchantName?.trim() || 'EzPrep',
         description: input.description,
         prefill: input.prefillName ? { name: input.prefillName } : undefined,
         handler: (response: unknown) => {

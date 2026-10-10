@@ -8,7 +8,7 @@ import { MyEntitlement, getMyEntitlements } from '@/lib/api/entitlements';
 import { MyInvoice, downloadMyInvoice, getMyInvoices } from '@/lib/api/invoices';
 import { MyOrder, getMyOrder, getMyOrders } from '@/lib/api/orders';
 import { resolveScopeLabel } from '@/lib/api/scope-labels';
-import { formatDurationPreset, formatPaiseAsRupees } from '@/lib/commerce-money';
+import { formatDurationPreset, formatPaiseAsRupees, gstBreakdownLine } from '@/lib/commerce-money';
 
 const ORDER_STATUS_LABELS: Record<string, string> = {
   CREATED: 'Created',
@@ -164,7 +164,12 @@ export default function SubscriptionsClient() {
                   <p className="font-semibold text-gray-900">{order.orderNumber}</p>
                   <p className="text-sm text-gray-600">{orderProductLabel(order)}</p>
                 </div>
-                <p className="text-sm font-medium text-gray-900">{formatPaiseAsRupees(order.amount)}</p>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900">{formatPaiseAsRupees(order.amount)}</p>
+                  {order.tax ? (
+                    <p className="text-sm text-gray-500">{gstBreakdownLine(order.tax)}</p>
+                  ) : null}
+                </div>
               </div>
               <p className="mt-2 text-sm text-gray-500">
                 {orderStatusLabel(order.status)} · {formatWhen(order.paidAt || order.createdAt)}
