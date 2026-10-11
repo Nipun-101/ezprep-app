@@ -15,8 +15,10 @@ import {
   CatalogProduct,
   getProductsForExam,
   getProductsForMockTest,
+  offerListDiscount,
   offerPricePaise,
   sellableOffers,
+  type OfferListDiscount,
 } from '@/lib/api/catalog';
 import { formatDurationPreset, formatPaiseAsRupees } from '@/lib/commerce-money';
 import Link from 'next/link';
@@ -139,6 +141,7 @@ export default function ViewPlansDialog({ open, onOpenChange, target }: ViewPlan
                   <ul className="mt-3 space-y-2">
                     {offers.map((offer) => {
                       const paise = offerPricePaise(offer);
+                      const discount = offerListDiscount(offer);
                       return (
                         <li
                           key={offer.id}
@@ -148,9 +151,7 @@ export default function ViewPlansDialog({ open, onOpenChange, target }: ViewPlan
                             <p className="break-words text-sm font-medium text-gray-900">
                               {formatDurationPreset(offer.durationPreset)}
                             </p>
-                            <p className="text-sm text-gray-600">
-                              {paise != null ? formatPaiseAsRupees(paise) : '—'}
-                            </p>
+                            <OfferPrice paise={paise} discount={discount} />
                             <OwnershipNote product={product} />
                           </div>
                           <PlanAction
@@ -196,6 +197,39 @@ function formatAccessDate(value: string): string {
     month: 'short',
     year: 'numeric',
   });
+}
+
+function OfferPrice({
+  paise,
+  discount,
+}: {
+  paise: number | null;
+  discount: OfferListDiscount | null;
+}) {
+  if (paise == null) {
+    return <p className="text-sm text-gray-600">—</p>;
+  }
+  const selling = formatPaiseAsRupees(paise);
+  if (!discount) {
+    return <p className="text-sm text-gray-600">{selling}</p>;
+  }
+  const list = formatPaiseAsRupees(discount.listPaise);
+  const showPercent = discount.percentOff >= 1;
+  const spoken = showPercent
+    ? `Sale price ${selling}, was ${list}, ${discount.percentOff} percent off`
+    : `Sale price ${selling}, was ${list}`;
+  return (
+    <p className="text-sm text-gray-600">
+      <span className="sr-only">{spoken}</span>
+      <span aria-hidden className="inline-flex flex-wrap items-baseline gap-x-2">
+        <span className="text-gray-400 line-through">{list}</span>
+        <span className="font-semibold text-gray-900">{selling}</span>
+        {showPercent ? (
+          <span className="text-xs font-medium text-teal-700">{discount.percentOff}% off</span>
+        ) : null}
+      </span>
+    </p>
+  );
 }
 
 function OwnershipNote({ product }: { product: CatalogProduct }) {

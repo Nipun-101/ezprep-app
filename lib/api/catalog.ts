@@ -48,6 +48,28 @@ export function offerPricePaise(offer: CatalogOffer): number | null {
   return Number.isFinite(amount) ? amount : null;
 }
 
+export interface OfferListDiscount {
+  listPaise: number;
+  percentOff: number;
+}
+
+/**
+ * List vs current selling price. Null when there is no real discount
+ * (missing list, sale not lower than list, or the sale window is inactive
+ * so effectiveAmount already equals list).
+ */
+export function offerListDiscount(offer: CatalogOffer): OfferListDiscount | null {
+  const selling = offerPricePaise(offer);
+  const listPaise = offer.listAmount;
+  if (selling == null || !Number.isFinite(listPaise) || listPaise <= 0 || listPaise <= selling) {
+    return null;
+  }
+  return {
+    listPaise,
+    percentOff: Math.floor(((listPaise - selling) / listPaise) * 100),
+  };
+}
+
 export function sellableOffers(product: CatalogProduct): CatalogOffer[] {
   return (product.offers ?? []).filter(
     (offer) => Boolean(offer.id) && offerPricePaise(offer) != null
