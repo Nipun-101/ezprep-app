@@ -10,9 +10,9 @@ import {
   Zap,
   UserCircle,
   LogOut,
-  Gift,
 } from 'lucide-react';
 import Image from 'next/image';
+import OfferCallout from './OfferCallout';
 import { navigationItems } from '@/lib/mockData';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -31,11 +31,11 @@ const iconMap: Record<string, any> = {
 
 interface SidebarProps {
   onNavigate?: () => void;
-  /** Shown only in the mobile drawer so the early-access message is visible under `lg`. */
-  showEarlyAccessCallout?: boolean;
+  /** Shown in the mobile drawer, where the header offer chip is hidden. */
+  showOfferCallout?: boolean;
 }
 
-export default function Sidebar({ onNavigate, showEarlyAccessCallout }: SidebarProps) {
+export default function Sidebar({ onNavigate, showOfferCallout }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const showCurrentAffairsBadge = useCurrentAffairsNotification();
@@ -71,16 +71,9 @@ export default function Sidebar({ onNavigate, showEarlyAccessCallout }: SidebarP
         </div>
       </div>
 
-      {showEarlyAccessCallout ? (
+      {showOfferCallout ? (
         <div className="px-4 pb-2 -mt-2">
-          <div className="flex items-center gap-3 bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl px-4 py-3 shadow-sm">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center shadow-md shrink-0">
-              <Gift className="w-4 h-4 text-white" aria-hidden />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-xs font-semibold text-gray-800">Free Early Access</span>
-            </div>
-          </div>
+          <OfferCallout className="py-3" />
         </div>
       ) : null}
 

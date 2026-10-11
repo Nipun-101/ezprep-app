@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { apiErrorMessage } from '@/lib/api/errors';
@@ -19,6 +19,11 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
   CANCELLED: 'Cancelled',
   REFUNDED: 'Refunded',
 };
+
+const cardClass =
+  'relative flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-teal-100 bg-white p-4 pl-5 shadow-[0_1px_2px_rgba(15,23,42,0.05),0_10px_24px_-12px_rgba(13,148,136,0.45)]';
+
+const listClass = 'grid grid-cols-1 gap-4 lg:grid-cols-2';
 
 interface AccessCard {
   id: string;
@@ -132,95 +137,108 @@ export default function SubscriptionsClient() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="mx-auto w-full max-w-6xl space-y-10">
       <h1 className="text-2xl font-bold text-gray-900">My Subscriptions</h1>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900">Active access</h2>
+      <section className="space-y-4">
+        <SectionHeading>Active access</SectionHeading>
         {accessError ? <ErrorText message={accessError} onRetry={() => setRetryKey((key) => key + 1)} /> : null}
         {!accessError && accessCards.length === 0 ? (
           <p className="text-sm text-gray-600">You do not have active access yet.</p>
         ) : null}
-        <ul className="space-y-3">
+        <ul className={listClass}>
           {accessCards.map((card) => (
-            <li key={card.id} className="rounded-xl border border-gray-200 bg-white p-4">
+            <li key={card.id} className={cardClass}>
+              <CardAccent />
               <p className="font-semibold text-gray-900">{card.title}</p>
               {card.scopes.length > 0 ? (
                 <p className="mt-1 text-sm text-gray-600">{card.scopes.join(', ')}</p>
               ) : null}
-              <p className="mt-2 text-sm text-gray-500">
-                {formatWhen(card.startsAt)} – {card.expiresAt ? formatWhen(card.expiresAt) : 'Lifetime'}
-              </p>
-              {isFutureStart(card.startsAt) ? (
-                <p className="mt-1 text-sm text-gray-500">Starts {formatWhen(card.startsAt)}</p>
-              ) : null}
+              <div className="mt-auto pt-3">
+                <p className="text-sm text-teal-800/80">
+                  {formatWhen(card.startsAt)} – {card.expiresAt ? formatWhen(card.expiresAt) : 'Lifetime'}
+                </p>
+                {isFutureStart(card.startsAt) ? (
+                  <p className="mt-1 text-sm text-gray-500">Starts {formatWhen(card.startsAt)}</p>
+                ) : null}
+              </div>
             </li>
           ))}
         </ul>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900">Orders</h2>
+      <section className="space-y-4">
+        <SectionHeading>Orders</SectionHeading>
         {ordersError ? <ErrorText message={ordersError} /> : null}
         {!ordersError && orders.length === 0 ? (
           <p className="text-sm text-gray-600">No orders yet.</p>
         ) : null}
-        <ul className="space-y-3">
+        <ul className={listClass}>
           {orders.map((order) => (
-            <li key={order.id} className="rounded-xl border border-gray-200 bg-white p-4">
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="font-semibold text-gray-900">{order.orderNumber}</p>
-                  <p className="text-sm text-gray-600">{orderProductLabel(order)}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">{formatPaiseAsRupees(order.amount)}</p>
-                  {order.tax ? (
-                    <p className="text-sm text-gray-500">{gstBreakdownLine(order.tax)}</p>
-                  ) : null}
-                </div>
+            <li key={order.id} className={cardClass}>
+              <CardAccent />
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-semibold text-gray-900">{order.orderNumber}</p>
+                <p className="shrink-0 text-sm font-semibold text-teal-700">{formatPaiseAsRupees(order.amount)}</p>
               </div>
-              <p className="mt-2 text-sm text-gray-500">
-                {orderStatusLabel(order.status)} · {formatWhen(order.paidAt || order.createdAt)}
+              <p className="mt-1 text-sm text-gray-600">{orderProductLabel(order)}</p>
+              {order.tax ? (
+                <p className="mt-1 text-sm leading-snug text-gray-500">{gstBreakdownLine(order.tax)}</p>
+              ) : null}
+              <p className="mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 pt-3 text-sm text-gray-500">
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusTone(order.status)}`}>
+                  {orderStatusLabel(order.status)}
+                </span>
+                <span>{formatWhen(order.paidAt || order.createdAt)}</span>
               </p>
             </li>
           ))}
         </ul>
         {hasMoreOrders ? (
-          <Button type="button" variant="outline" disabled={loadingMore} onClick={loadMoreOrders}>
+          <Button
+            type="button"
+            variant="outline"
+            className="border-teal-200 text-teal-800 hover:bg-teal-50 hover:text-teal-900"
+            disabled={loadingMore}
+            onClick={loadMoreOrders}
+          >
             {loadingMore ? 'Loading…' : 'Show more'}
           </Button>
         ) : null}
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900">Invoices</h2>
+      <section className="space-y-4">
+        <SectionHeading>Invoices</SectionHeading>
         {invoicesError ? <ErrorText message={invoicesError} /> : null}
         {downloadError ? <p className="text-sm text-red-600">{downloadError}</p> : null}
         {!invoicesError && invoices.length === 0 && pendingInvoices.length === 0 ? (
           <p className="text-sm text-gray-600">No invoices yet.</p>
         ) : null}
-        <ul className="space-y-3">
+        <ul className={listClass}>
           {pendingInvoices.map((order) => (
-            <li key={order.id} className="rounded-xl border border-gray-200 bg-white p-4">
+            <li key={order.id} className={cardClass}>
+              <CardAccent />
               <p className="font-semibold text-gray-900">{order.orderNumber}</p>
-              <p className="text-sm text-gray-500">Invoice is being prepared</p>
+              <p className="mt-1 text-sm text-teal-800/80">Invoice is being prepared</p>
             </li>
           ))}
           {invoices.map((invoice) => (
             <li
               key={invoice.id}
-              className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
+              className={`${cardClass} flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:flex-col lg:items-stretch xl:flex-row xl:items-center xl:justify-between`}
             >
-              <div>
+              <CardAccent />
+              <div className="min-w-0">
                 <p className="font-semibold text-gray-900">{invoice.invoiceNumber}</p>
                 <p className="text-sm text-gray-500">
-                  {formatWhen(invoice.issuedAt)} · {formatPaiseAsRupees(invoice.grossAmount)}
+                  {formatWhen(invoice.issuedAt)} ·{' '}
+                  <span className="font-medium text-teal-700">{formatPaiseAsRupees(invoice.grossAmount)}</span>
                 </p>
               </div>
               <Button
                 type="button"
                 variant="outline"
+                className="shrink-0 border-teal-200 bg-teal-50/60 text-teal-800 hover:bg-teal-50 hover:text-teal-900"
                 disabled={downloadingId === invoice.id}
                 onClick={() => download(invoice)}
               >
@@ -232,6 +250,31 @@ export default function SubscriptionsClient() {
       </section>
     </div>
   );
+}
+
+function SectionHeading({ children }: { children: ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <h2 className="text-lg font-semibold text-gray-900">{children}</h2>
+      <div className="h-0.5 w-10 rounded-full bg-gradient-to-r from-teal-500 to-emerald-400" />
+    </div>
+  );
+}
+
+function CardAccent() {
+  return (
+    <span
+      aria-hidden="true"
+      className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-teal-400 to-emerald-500"
+    />
+  );
+}
+
+function statusTone(status: string): string {
+  if (status === 'PAID') return 'bg-teal-50 text-teal-700';
+  if (status === 'PENDING_PAYMENT' || status === 'CREATED') return 'bg-amber-50 text-amber-800';
+  if (status === 'FAILED' || status === 'CANCELLED' || status === 'EXPIRED') return 'bg-red-50 text-red-700';
+  return 'bg-gray-100 text-gray-600';
 }
 
 function ErrorText({ message, onRetry }: { message: string; onRetry?: () => void }) {
