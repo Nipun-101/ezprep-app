@@ -33,6 +33,7 @@ interface AccessCard {
   expiresAt: string | null;
 }
 
+// Subscription client component
 export default function SubscriptionsClient() {
   const [loading, setLoading] = useState(true);
   const [retryKey, setRetryKey] = useState(0);
