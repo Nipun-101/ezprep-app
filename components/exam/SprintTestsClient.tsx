@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import SprintTestCard from './SprintTestCard';
 import TestListPagination from './TestListPagination';
+import AccessErrorBanner from './access/AccessErrorBanner';
 import { useLaunchAttempt } from './useLaunchAttempt';
 import { getSprintTests, ApiSprintTest } from '@/lib/api/sprint-tests';
 import { MockTestsPagination } from '@/lib/api/exams';
@@ -67,11 +68,7 @@ export default function SprintTestsClient({ examId }: SprintTestsClientProps) {
         </div>
       ) : (
         <>
-          {startError && (
-            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600">
-              {startError}
-            </div>
-          )}
+          <AccessErrorBanner error={startError} />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
             {tests.map((test) => (
               <SprintTestCard

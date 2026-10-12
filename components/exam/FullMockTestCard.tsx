@@ -1,10 +1,12 @@
 'use client';
 
-import { Clock, HelpCircle, BookMarked, Layers, Loader2, Play, RotateCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Clock, HelpCircle, BookMarked, Layers, Play, RotateCcw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { UserAttemptAction } from '@/lib/api/exams';
 import { ApiFullMockTest } from '@/lib/api/full-mock-tests';
+import LockedTestBadge from './access/LockedTestBadge';
+import PaperCardAction from './access/PaperCardAction';
+import { isStartBlocked } from './access/paper-access';
 
 interface FullMockTestCardProps {
   test: ApiFullMockTest;
@@ -46,6 +48,7 @@ export default function FullMockTestCard({
   const displayTitle = test.title || test.exam?.name || 'Full Mock Test';
   const action = test.userAttemptAction ?? 'START';
   const { label, loadingLabel, className, Icon } = ACTION_CONFIG[action];
+  const blocked = isStartBlocked(test);
   const subjectCount = test.subjectConfig?.length ?? 0;
   const negativeMarking = test.negativeMarking > 0;
 
@@ -57,9 +60,12 @@ export default function FullMockTestCard({
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 text-lg leading-snug mb-1 truncate">
-            {displayTitle}
-          </h3>
+          <div className="mb-1 flex items-center gap-2">
+            <h3 className="min-w-0 flex-1 truncate font-semibold text-lg leading-snug text-gray-900">
+              {displayTitle}
+            </h3>
+            {blocked ? <LockedTestBadge /> : null}
+          </div>
           <p className="text-sm text-gray-500">
             {test.isSessionWise ? 'Session-wise' : 'Mixed'} · {subjectCount} subject
             {subjectCount === 1 ? '' : 's'}
@@ -95,23 +101,17 @@ export default function FullMockTestCard({
         <p className="text-xs text-orange-700 mb-3">Negative marking applies per subject</p>
       )}
 
-      <Button
-        onClick={onAction}
-        disabled={disabled || isActing}
-        className={`w-full disabled:opacity-100 ${className}`}
-      >
-        {isActing ? (
-          <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            {loadingLabel}
-          </>
-        ) : (
-          <>
-            <Icon className="w-4 h-4 mr-2" />
-            {label}
-          </>
-        )}
-      </Button>
+      <PaperCardAction
+        testId={test.id}
+        blocked={blocked}
+        disabled={disabled}
+        isActing={isActing}
+        onAction={onAction}
+        label={label}
+        loadingLabel={loadingLabel}
+        className={className}
+        Icon={Icon}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { brand } from '@/lib/brand';
 
 export type LegalNavItem = {
   id: string;
@@ -163,11 +164,11 @@ export function LegalContact() {
     <section id="contact" className="scroll-mt-6 border-t border-gray-200 pt-8">
       <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Contact</h2>
       <div className="rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm text-gray-600 shadow-sm">
-        <p className="font-semibold text-gray-800 mb-1">EzPrep Technologies Pvt. Ltd.</p>
-        <p>Kochi, India</p>
+        <p className="font-semibold text-gray-800 mb-1">{brand.legalName}</p>
+        <p>{brand.legalAddress}</p>
         <p className="mt-1">
-          <a href="mailto:support@ezprep.in" className={linkClass}>
-            support@ezprep.in
+          <a href={`mailto:${brand.supportEmail}`} className={linkClass}>
+            {brand.supportEmail}
           </a>
         </p>
       </div>

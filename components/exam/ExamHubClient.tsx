@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Clock, HelpCircle, BookMarked, Layers, BookOpen, FileText, Zap } from 'lucide-react';
 import ExamIntro from './ExamIntro';
+import ExamAccessCta from './access/ExamAccessCta';
 import { useExamPage } from './ExamLayoutClient';
 import { ApiExamSubject } from '@/lib/api/exams';
 
@@ -42,6 +43,8 @@ export default function ExamHubClient() {
   return (
     <div className="space-y-6">
       <ExamIntro name={exam.name} description={exam.description || ''} />
+
+      <ExamAccessCta examId={examId} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard icon={Clock} label="Duration" value={formatDuration(exam.duration)} />

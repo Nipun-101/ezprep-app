@@ -8,11 +8,11 @@ import {
   legalLinkClass,
   type LegalNavItem,
 } from '@/components/legal/LegalDocument';
+import { brand } from '@/lib/brand';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | EzPrep',
-  description:
-    'Terms and conditions for using EzPrep — online exam preparation, mock tests, Google sign-in, and related services.',
+  title: `Terms of Service | ${brand.name}`,
+  description: `Terms and conditions for using ${brand.name} — online exam preparation, mock tests, Google sign-in, and related services.`,
 };
 
 const SECTIONS: LegalNavItem[] = [
@@ -20,7 +20,7 @@ const SECTIONS: LegalNavItem[] = [
   { id: 'service', title: 'The Service' },
   { id: 'eligibility', title: 'Eligibility' },
   { id: 'accounts', title: 'Accounts and Google Sign-In' },
-  { id: 'subscriptions', title: 'Subscriptions and payments' },
+  { id: 'plans', title: 'Plans and payments' },
   { id: 'no-guarantee', title: 'No guarantee of results' },
   { id: 'your-responsibilities', title: 'Your responsibilities' },
   { id: 'acceptable-use', title: 'Acceptable use' },
@@ -33,7 +33,7 @@ const SECTIONS: LegalNavItem[] = [
   { id: 'indemnity', title: 'Indemnity' },
   { id: 'termination', title: 'Termination' },
   { id: 'force-majeure', title: 'Force majeure' },
-  { id: 'grievance', title: 'Grievance redressal' },
+  { id: 'grievance', title: 'Contact and grievance redressal' },
   { id: 'copyright', title: 'Copyright complaints' },
   { id: 'law', title: 'Governing law' },
   { id: 'miscellaneous', title: 'Miscellaneous' },
@@ -44,15 +44,15 @@ export default function TermsPage() {
   return (
     <LegalDocument
       title="Terms of Service"
-      lede="These terms govern your use of EzPrep. They explain what the service is, how accounts and payments work, and the limits of our responsibility."
-      updated="26 September 2026"
+      lede={`These terms govern your use of ${brand.name}. They explain what the service is, how accounts and payments work, and the limits of our responsibility.`}
+      updated="11 October 2026"
       currentPath="/terms"
       sections={SECTIONS}
     >
       <LegalSection id="general" title="General">
         <p>
-          The EzPrep website, apps, and related services (together, the &quot;Service&quot;) are
-          operated by EzPrep Technologies Pvt. Ltd. (&quot;EzPrep&quot;, &quot;we&quot;, or
+          The {brand.name} website, apps, and related services (together, the &quot;Service&quot;) are
+          operated by {brand.legalName}, {brand.legalAddress} (&quot;{brand.name}&quot;, &quot;we&quot;, or
           &quot;us&quot;). Your access to and use of the Service is governed by these Terms of
           Service (&quot;Terms&quot;). By creating an account, signing in, or using any part of the
           Service, you confirm that you have read, understood, and agree to these Terms.
@@ -79,16 +79,16 @@ export default function TermsPage() {
 
       <LegalSection id="service" title="Description of the Service">
         <p>
-          EzPrep helps users prepare for government and competitive examinations through mock tests,
+          {brand.name} helps users prepare for government and competitive examinations through mock tests,
           question banks, study materials, performance analytics, mentorship, and related learning
           tools. We may add, modify, suspend, or discontinue any part of the Service at any time,
           temporarily or permanently.
         </p>
         <p>
-          EzPrep is an independent education company. We do not represent, and are not affiliated
+          {brand.name} is an independent education company. We do not represent, and are not affiliated
           with, any government department, public service commission, railway recruitment board, or
           other exam authority unless we say so in writing for a specific partnership. Official
-          exam notifications, syllabi, and results are issued by those authorities, not by EzPrep.
+          exam notifications, syllabi, and results are issued by those authorities, not by {brand.name}.
         </p>
       </LegalSection>
 
@@ -109,21 +109,21 @@ export default function TermsPage() {
             'Keep your password, OTP, and other account credentials confidential.',
             'Promptly update your registration details so they remain accurate and complete.',
             'Accept responsibility for all activity that occurs under your account.',
-            'Allow EzPrep to contact you by phone, SMS, or email regarding your account, service updates, promotional offers, order status, and product information, where permitted by law.',
+            `Allow ${brand.name} to contact you by phone, SMS, or email regarding your account, service updates, promotional offers, order status, and product information, where permitted by law.`,
           ]}
         />
         <p>
           You may sign in with a mobile number or with Google. If you choose Sign in with Google,
-          you authorise EzPrep to receive your Google account email address, name, profile picture,
+          you authorise {brand.name} to receive your Google account email address, name, profile picture,
           and a unique Google account identifier, as described in our Privacy Policy. We use that
-          information to create and authenticate your EzPrep account. We do not access your Gmail,
+          information to create and authenticate your {brand.name} account. We do not access your Gmail,
           Google Drive, contacts, calendar, or other Google services.
         </p>
         <p>
           Your Google account remains subject to Google&apos;s own terms and privacy policy. You can
-          revoke EzPrep&apos;s access from your Google Account settings. Doing so may prevent you
+          revoke {brand.name}&apos;s access from your Google Account settings. Doing so may prevent you
           from signing in with Google until you grant access again. You are responsible for the
-          security of the Google account you use to access EzPrep.
+          security of the Google account you use to access {brand.name}.
         </p>
         <p>
           Do not share your login with anyone else. One account is for one person. We may refuse
@@ -132,42 +132,56 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection id="subscriptions" title="Subscriptions and payments">
+      <LegalSection id="plans" title="Plans and payments">
         <p>
-          You may purchase monthly or annual subscriptions through our website or authorised
-          third-party platforms. Payment may be processed by EzPrep or by platform providers such
-          as Apple or Google. Subscription prices are shown at the time of purchase and may include
-          applicable taxes. EzPrep may change pricing or run promotions at any time, subject to
-          applicable law. Price changes do not apply to a billing period you have already paid for.
+          Some content on the Service is free. Other content is available only with a paid plan. Before
+          you pay, each plan shows what it includes, how long access lasts (a fixed period or lifetime),
+          and its price.
         </p>
-        <p>
-          Unless stated otherwise at purchase, digital subscriptions are non-refundable once access
-          has been granted. Paid subscriptions renew automatically unless cancelled in accordance
-          with these Terms. If you subscribed through a third-party store and have a billing
-          dispute, contact that platform directly. For subscriptions purchased on EzPrep, reach us
-          at{' '}
-          <a href="mailto:support@ezprep.in" className={legalLinkClass}>
-            support@ezprep.in
-          </a>
-          .
-        </p>
-        <p>
-          <strong className="text-gray-800">Free trial.</strong> We may offer a limited free trial.
-          Unless you cancel before the trial ends, your subscription may automatically convert to a
-          paid plan and you authorise us to charge the payment method on file.
-        </p>
-        <p>
-          <strong className="text-gray-800">Automatic renewal.</strong> By subscribing, you
-          authorise recurring billing at the then-current rate plus applicable taxes. Renewal
-          charges use the same billing cycle as your active plan unless you cancel at least
-          twenty-four (24) hours before renewal.
-        </p>
+        <ul className="list-disc space-y-3 pl-5">
+          <li>
+            <strong className="text-gray-800">Prices.</strong> All prices are in Indian Rupees and
+            include GST. The amount shown at checkout is the total you pay.
+          </li>
+          <li>
+            <strong className="text-gray-800">One-time payment.</strong> Plans do not renew
+            automatically. We do not store your card or other payment details, and we never charge you
+            again unless you choose to buy again. There are no free trials that turn into paid plans.
+          </li>
+          <li>
+            <strong className="text-gray-800">Payment processing.</strong> Payments are processed by
+            Razorpay, a third-party payment gateway, using card, UPI, net banking, wallet, or other
+            methods it offers. You enter your payment details on Razorpay&apos;s secure checkout;{' '}
+            {brand.name} does not receive or store your full card or bank details. Razorpay&apos;s
+            terms and privacy policy also apply to the payment.
+          </li>
+          <li>
+            <strong className="text-gray-800">When access starts.</strong> Access starts as soon as
+            your payment is confirmed. If you buy a plan you already have active access to, the new
+            period starts when your current access ends. A plan you already own for life cannot be
+            bought again.
+          </li>
+          <li>
+            <strong className="text-gray-800">Tax invoice.</strong> A GST tax invoice is issued by{' '}
+            {brand.legalName} for every payment and is available under Subscriptions in your account.
+            Please enter accurate billing details at checkout. The invoice uses the details you
+            provide, and the state you choose determines the GST applied.
+          </li>
+          <li>
+            <strong className="text-gray-800">Personal use.</strong> A plan is for your own account. It
+            may not be shared, transferred, or resold.
+          </li>
+          <li>
+            <strong className="text-gray-800">Changes.</strong> We may change prices or plans at any
+            time. A change never affects a plan you have already paid for.
+          </li>
+        </ul>
       </LegalSection>
 
       <LegalSection id="no-guarantee" title="No guarantee of exam results">
         <div className="rounded-2xl border border-teal-100 bg-teal-50/60 px-5 py-5 sm:px-6 space-y-3">
           <p>
-            EzPrep provides preparation materials and practice tools only. We do not guarantee that
+            {brand.name} provides preparation materials and practice tools only. We do not guarantee that
             you will pass, qualify, obtain a particular rank, or be selected in any examination.
             Questions, patterns, cut-offs, and results are decided by the relevant exam authority
             and can change without notice to us.
@@ -175,7 +189,7 @@ export default function TermsPage() {
           <p>
             Study material, mock tests, analytics, and mentor comments are educational aids. They
             may contain errors or become outdated. You are responsible for checking official
-            notifications and for how you use any information from the Service. You use EzPrep at
+            notifications and for how you use any information from the Service. You use {brand.name} at
             your own risk.
           </p>
         </div>
@@ -186,7 +200,7 @@ export default function TermsPage() {
           You represent that your use of the Service complies with these Terms and with all
           applicable laws, including laws of India and your place of residence relating to online
           conduct, acceptable content, and data transmission. You also represent that you own or
-          control any material you submit to EzPrep and that you have the right to grant us the
+          control any material you submit to {brand.name} and that you have the right to grant us the
           licences needed to operate the Service.
         </p>
       </LegalSection>
@@ -196,7 +210,7 @@ export default function TermsPage() {
         <LegalList
           items={[
             'Is libellous, defamatory, abusive, threatening, harassing, hateful, offensive, unlawful, or infringes third-party rights (including copyright, trademark, privacy, or publicity rights).',
-            'In EzPrep’s reasonable judgment, is objectionable, restricts others from using the Service, or exposes EzPrep or its users to harm or liability.',
+            `In ${brand.name}’s reasonable judgment, is objectionable, restricts others from using the Service, or exposes ${brand.name} or its users to harm or liability.`,
           ]}
         />
         <p>
@@ -210,19 +224,19 @@ export default function TermsPage() {
         <p>
           All content made available through the Service — including text, graphics, images,
           software, videos, mock tests, study material, layouts, and compilations (&quot;Service
-          Content&quot;) — is owned by EzPrep or its licensors. You may not copy, distribute,
+          Content&quot;) — is owned by {brand.name} or its licensors. You may not copy, distribute,
           modify, sell, scrape, frame, or exploit Service Content except as expressly allowed in
           these Terms, or for your own personal, non-commercial exam preparation.
         </p>
         <p>
           Data generated from your use of learning activities on the Service (&quot;Activity
-          Data&quot;) may be owned by EzPrep, except for content you submit as personal
-          communications such as feedback. By using the Service, you grant EzPrep the rights needed
+          Data&quot;) may be owned by {brand.name}, except for content you submit as personal
+          communications such as feedback. By using the Service, you grant {brand.name} the rights needed
           to host, analyse, and improve the platform using such Activity Data.
         </p>
         <p>
-          &quot;EzPrep&quot; and related logos are trademarks of EzPrep or its licensors. Use of the
-          Service does not grant you any licence to reproduce EzPrep or third-party trademarks,
+          &quot;{brand.name}&quot; and related logos are trademarks of {brand.name} or its licensors. Use of the
+          Service does not grant you any licence to reproduce {brand.name} or third-party trademarks,
           service marks, or branding.
         </p>
       </LegalSection>
@@ -233,33 +247,67 @@ export default function TermsPage() {
           <Link href="/privacy-policy" className={legalLinkClass}>
             Privacy Policy
           </Link>
-          . By using EzPrep, you acknowledge the collection and use of information as described in
+          . By using {brand.name}, you acknowledge the collection and use of information as described in
           that policy, including the limited Google account details we receive if you sign in with
           Google.
         </p>
       </LegalSection>
 
       <LegalSection id="cancellation" title="Cancellation policy">
-        <LegalList
-          items={[
-            'Cancellation requests are considered only if made within twenty-four (24) hours of placing an order, and only before the order is fulfilled or digital access credentials are issued.',
-            'Limited-time promotional offers may not be eligible for cancellation.',
-            'If you believe a product or service received is materially different from what was described, notify customer support within twenty-four (24) hours of receipt. We will review and decide on an appropriate resolution.',
-          ]}
-        />
+        <p>
+          You can cancel a purchase at any time before completing payment by closing the payment
+          window. Nothing is charged.
+        </p>
+        <p>
+          Access is granted immediately once payment is confirmed, so a completed purchase cannot be
+          cancelled. Plans do not renew, so there is nothing to cancel for future periods. If we
+          suspend or end your access for a breach of these Terms, no refund is due except where the
+          law requires one.
+        </p>
       </LegalSection>
 
       <LegalSection id="refunds" title="Refund policy">
         <p>
-          Refunds may be available for eligible products or services until they are dispatched or
-          until online access credentials are shared with you. To request a refund, email{' '}
-          <a href="mailto:support@ezprep.in" className={legalLinkClass}>
-            support@ezprep.in
+          Paid plans give immediate access to digital content. Once access has been granted, payments
+          are non-refundable, except in the cases below.
+        </p>
+        <ol className="list-decimal space-y-3 pl-5">
+          <li>
+            <strong className="text-gray-800">Duplicate payment.</strong> If you are charged more than
+            once for the same purchase, the extra payment is refunded automatically to the original
+            payment method. You do not need to ask.
+          </li>
+          <li>
+            <strong className="text-gray-800">Money debited but purchase not confirmed.</strong> Please
+            do not pay again. We keep checking with Razorpay for up to 72 hours. If the payment went
+            through, your access is granted automatically. If it did not, any amount held is released
+            by your bank, usually within 5–7 working days.
+          </li>
+          <li>
+            <strong className="text-gray-800">Service failure.</strong> If a technical problem on our
+            side stops you from using content you paid for, and we cannot fix it within 7 days of your
+            report, you may request a full refund.
+          </li>
+          <li>
+            <strong className="text-gray-800">Where the law requires a refund.</strong>
+          </li>
+        </ol>
+        <p>Any other refund is at our discretion.</p>
+        <p>
+          <strong className="text-gray-800">How to request a refund.</strong> Email{' '}
+          <a href={`mailto:${brand.supportEmail}`} className={legalLinkClass}>
+            {brand.supportEmail}
           </a>{' '}
-          with your order details and reason for the request. Approved refunds are typically
-          processed within fourteen (14) business days using the original payment method. Except
-          where required by law, fees for periods of the Service you have already been able to use
-          are not refundable.
+          within 30 days of payment, from your registered email address or quoting your registered
+          mobile number, with the invoice or order number and the reason. We acknowledge every
+          request within 48 hours.
+        </p>
+        <p>
+          <strong className="text-gray-800">Processing.</strong> Approved refunds are initiated within
+          5–7 working days to the original payment method. Your bank usually credits the amount within
+          a further 5–7 working days. A refund ends the access that the refunded plan gave. If a later
+          purchase of the same plan was waiting to start, it starts immediately instead. A credit note
+          is issued for the refunded amount.
         </p>
       </LegalSection>
 
@@ -267,7 +315,7 @@ export default function TermsPage() {
         <p>
           The Service, including all content, software, images, audio, documents, and related
           materials, is provided on an &quot;as is&quot; and &quot;as available&quot; basis. To the
-          fullest extent permitted by law, EzPrep and its suppliers disclaim all warranties,
+          fullest extent permitted by law, {brand.name} and its suppliers disclaim all warranties,
           express or implied, including merchantability, fitness for a particular purpose,
           accuracy, and non-infringement.
         </p>
@@ -287,28 +335,28 @@ export default function TermsPage() {
 
       <LegalSection id="liability" title="Limitation of liability">
         <p>
-          To the fullest extent permitted by law, EzPrep and its directors, officers, employees, and
+          To the fullest extent permitted by law, {brand.name} and its directors, officers, employees, and
           partners will not be liable for any indirect, incidental, special, consequential,
           exemplary, or punitive damages, or for any loss of profits, goodwill, data, opportunity,
           or exam outcome, arising out of or related to your use of, or inability to use, the
           Service — even if we were advised that such damages were possible.
         </p>
         <p>
-          EzPrep&apos;s total liability to you for all claims relating to the Service is limited to
-          the amount you paid to EzPrep for the Service in the twelve (12) months before the event
+          {brand.name}&apos;s total liability to you for all claims relating to the Service is limited to
+          the amount you paid to {brand.name} for the Service in the twelve (12) months before the event
           giving rise to the claim, or INR 1,000, whichever is greater. This cap applies in
           aggregate across all related claims.
         </p>
         <p>
-          You acknowledge that EzPrep makes the Service available in reliance on the disclaimers
+          You acknowledge that {brand.name} makes the Service available in reliance on the disclaimers
           and limits in these Terms, and that those limits are an essential basis of the bargain
-          between you and EzPrep.
+          between you and {brand.name}.
         </p>
       </LegalSection>
 
       <LegalSection id="indemnity" title="Indemnification">
         <p>
-          You agree to defend, indemnify, and hold harmless EzPrep and its directors, officers,
+          You agree to defend, indemnify, and hold harmless {brand.name} and its directors, officers,
           employees, contractors, agents, suppliers, licensors, successors, and assigns from any
           claims, losses, liabilities, damages, and expenses (including reasonable legal fees)
           arising from your use of the Service, your breach of these Terms, your violation of any
@@ -319,7 +367,7 @@ export default function TermsPage() {
 
       <LegalSection id="termination" title="Termination">
         <p>
-          EzPrep may suspend or terminate your access to the Service at any time if we reasonably
+          {brand.name} may suspend or terminate your access to the Service at any time if we reasonably
           believe you have breached these Terms, created risk or legal exposure for us or other
           users, or if we discontinue the Service. We may do so without prior notice where notice
           is not practical. You may close your account by contacting support.
@@ -334,7 +382,7 @@ export default function TermsPage() {
 
       <LegalSection id="force-majeure" title="Force majeure">
         <p>
-          EzPrep is not liable for any delay or failure to perform caused by events beyond our
+          {brand.name} is not liable for any delay or failure to perform caused by events beyond our
           reasonable control, including natural disasters, war, terrorism, labour disputes, power or
           internet failures, hosting outages, government action, changes in exam schedules by an
           authority, or failures of third-party services such as payment, messaging, or sign-in
@@ -342,33 +390,44 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection id="grievance" title="Grievance redressal">
+      <LegalSection id="grievance" title="Contact and grievance redressal">
         <p>
-          In accordance with the Information Technology Act, 2000, applicable rules, and the
-          Consumer Protection (E-Commerce) Rules, 2020, you may contact our Grievance Officer:
+          <strong className="text-gray-800">Seller.</strong> {brand.legalName}, {brand.legalAddress}.
         </p>
-        <div className="rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm sm:text-base shadow-sm">
-          <p className="font-semibold text-gray-800">Grievance Officer</p>
-          <p>EzPrep Technologies Pvt. Ltd.</p>
-          <p>
-            Email:{' '}
-            <a href="mailto:support@ezprep.in" className={legalLinkClass}>
-              support@ezprep.in
-            </a>
-          </p>
-          <p>Kochi, India</p>
-        </div>
         <p>
-          Please include your account details and a clear description of the issue. We will
-          acknowledge and work to resolve grievances within the timelines required by applicable
-          law.
+          <strong className="text-gray-800">Customer support.</strong> Email{' '}
+          <a href={`mailto:${brand.supportEmail}`} className={legalLinkClass}>
+            {brand.supportEmail}
+          </a>
+          {brand.supportPhone ? `, phone ${brand.supportPhone}` : null}.
+        </p>
+        <p>
+          <strong className="text-gray-800">Grievance Officer.</strong> In accordance with the Consumer
+          Protection Act, 2019, the Consumer Protection (E-Commerce) Rules, 2020, and the Information
+          Technology Act, 2000 and the rules under it, our Grievance Officer is:
+        </p>
+        <p>
+          {brand.grievanceOfficerName ? `${brand.grievanceOfficerName}, ` : null}
+          Grievance Officer, {brand.legalName}
+          <br />
+          Email:{' '}
+          <a href={`mailto:${brand.supportEmail}`} className={legalLinkClass}>
+            {brand.supportEmail}
+          </a>
+          {brand.supportPhone ? ` · Phone: ${brand.supportPhone}` : null}
+        </p>
+        <p>
+          Please include your registered email address or mobile number, the order or invoice number
+          if relevant, and a clear description of the issue. We acknowledge every complaint within 48
+          hours and resolve it within one month of receipt. You may also contact the National Consumer
+          Helpline on 1915 or at consumerhelpline.gov.in.
         </p>
       </LegalSection>
 
       <LegalSection id="copyright" title="Copyright complaints">
         <p>
           If you believe material on the Service infringes your copyright, send a written notice to
-          EzPrep including:
+          {brand.name} including:
         </p>
         <LegalList
           items={[
@@ -382,8 +441,8 @@ export default function TermsPage() {
         />
         <p>
           Send copyright notices to{' '}
-          <a href="mailto:support@ezprep.in" className={legalLinkClass}>
-            support@ezprep.in
+          <a href={`mailto:${brand.supportEmail}`} className={legalLinkClass}>
+            {brand.supportEmail}
           </a>
           . You may also refer to the Copyright Act, 1957 and consult legal counsel for guidance.
         </p>
@@ -392,20 +451,20 @@ export default function TermsPage() {
       <LegalSection id="law" title="Governing law">
         <p>
           These Terms are governed by the laws of India, without regard to conflict-of-law rules.
-          Subject to applicable law, the courts in Kochi, Kerala, India have exclusive jurisdiction
-          over disputes arising out of these Terms or the Service.
+          Subject to applicable law, the courts in {brand.legalJurisdiction}, India have exclusive
+          jurisdiction over disputes arising out of these Terms or the Service.
         </p>
       </LegalSection>
 
       <LegalSection id="miscellaneous" title="Miscellaneous">
         <p>
           These Terms, together with the Privacy Policy and User Policy, are the entire agreement
-          between you and EzPrep regarding the Service and replace prior agreements on the same
+          between you and {brand.name} regarding the Service and replace prior agreements on the same
           subject. If any provision is held unenforceable, the remaining provisions remain in full
           effect. Our failure to enforce a provision is not a waiver of future enforcement.
         </p>
         <p>
-          You may not assign these Terms without our consent. EzPrep may assign its rights and
+          You may not assign these Terms without our consent. {brand.name} may assign its rights and
           obligations, including in connection with a merger, acquisition, or sale of assets. These
           Terms bind and benefit both parties and their permitted successors and assigns. Headings
           are for convenience only.

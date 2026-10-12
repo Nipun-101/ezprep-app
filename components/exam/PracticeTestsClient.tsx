@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import PracticeTestCard from './PracticeTestCard';
 import TestListPagination from './TestListPagination';
+import AccessErrorBanner from './access/AccessErrorBanner';
 import { useLaunchAttempt } from './useLaunchAttempt';
 import { useExamPage } from './ExamLayoutClient';
 import {
@@ -160,11 +161,7 @@ export default function PracticeTestsClient({ examId }: PracticeTestsClientProps
         </div>
       ) : (
         <>
-          {startError && (
-            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600">
-              {startError}
-            </div>
-          )}
+          <AccessErrorBanner error={startError} />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {practiceTests.map((test) => (
               <PracticeTestCard
