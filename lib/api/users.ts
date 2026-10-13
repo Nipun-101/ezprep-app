@@ -9,15 +9,6 @@ export interface ApiUserLocation {
   timezone?: string;
 }
 
-export interface ApiUserSubscription {
-  plan: string;
-  status: string;
-  autoRenew: boolean;
-  startedAt?: string;
-  expiresAt?: string;
-  trialEndsAt?: string;
-}
-
 export interface ApiNotificationPreferences {
   email: boolean;
   push: boolean;
@@ -62,7 +53,6 @@ export interface ApiUserProfile {
   location?: ApiUserLocation;
   targetExam?: ApiTargetExam;
   targetExamDate?: string;
-  subscription: ApiUserSubscription;
   preferences: ApiUserPreferences;
   interactions: ApiUserInteractions;
   createdAt: string;
