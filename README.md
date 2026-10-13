@@ -45,7 +45,7 @@ The JWT is stored in `localStorage` and a cookie. The cookie is what the middlew
 
 ## What the app covers
 
-- Home: exam groups from the API (`revalidate` 24 hours)
+- Home: exam groups from the API
 - Dashboard: exams grouped by category. An exam with `trending: true` shows a flame pill and a soft warm shadow
 - Exam page: daily practice and full mocks, then the attempt runner and result
 - Current affairs, analytics (`/analytics`), study materials, profile
@@ -62,10 +62,6 @@ npm run typecheck
 ```
 
 `npm run start` also needs `-p 3001` when the API is already on `3000`.
-
-## Caching
-
-`/` and `/dashboard` set `revalidate` to `86400`. A production change in exam data, including the trending flag, can take up to 24 hours to show, or until the next deploy.
 
 ## Layout
 
