@@ -1,9 +1,13 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import localFont from 'next/font/local';
 import { Analytics } from '@vercel/analytics/next';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = localFont({
+  src: './fonts/inter-latin-wght-normal.woff2',
+  weight: '100 900',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Ez Prep - Crack Your Dream Government Exams',
