@@ -64,14 +64,10 @@ export interface NavigationItem {
   icon: string;
   href: string;
   badge?: string;
-  comingSoon?: boolean;
 }
 
 export const navigationItems: NavigationItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: 'LayoutDashboard', href: '/dashboard' },
-  { id: 'courses', label: 'Courses', icon: 'BookOpen', href: '/dashboard/courses', comingSoon: true },
-  { id: 'concept-videos', label: 'Concept Videos', icon: 'Video', href: '/dashboard/concept-videos', comingSoon: true },
-  { id: 'bookmarks', label: 'My Bookmarks', icon: 'Bookmark', href: '/dashboard/bookmarks', comingSoon: true },
   { id: 'subscriptions', label: 'My Subscriptions', icon: 'CreditCard', href: '/dashboard/subscriptions' },
   { id: 'current-affairs', label: 'Current Affairs', icon: 'Zap', href: '/dashboard/current-affairs' },
   { id: 'profile', label: 'My Profile', icon: 'UserCircle', href: '/dashboard/profile' },

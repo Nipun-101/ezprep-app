@@ -3,9 +3,6 @@
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
-  BookOpen,
-  Video,
-  Bookmark,
   CreditCard,
   Zap,
   UserCircle,
@@ -21,9 +18,6 @@ import { useCurrentAffairsNotification } from '@/hooks/useCurrentAffairsNotifica
 
 const iconMap: Record<string, any> = {
   LayoutDashboard,
-  BookOpen,
-  Video,
-  Bookmark,
   CreditCard,
   Zap,
   UserCircle,
