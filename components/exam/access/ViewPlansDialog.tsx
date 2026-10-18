@@ -96,11 +96,11 @@ export default function ViewPlansDialog({ open, onOpenChange, target }: ViewPlan
       <DialogContent className="flex max-h-[min(85dvh,calc(100dvh-1.5rem))] w-[calc(100%-1.5rem)] max-w-lg flex-col gap-0 overflow-hidden p-0 sm:w-full">
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-5 sm:p-6">
           <DialogHeader className="pr-8 text-left">
-            <DialogTitle>View plans</DialogTitle>
+            <DialogTitle>{examId ? 'Enable all tests' : 'View plans'}</DialogTitle>
             <DialogDescription>
               {examId
-                ? 'Published plans that cover this exam.'
-                : 'Published plans that cover this test.'}
+                ? 'Pick a plan to enable all tests on this exam.'
+                : 'Pick a plan to enable this test.'}
             </DialogDescription>
           </DialogHeader>
 

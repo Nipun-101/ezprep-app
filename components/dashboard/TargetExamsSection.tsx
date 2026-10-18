@@ -44,33 +44,45 @@ export default function TargetExamsSection({
     if (emptyDismissed) return null;
     return (
       <>
-        <section className="flex items-center gap-4 rounded-2xl border border-teal-100 bg-gradient-to-r from-teal-50 to-white px-4 py-4 sm:px-5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-teal-500 text-white shadow-md shadow-teal-200">
-            <Target className="h-5 w-5" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold text-gray-900">Preparing for something?</p>
-            <p className="text-sm text-gray-500">
-              Pick your exams to personalize your dashboard.
-            </p>
+        <section className="rounded-2xl border border-teal-100 bg-gradient-to-r from-teal-50 to-white px-3.5 py-3 sm:px-5 sm:py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-500 text-white shadow-md shadow-teal-200 sm:h-11 sm:w-11 sm:rounded-2xl">
+              <Target className="h-5 w-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold leading-snug text-gray-900 sm:text-base">
+                <span className="sm:hidden">Pick your target exams</span>
+                <span className="hidden sm:inline">Pick your exams</span>
+              </p>
+              <p className="mt-0.5 hidden text-sm text-gray-500 sm:block">
+                Personalize your dashboard.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPickerOpen(true)}
+              className="hidden shrink-0 rounded-xl bg-teal-500 px-3.5 py-2 text-sm font-medium text-white hover:bg-teal-600 sm:inline-flex"
+            >
+              Choose exams
+            </button>
+            <button
+              type="button"
+              aria-label="Dismiss"
+              onClick={() => {
+                window.localStorage.setItem(EMPTY_DISMISS_KEY, '1');
+                setEmptyDismissed(true);
+              }}
+              className="shrink-0 rounded-lg p-1.5 text-gray-400 hover:bg-white hover:text-gray-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
           <button
             type="button"
             onClick={() => setPickerOpen(true)}
-            className="shrink-0 rounded-xl bg-teal-500 px-3.5 py-2 text-sm font-medium text-white hover:bg-teal-600"
+            className="mt-3 w-full rounded-xl bg-teal-500 py-2 text-sm font-medium text-white hover:bg-teal-600 sm:hidden"
           >
             Choose exams
-          </button>
-          <button
-            type="button"
-            aria-label="Dismiss"
-            onClick={() => {
-              window.localStorage.setItem(EMPTY_DISMISS_KEY, '1');
-              setEmptyDismissed(true);
-            }}
-            className="shrink-0 rounded-lg p-1.5 text-gray-400 hover:bg-white hover:text-gray-600"
-          >
-            <X className="h-4 w-4" />
           </button>
         </section>
         <TargetExamPicker
