@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { examHasDeniedPaper } from './exam-access-probe';
 import ViewPlansDialog from './ViewPlansDialog';
 
@@ -31,18 +30,19 @@ export default function ExamAccessCta({ examId }: ExamAccessCtaProps) {
   if (!visible) return null;
 
   return (
-    <section className="rounded-xl border border-teal-200 bg-teal-50 p-5">
-      <h2 className="text-lg font-bold text-gray-900">Some tests on this exam are locked</h2>
-      <p className="mt-1 text-sm text-gray-600">
-        You can still open every tab. Free tests start as usual. Locked tests show View plans.
+    <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-teal-600 via-emerald-500 to-cyan-500 p-5 text-white shadow-md shadow-teal-200/70">
+      <div className="pointer-events-none absolute -right-6 -top-8 h-24 w-24 rounded-full bg-white/15" />
+      <p className="relative text-sm leading-relaxed sm:text-base">
+        You can start practicing with free tests, but{' '}
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="font-semibold underline decoration-white/70 underline-offset-2 hover:decoration-white"
+        >
+          grab all tests here
+        </button>
+        .
       </p>
-      <Button
-        type="button"
-        className="mt-4 bg-teal-600 text-white hover:bg-teal-700"
-        onClick={() => setOpen(true)}
-      >
-        View plans
-      </Button>
       <ViewPlansDialog
         open={open}
         onOpenChange={setOpen}
