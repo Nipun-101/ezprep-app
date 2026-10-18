@@ -3,7 +3,11 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import CategorySection from '@/components/dashboard/CategorySection';
+import TargetExamsSection, {
+  orderCategoriesByTargets,
+} from '@/components/dashboard/TargetExamsSection';
 import { ApiExamCategory } from '@/lib/api/exams';
+import { useTargetExams } from '@/lib/hooks/useTargetExams';
 
 interface DashboardExamsContentProps {
   categories: ApiExamCategory[];
@@ -11,6 +15,7 @@ interface DashboardExamsContentProps {
 
 export default function DashboardExamsContent({ categories }: DashboardExamsContentProps) {
   const router = useRouter();
+  const targetExams = useTargetExams();
 
   useEffect(() => {
     if (categories.length === 0) return;
@@ -36,9 +41,15 @@ export default function DashboardExamsContent({ categories }: DashboardExamsCont
     );
   }
 
+  const ordered = orderCategoriesByTargets(
+    categories,
+    targetExams.targets.map((exam) => exam.id)
+  );
+
   return (
     <div className="space-y-8">
-      {categories.map((category) => (
+      <TargetExamsSection categories={categories} targetExams={targetExams} />
+      {ordered.map((category) => (
         <CategorySection key={category.id} category={category} />
       ))}
     </div>

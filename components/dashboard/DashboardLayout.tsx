@@ -19,7 +19,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
 
       <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-        <SheetContent side="left" className="p-0 w-72">
+        <SheetContent
+          side="left"
+          className="p-0 w-72"
+          onInteractOutside={(event) => {
+            if (document.body.hasAttribute('data-support-feedback-open')) {
+              event.preventDefault();
+            }
+          }}
+          onPointerDownOutside={(event) => {
+            if (document.body.hasAttribute('data-support-feedback-open')) {
+              event.preventDefault();
+            }
+          }}
+        >
           <Sidebar
             onNavigate={() => setIsMobileMenuOpen(false)}
             showOfferCallout

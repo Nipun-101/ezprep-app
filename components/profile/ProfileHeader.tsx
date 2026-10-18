@@ -5,6 +5,7 @@ import {
   formatJoinedDate,
   formatLocation,
   getInitials,
+  targetExamsFromProfile,
   type ApiUserProfile,
 } from '@/lib/api/users';
 
@@ -17,7 +18,7 @@ export default function ProfileHeader({ profile, onEdit }: Props) {
   const initials = getInitials(profile.name);
   const location = formatLocation(profile.location);
   const joinedDate = formatJoinedDate(profile.createdAt);
-  const targetExamName = profile.targetExam?.name?.trim();
+  const targetExams = targetExamsFromProfile(profile);
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -46,11 +47,23 @@ export default function ProfileHeader({ profile, onEdit }: Props) {
             </div>
             <div>
               <h1 className="text-xl font-bold text-white">{profile.name}</h1>
-              <div className="flex items-center gap-1.5 mt-1">
-                <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full border border-white/30">
-                  <Target className="w-3 h-3" />
-                  {targetExamName || 'No target exam'}
-                </span>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {targetExams.length === 0 ? (
+                  <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full border border-white/30">
+                    <Target className="w-3 h-3" />
+                    No target exam
+                  </span>
+                ) : (
+                  targetExams.map((exam) => (
+                    <span
+                      key={exam.id}
+                      className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full border border-white/30"
+                    >
+                      <Target className="w-3 h-3" />
+                      {exam.name}
+                    </span>
+                  ))
+                )}
               </div>
             </div>
           </div>

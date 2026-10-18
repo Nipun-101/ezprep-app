@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import OfferCallout from './OfferCallout';
+import SupportSection from './SupportSection';
 import { navigationItems } from '@/lib/mockData';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -108,7 +109,9 @@ export default function Sidebar({ onNavigate, showOfferCallout }: SidebarProps) 
         })}
       </nav>
 
-      <div className="p-4 pt-4">
+      <SupportSection />
+
+      <div className="p-4 pt-2">
         <button
           onClick={handleLogout}
           className="w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group"
