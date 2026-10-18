@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useRef, useState, createContext, useContext } from 'react';
+import axios from 'axios';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { getExamById, ApiExamDetail } from '@/lib/api/exams';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTargetExams } from '@/lib/hooks/useTargetExams';
 
 interface ExamPageContextValue {
   examId: string;
@@ -37,6 +39,9 @@ export default function ExamLayoutClient({ examId, children }: ExamLayoutClientP
   const [exam, setExam] = useState<ApiExamDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [targetError, setTargetError] = useState<string | null>(null);
+  const [targetBusy, setTargetBusy] = useState(false);
+  const targets = useTargetExams();
 
   useEffect(() => {
     setLoading(true);
@@ -51,6 +56,8 @@ export default function ExamLayoutClient({ examId, children }: ExamLayoutClientP
     const active = navRef.current?.querySelector<HTMLElement>('[data-active="true"]');
     active?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
   }, [pathname, examId]);
+
+  const targeted = targets.isTargeted(examId);
 
   const navItems = [
     { href: `/dashboard/exam/${examId}`, label: 'Overview', exact: true },
@@ -77,7 +84,53 @@ export default function ExamLayoutClient({ examId, children }: ExamLayoutClientP
                 {exam.name}
               </h1>
             )}
+            {exam && targets.isAuthenticated && !targets.loading && (
+              <button
+                type="button"
+                disabled={targetBusy || (!targeted && targets.isFull)}
+                onClick={async () => {
+                  if (!exam) return;
+                  setTargetBusy(true);
+                  setTargetError(null);
+                  try {
+                    if (targeted) {
+                      await targets.remove(examId);
+                    } else {
+                      await targets.add({ id: examId, name: exam.name });
+                    }
+                  } catch (toggleError) {
+                    const apiMessage =
+                      axios.isAxiosError(toggleError) &&
+                      typeof (toggleError.response?.data as { message?: unknown } | undefined)
+                        ?.message === 'string'
+                        ? (toggleError.response?.data as { message: string }).message
+                        : null;
+                    setTargetError(apiMessage ?? 'Could not update your target exams.');
+                  } finally {
+                    setTargetBusy(false);
+                  }
+                }}
+                className={cn(
+                  'ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+                  targeted
+                    ? 'bg-teal-50 text-teal-700 hover:bg-teal-100'
+                    : 'border border-gray-200 text-gray-700 hover:bg-gray-50'
+                )}
+              >
+                <Star className={cn('h-4 w-4', targeted && 'fill-teal-500 text-teal-500')} />
+                <span className="hidden sm:inline">
+                  {targeted
+                    ? 'In your targets'
+                    : targets.isFull
+                      ? 'Target list is full'
+                      : 'Add to my targets'}
+                </span>
+              </button>
+            )}
           </div>
+          {targetError && (
+            <p className="text-sm text-red-600">{targetError}</p>
+          )}
 
           <nav
             ref={navRef}

@@ -36,6 +36,17 @@ export interface ApiTargetExam {
   name: string;
 }
 
+export interface ApiUserFeedback {
+  text?: string;
+  userInterface?: number;
+  questions?: number;
+  fullMockTests?: number;
+  topicWisePractice?: number;
+  easeOfUse?: number;
+}
+
+export const MAX_TARGET_EXAMS = 5;
+
 export interface ApiUserProfile {
   id: string;
   name: string;
@@ -51,12 +62,26 @@ export interface ApiUserProfile {
   dateOfBirth?: string;
   gender?: Gender;
   location?: ApiUserLocation;
+  /** Ordered targets. The first exam is the primary one. */
+  targetExams?: ApiTargetExam[];
+  /** Primary target. Same as targetExams[0] when the API sends both. */
   targetExam?: ApiTargetExam;
   targetExamDate?: string;
+  feedback?: ApiUserFeedback;
   preferences: ApiUserPreferences;
   interactions: ApiUserInteractions;
   createdAt: string;
   updatedAt: string;
+}
+
+export function targetExamsFromProfile(profile: ApiUserProfile): ApiTargetExam[] {
+  if (profile.targetExams && profile.targetExams.length > 0) {
+    return profile.targetExams;
+  }
+  if (profile.targetExam) {
+    return [profile.targetExam];
+  }
+  return [];
 }
 
 export interface UpdateUserProfilePayload {
@@ -70,6 +95,7 @@ export interface UpdateUserProfilePayload {
   location?: ApiUserLocation;
   targetExam?: string | null;
   targetExamDate?: string;
+  feedback?: ApiUserFeedback;
 }
 
 interface ProfileResponse {
@@ -90,6 +116,40 @@ export async function updateMyProfile(
     payload
   );
   return response.data.data;
+}
+
+export async function setTargetExams(examIds: string[]): Promise<ApiUserProfile> {
+  const response = await apiClient.put<ProfileResponse>(
+    '/api/v1/users/me/target-exams',
+    { examIds }
+  );
+  return response.data.data;
+}
+
+export async function addTargetExam(examId: string): Promise<ApiUserProfile> {
+  const response = await apiClient.post<ProfileResponse>(
+    `/api/v1/users/me/target-exams/${examId}`
+  );
+  return response.data.data;
+}
+
+export async function removeTargetExam(examId: string): Promise<ApiUserProfile> {
+  const response = await apiClient.delete<ProfileResponse>(
+    `/api/v1/users/me/target-exams/${examId}`
+  );
+  return response.data.data;
+}
+
+export async function shouldPromptTargetExam(examId: string): Promise<boolean> {
+  const response = await apiClient.get<{ shouldPrompt: boolean }>(
+    '/api/v1/users/me/target-exams/prompt',
+    { params: { examId } }
+  );
+  return response.data.shouldPrompt === true;
+}
+
+export async function dismissTargetExamPrompt(examId: string): Promise<void> {
+  await apiClient.post(`/api/v1/users/me/target-exams/${examId}/dismiss-prompt`);
 }
 
 export function getInitials(name?: string): string {

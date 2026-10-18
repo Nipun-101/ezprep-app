@@ -1,13 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
 import {
   TrendingUp,
   TrendingDown,
   Minus,
-  Brain,
-  ArrowRight,
   AlertCircle,
   RefreshCw,
   Inbox,
@@ -157,14 +154,6 @@ export default function ProfileSubjects() {
             Based on your recent practice
           </p>
         </div>
-        <Link
-          href="/analytics"
-          className="flex items-center gap-1.5 text-xs font-medium text-teal-600 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-3 py-1.5 rounded-lg transition-colors"
-        >
-          <Brain className="w-3.5 h-3.5" />
-          AI Analysis
-          <ArrowRight className="w-3 h-3" />
-        </Link>
       </div>
 
       {isLoading && <SubjectsSkeleton />}

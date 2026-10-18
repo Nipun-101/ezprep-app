@@ -13,6 +13,8 @@ import {
   type SubmittedQuestionResult,
 } from '@/lib/api/attempts';
 import MockTestResults from './MockTestResults';
+import TargetExamPromptModal from '@/components/target-exams/TargetExamPromptModal';
+import { shouldPromptTargetExam } from '@/lib/api/users';
 
 interface AttemptResultClientProps {
   attemptId: string;
@@ -109,6 +111,7 @@ export default function AttemptResultClient({ attemptId }: AttemptResultClientPr
   const [details, setDetails] = useState<AttemptDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [promptOpen, setPromptOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -136,6 +139,31 @@ export default function AttemptResultClient({ attemptId }: AttemptResultClientPr
       isMounted = false;
     };
   }, [attemptId]);
+
+  const promptExam =
+    details && (details.status === 'SUBMITTED' || details.status === 'EXPIRED')
+      ? details.test.exam
+      : null;
+
+  useEffect(() => {
+    if (!promptExam?.id) return;
+    let cancelled = false;
+    let timer = 0;
+    shouldPromptTargetExam(promptExam.id)
+      .then((shouldPrompt) => {
+        if (!shouldPrompt || cancelled) return;
+        timer = window.setTimeout(() => {
+          if (!cancelled) setPromptOpen(true);
+        }, 1500);
+      })
+      .catch((promptError) => {
+        console.error('Failed to check target exam prompt', promptError);
+      });
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [promptExam?.id]);
 
   if (loading) {
     return (
@@ -203,10 +231,20 @@ export default function AttemptResultClient({ attemptId }: AttemptResultClientPr
   const { mockTestData, questions, result } = adaptAttemptDetailsToResults(details);
 
   return (
-    <MockTestResults
-      result={result}
-      mockTestData={mockTestData}
-      questions={questions}
-    />
+    <>
+      <MockTestResults
+        result={result}
+        mockTestData={mockTestData}
+        questions={questions}
+      />
+      {promptExam?.id && (
+        <TargetExamPromptModal
+          examId={promptExam.id}
+          examName={promptExam.name}
+          open={promptOpen}
+          onOpenChange={setPromptOpen}
+        />
+      )}
+    </>
   );
 }

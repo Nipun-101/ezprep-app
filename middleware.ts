@@ -4,7 +4,7 @@ import { AUTH_TOKEN_COOKIE, LOGOUT_RESUME_PATH_COOKIE } from '@/lib/authCookieNa
 import { getSafeRedirectPath, isSafeRedirectPath } from '@/lib/safeRedirect';
 
 // Routes that require authentication
-const protectedRoutes = ['/dashboard', '/complete-profile'];
+const protectedRoutes = ['/dashboard'];
 
 // Routes that should redirect to dashboard if already authenticated
 const authRoutes = ['/login'];

@@ -124,7 +124,12 @@ export default function Footer() {
         </div>
 
         <div className="py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
-          <span>© {new Date().getFullYear()} EzPrep Technologies Pvt. Ltd. All rights reserved.</span>
+          <div className="flex flex-col items-center gap-1 sm:items-start">
+            <span>© {new Date().getFullYear()} EzPrep Technologies Pvt. Ltd. All rights reserved.</span>
+            <span>
+              Powered by <span className="text-gray-400">Clustream</span>
+            </span>
+          </div>
           <div className="flex items-center gap-5">
             <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">Privacy Policy</a>
             <span className="w-px h-3 bg-white/10" />

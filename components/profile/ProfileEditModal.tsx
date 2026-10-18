@@ -1,18 +1,21 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import axios from 'axios';
-import { X, Save, AlertCircle, Loader2 } from 'lucide-react';
+import { X, Save, AlertCircle, Loader2, Target } from 'lucide-react';
 import {
+  setTargetExams,
+  targetExamsFromProfile,
   updateMyProfile,
   type ApiUserProfile,
   type UpdateUserProfilePayload,
 } from '@/lib/api/users';
-import { getExamsByCategory, type ApiExam } from '@/lib/api/exams';
+import TargetExamPicker from '@/components/target-exams/TargetExamPicker';
 
 interface Props {
   profile: ApiUserProfile;
   onSave: (updated: ApiUserProfile) => void;
+  onTargetsChange: (updated: ApiUserProfile) => void;
   onClose: () => void;
 }
 
@@ -23,12 +26,16 @@ interface FormState {
   city: string;
   state: string;
   country: string;
-  targetExam: string;
 }
 
 const BIO_MAX = 500;
 
-export default function ProfileEditModal({ profile, onSave, onClose }: Props) {
+export default function ProfileEditModal({
+  profile,
+  onSave,
+  onTargetsChange,
+  onClose,
+}: Props) {
   const [form, setForm] = useState<FormState>({
     name: profile.name ?? '',
     email: profile.email ?? '',
@@ -36,37 +43,11 @@ export default function ProfileEditModal({ profile, onSave, onClose }: Props) {
     city: profile.location?.city ?? '',
     state: profile.location?.state ?? '',
     country: profile.location?.country ?? '',
-    targetExam: profile.targetExam?.id ?? '',
   });
-
-  const [exams, setExams] = useState<ApiExam[]>([]);
-  const [examsLoading, setExamsLoading] = useState(false);
-  const [examsError, setExamsError] = useState<string | null>(null);
-
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    setExamsLoading(true);
-    setExamsError(null);
-    getExamsByCategory()
-      .then((categories) => {
-        if (cancelled) return;
-        const flat = categories.flatMap((c) => c.exams);
-        setExams(flat);
-      })
-      .catch((err) => {
-        console.error('Failed to load exams', err);
-        if (!cancelled) setExamsError('Could not load exam list.');
-      })
-      .finally(() => {
-        if (!cancelled) setExamsLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const targetExams = targetExamsFromProfile(profile);
 
   const set = <K extends keyof FormState>(key: K, val: FormState[K]) =>
     setForm((f) => ({ ...f, [key]: val }));
@@ -105,10 +86,6 @@ export default function ProfileEditModal({ profile, onSave, onClose }: Props) {
         country: trimmed.country || undefined,
         timezone: currentLoc.timezone,
       };
-    }
-
-    if (form.targetExam !== (profile.targetExam?.id ?? '')) {
-      payload.targetExam = form.targetExam || null;
     }
 
     return payload;
@@ -229,26 +206,30 @@ export default function ProfileEditModal({ profile, onSave, onClose }: Props) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Target Exam
+              Target exams
             </label>
-            <select
-              value={form.targetExam}
-              onChange={(e) => set('targetExam', e.target.value)}
-              disabled={examsLoading}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm bg-gray-50 focus:bg-white transition-all disabled:opacity-60"
+            <div className="flex flex-wrap items-center gap-2">
+              {targetExams.length === 0 ? (
+                <span className="text-sm text-gray-400">No target exams yet</span>
+              ) : (
+                targetExams.map((exam) => (
+                  <span
+                    key={exam.id}
+                    className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-800"
+                  >
+                    <Target className="h-3 w-3" />
+                    {exam.name}
+                  </span>
+                ))
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setPickerOpen(true)}
+              className="mt-2 text-sm font-medium text-teal-700 hover:text-teal-800"
             >
-              <option value="">
-                {examsLoading ? 'Loading exams…' : 'No target exam'}
-              </option>
-              {exams.map((exam) => (
-                <option key={exam.id} value={exam.id}>
-                  {exam.title}
-                </option>
-              ))}
-            </select>
-            {examsError && (
-              <p className="text-xs text-red-500 mt-1">{examsError}</p>
-            )}
+              Manage target exams
+            </button>
           </div>
 
           <div>
@@ -320,6 +301,15 @@ export default function ProfileEditModal({ profile, onSave, onClose }: Props) {
           </button>
         </div>
       </div>
+      <TargetExamPicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        selected={targetExams}
+        onSave={async (next) => {
+          const updated = await setTargetExams(next.map((exam) => exam.id));
+          onTargetsChange(updated);
+        }}
+      />
     </div>
   );
 }

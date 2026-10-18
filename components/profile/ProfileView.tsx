@@ -84,6 +84,7 @@ export default function ProfileView() {
             setProfile(updated);
             setIsEditing(false);
           }}
+          onTargetsChange={setProfile}
           onClose={() => setIsEditing(false)}
         />
       )}
