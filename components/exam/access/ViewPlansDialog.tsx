@@ -31,9 +31,15 @@ interface ViewPlansDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   target: ViewPlansTarget | null;
+  examName?: string;
 }
 
-export default function ViewPlansDialog({ open, onOpenChange, target }: ViewPlansDialogProps) {
+export default function ViewPlansDialog({
+  open,
+  onOpenChange,
+  target,
+  examName,
+}: ViewPlansDialogProps) {
   const router = useRouter();
   const [products, setProducts] = useState<CatalogProduct[]>([]);
   const [commerceEnabled, setCommerceEnabled] = useState(true);
@@ -134,7 +140,7 @@ export default function ViewPlansDialog({ open, onOpenChange, target }: ViewPlan
               <ul className="space-y-3">
               {rows.map(({ product, offers }) => (
                 <li key={product.id} className="rounded-xl border border-gray-200 bg-white p-3 sm:p-4">
-                  <h3 className="break-words font-semibold text-gray-900">{product.name}</h3>
+                  <ProductTitle name={product.name} examName={examName} />
                   {product.description ? (
                     <p className="mt-1 break-words text-sm text-gray-500">{product.description}</p>
                   ) : null}
@@ -180,6 +186,24 @@ export default function ViewPlansDialog({ open, onOpenChange, target }: ViewPlan
         ) : null}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function ProductTitle({ name, examName }: { name: string; examName?: string }) {
+  const label = examName?.trim();
+  if (!label) {
+    return <h3 className="break-words font-semibold text-gray-900">{name}</h3>;
+  }
+  const index = name.toLowerCase().indexOf(label.toLowerCase());
+  if (index < 0) {
+    return <h3 className="break-words font-semibold text-teal-600">{name}</h3>;
+  }
+  return (
+    <h3 className="break-words font-semibold text-gray-900">
+      {name.slice(0, index)}
+      <span className="text-teal-600">{name.slice(index, index + label.length)}</span>
+      {name.slice(index + label.length)}
+    </h3>
   );
 }
 
