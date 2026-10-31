@@ -9,7 +9,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { updateMyProfile } from '@/lib/api/users';
+import { submitFeedback, SubmitFeedbackPayload } from '@/lib/api/feedback';
 
 const SUPPORT_EMAIL = 'support@ezprep.in';
 const TEXT_MAX = 1000;
@@ -31,6 +31,8 @@ const EMPTY_RATINGS: Record<RatingKey, number> = {
   topicWisePractice: 0,
   easeOfUse: 0,
 };
+
+const rowClass = 'flex items-center gap-2';
 
 export default function SupportSection() {
   const [open, setOpen] = useState(false);
@@ -69,20 +71,23 @@ export default function SupportSection() {
     }));
   };
 
-  const canSend =
-    text.trim().length > 0 || Object.values(ratings).some((value) => value > 0);
+  const trimmed = text.trim();
+  const rated = (Object.entries(ratings) as [RatingKey, number][]).filter(
+    ([, value]) => value > 0,
+  );
+  const canSend = trimmed.length > 0 || rated.length > 0;
 
   const submit = async () => {
     if (!canSend || saving) return;
     setSaving(true);
     setError(null);
+    const payload: SubmitFeedbackPayload = {};
+    for (const [key, value] of rated) {
+      payload[key] = value;
+    }
+    if (trimmed) payload.text = trimmed;
     try {
-      await updateMyProfile({
-        feedback: {
-          text: text.trim(),
-          ...ratings,
-        },
-      });
+      await submitFeedback(payload);
       setPhase('thanks');
     } catch (submitError) {
       const message =
@@ -104,7 +109,7 @@ export default function SupportSection() {
           <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Support</p>
           <a
             href={`mailto:${SUPPORT_EMAIL}`}
-            className="mt-2 flex items-center gap-2 text-sm font-medium text-teal-700 hover:text-teal-800"
+            className={`mt-2 ${rowClass} text-sm font-medium text-teal-700 hover:text-teal-800`}
           >
             <Mail className="h-4 w-4 shrink-0" />
             {SUPPORT_EMAIL}
@@ -112,7 +117,7 @@ export default function SupportSection() {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="mt-3 flex w-full items-center gap-2 rounded-lg px-1 py-1.5 text-left text-sm text-gray-600 hover:text-gray-900"
+            className={`mt-2 ${rowClass} w-full rounded-lg py-1.5 text-left text-sm text-gray-600 hover:text-gray-900`}
           >
             <LifeBuoy className="h-4 w-4 shrink-0 text-gray-400" />
             Share feedback
@@ -150,27 +155,33 @@ export default function SupportSection() {
                   We value your feedbacks
                 </DialogDescription>
               </div>
-              <div className="max-h-[70vh] space-y-4 overflow-y-auto px-6 py-4">
+              <div className="max-h-[70vh] space-y-5 overflow-y-auto px-6 py-5">
                 {error && (
                   <p className="rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-600">
                     {error}
                   </p>
                 )}
-                <div className="space-y-3">
-                  {RATINGS.map((item) => (
-                    <div key={item.key} className="flex items-center justify-between gap-3">
-                      <span className="text-sm text-gray-700">{item.label}</span>
-                      <StarRow
-                        label={item.label}
-                        value={ratings[item.key]}
-                        onChange={(value) => setRating(item.key, value)}
-                      />
-                    </div>
-                  ))}
+                <div>
+                  <p className="text-sm font-medium text-gray-900">How would you rate</p>
+                  <div className="mt-2 space-y-1">
+                    {RATINGS.map((item) => (
+                      <div key={item.key} className="flex items-center justify-between gap-3">
+                        <span className="text-sm text-gray-700">{item.label}</span>
+                        <StarRow
+                          label={item.label}
+                          value={ratings[item.key]}
+                          onChange={(value) => setRating(item.key, value)}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div>
-                  <label htmlFor="support-feedback" className="sr-only">
-                    Feedback and improvements
+                  <label
+                    htmlFor="support-feedback"
+                    className="text-sm font-medium text-gray-900"
+                  >
+                    What should we improve
                   </label>
                   <textarea
                     id="support-feedback"
@@ -179,7 +190,7 @@ export default function SupportSection() {
                     rows={4}
                     onChange={(event) => setText(event.target.value.slice(0, TEXT_MAX))}
                     placeholder="Feedback and improvements"
-                    className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-transparent focus:bg-white focus:ring-2 focus:ring-teal-500"
+                    className="mt-2 w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-transparent focus:bg-white focus:ring-2 focus:ring-teal-500"
                   />
                   <p className="mt-1 text-right text-xs text-gray-400">
                     {text.length}/{TEXT_MAX}
@@ -214,7 +225,7 @@ function StarRow({
   onChange: (value: number) => void;
 }) {
   return (
-    <div className="flex items-center gap-0.5" role="group" aria-label={label}>
+    <div className="flex items-center" role="group" aria-label={label}>
       {[1, 2, 3, 4, 5].map((star) => {
         const filled = star <= value;
         return (
@@ -224,7 +235,7 @@ function StarRow({
             aria-label={`${star} star${star === 1 ? '' : 's'}`}
             aria-pressed={filled}
             onClick={() => onChange(star)}
-            className="rounded p-0.5"
+            className="rounded-md p-1"
           >
             <Star
               className={
