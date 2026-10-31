@@ -36,15 +36,6 @@ export interface ApiTargetExam {
   name: string;
 }
 
-export interface ApiUserFeedback {
-  text?: string;
-  userInterface?: number;
-  questions?: number;
-  fullMockTests?: number;
-  topicWisePractice?: number;
-  easeOfUse?: number;
-}
-
 export const MAX_TARGET_EXAMS = 5;
 
 export interface ApiUserProfile {
@@ -67,7 +58,6 @@ export interface ApiUserProfile {
   /** Primary target. Same as targetExams[0] when the API sends both. */
   targetExam?: ApiTargetExam;
   targetExamDate?: string;
-  feedback?: ApiUserFeedback;
   preferences: ApiUserPreferences;
   interactions: ApiUserInteractions;
   createdAt: string;
@@ -95,7 +85,6 @@ export interface UpdateUserProfilePayload {
   location?: ApiUserLocation;
   targetExam?: string | null;
   targetExamDate?: string;
-  feedback?: ApiUserFeedback;
 }
 
 interface ProfileResponse {
