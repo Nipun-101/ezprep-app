@@ -1,16 +1,16 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import axios from 'axios';
 import { X, Save, AlertCircle, Loader2, Target } from 'lucide-react';
 import {
-  setTargetExams,
   targetExamsFromProfile,
   updateMyProfile,
   type ApiUserProfile,
   type UpdateUserProfilePayload,
 } from '@/lib/api/users';
+import { apiErrorMessage } from '@/lib/api/errors';
 import TargetExamPicker from '@/components/target-exams/TargetExamPicker';
+import { useTargetExams } from '@/lib/hooks/useTargetExams';
 
 interface Props {
   profile: ApiUserProfile;
@@ -47,7 +47,8 @@ export default function ProfileEditModal({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const targetExams = targetExamsFromProfile(profile);
+  const { targets, ready, replace } = useTargetExams();
+  const targetExams = ready ? targets : targetExamsFromProfile(profile);
 
   const set = <K extends keyof FormState>(key: K, val: FormState[K]) =>
     setForm((f) => ({ ...f, [key]: val }));
@@ -120,12 +121,7 @@ export default function ProfileEditModal({
       onSave(updated);
     } catch (err) {
       console.error('Failed to update profile', err);
-      const message =
-        axios.isAxiosError(err) &&
-        (err.response?.data as { message?: string } | undefined)?.message
-          ? (err.response?.data as { message?: string }).message!
-          : 'Failed to update profile. Please try again.';
-      setSaveError(message);
+      setSaveError(apiErrorMessage(err, 'Failed to update profile. Please try again.'));
     } finally {
       setIsSaving(false);
     }
@@ -306,8 +302,12 @@ export default function ProfileEditModal({
         onOpenChange={setPickerOpen}
         selected={targetExams}
         onSave={async (next) => {
-          const updated = await setTargetExams(next.map((exam) => exam.id));
-          onTargetsChange(updated);
+          const updatedTargets = await replace(next);
+          onTargetsChange({
+            ...profile,
+            targetExams: updatedTargets,
+            targetExam: updatedTargets[0] ?? undefined,
+          });
         }}
       />
     </div>

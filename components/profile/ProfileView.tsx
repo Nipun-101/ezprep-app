@@ -9,12 +9,14 @@ import ProfileActivity from './ProfileActivity';
 import ProfileSubjects from './ProfileSubjects';
 import ProfileEditModal from './ProfileEditModal';
 import { getMyProfile, type ApiUserProfile } from '@/lib/api/users';
+import { useTargetExams } from '@/lib/hooks/useTargetExams';
 
 export default function ProfileView() {
   const [profile, setProfile] = useState<ApiUserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const { applyFromProfile, targets, ready } = useTargetExams();
 
   const loadProfile = useCallback(async () => {
     setIsLoading(true);
@@ -22,13 +24,14 @@ export default function ProfileView() {
     try {
       const data = await getMyProfile();
       setProfile(data);
+      applyFromProfile(data);
     } catch (err) {
       console.error('Failed to load profile', err);
       setError('Failed to load profile. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [applyFromProfile]);
 
   useEffect(() => {
     loadProfile();
@@ -61,9 +64,18 @@ export default function ProfileView() {
     );
   }
 
+  const profileWithLiveTargets =
+    ready
+      ? {
+          ...profile,
+          targetExams: targets,
+          targetExam: targets[0],
+        }
+      : profile;
+
   return (
     <div className="space-y-6">
-      <ProfileHeader profile={profile} onEdit={() => setIsEditing(true)} />
+      <ProfileHeader profile={profileWithLiveTargets} onEdit={() => setIsEditing(true)} />
 
       <ProfileStats />
 
@@ -79,12 +91,16 @@ export default function ProfileView() {
 
       {isEditing && (
         <ProfileEditModal
-          profile={profile}
+          profile={profileWithLiveTargets}
           onSave={(updated) => {
             setProfile(updated);
+            applyFromProfile(updated);
             setIsEditing(false);
           }}
-          onTargetsChange={setProfile}
+          onTargetsChange={(updated) => {
+            setProfile(updated);
+            applyFromProfile(updated);
+          }}
           onClose={() => setIsEditing(false)}
         />
       )}
