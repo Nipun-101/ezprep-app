@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp, Loader2, Search, Star, X } from 'lucide-react';
 import {
   Dialog,
@@ -10,13 +9,16 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { getExamsByCategory, type ApiExamCategory } from '@/lib/api/exams';
+import { apiErrorMessage } from '@/lib/api/errors';
 import { MAX_TARGET_EXAMS, type ApiTargetExam } from '@/lib/api/users';
 
 interface TargetExamPickerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selected: ApiTargetExam[];
-  onSave: (next: ApiTargetExam[]) => Promise<void> | void;
+  onSave: (next: ApiTargetExam[]) => Promise<unknown> | void;
+  /** When provided (e.g. dashboard SSR data), skip a redundant fetch. */
+  categories?: ApiExamCategory[];
 }
 
 function sameOrder(left: ApiTargetExam[], right: ApiTargetExam[]): boolean {
@@ -29,21 +31,34 @@ export default function TargetExamPicker({
   onOpenChange,
   selected,
   onSave,
+  categories: categoriesProp,
 }: TargetExamPickerProps) {
   const [draft, setDraft] = useState<ApiTargetExam[]>(selected);
-  const [categories, setCategories] = useState<ApiExamCategory[]>([]);
+  const [categories, setCategories] = useState<ApiExamCategory[]>(categoriesProp ?? []);
   const [loading, setLoading] = useState(false);
-  const [fetched, setFetched] = useState(false);
+  const [fetched, setFetched] = useState((categoriesProp?.length ?? 0) > 0);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const wasOpen = useRef(false);
 
   useEffect(() => {
-    if (!open) return;
-    setDraft(selected);
-    setSearch('');
-    setSaveError(null);
+    if (categoriesProp && categoriesProp.length > 0) {
+      setCategories(categoriesProp);
+      setFetched(true);
+      setLoadError(null);
+    }
+  }, [categoriesProp]);
+
+  // Reset draft only when the dialog opens, not on every selected identity change.
+  useEffect(() => {
+    if (open && !wasOpen.current) {
+      setDraft(selected);
+      setSearch('');
+      setSaveError(null);
+    }
+    wasOpen.current = open;
   }, [open, selected]);
 
   useEffect(() => {
@@ -53,16 +68,17 @@ export default function TargetExamPicker({
     setLoadError(null);
     getExamsByCategory()
       .then((data) => {
-        if (!cancelled) setCategories(data);
+        if (cancelled) return;
+        setCategories(data);
+        setFetched(true);
       })
       .catch(() => {
-        if (!cancelled) setLoadError('Could not load exams. Please try again.');
+        if (cancelled) return;
+        setLoadError('Could not load exams. Please try again.');
+        setFetched(true);
       })
       .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-          setFetched(true);
-        }
+        if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
@@ -118,15 +134,7 @@ export default function TargetExamPicker({
       await onSave(draft);
       onOpenChange(false);
     } catch (error) {
-      const message =
-        axios.isAxiosError(error) &&
-        typeof (error.response?.data as { message?: unknown } | undefined)?.message ===
-          'string'
-          ? (error.response?.data as { message: string }).message
-          : error instanceof Error
-            ? error.message
-            : 'Could not save your target exams.';
-      setSaveError(message);
+      setSaveError(apiErrorMessage(error, 'Could not save your target exams.'));
     } finally {
       setSaving(false);
     }
@@ -149,7 +157,10 @@ export default function TargetExamPicker({
 
         <div className="flex-1 space-y-4 overflow-y-auto px-6 py-4">
           {saveError && (
-            <p className="rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-600">
+            <p
+              role="alert"
+              className="rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-600"
+            >
               {saveError}
             </p>
           )}
@@ -218,7 +229,11 @@ export default function TargetExamPicker({
               <Loader2 className="h-5 w-5 animate-spin text-teal-600" />
             </div>
           )}
-          {loadError && <p className="text-sm text-red-600">{loadError}</p>}
+          {loadError && (
+            <p role="alert" className="text-sm text-red-600">
+              {loadError}
+            </p>
+          )}
 
           {!loading && fetched && !loadError && groups.length === 0 && (
             <p className="py-6 text-center text-sm text-gray-500">No exams match that search.</p>
@@ -246,6 +261,11 @@ export default function TargetExamPicker({
                             checked={checked}
                             disabled={disabled || saving}
                             onChange={() => toggle(exam)}
+                            aria-label={
+                              disabled
+                                ? `${exam.title} (limit of ${MAX_TARGET_EXAMS} reached)`
+                                : exam.title
+                            }
                             className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                           />
                           <span className="min-w-0 flex-1 truncate text-sm text-gray-800">
@@ -276,7 +296,7 @@ export default function TargetExamPicker({
           <button
             type="button"
             onClick={save}
-            disabled={saving || unchanged}
+            disabled={saving || unchanged || Boolean(loadError)}
             className="rounded-xl bg-teal-500 px-5 py-2.5 text-sm font-medium text-white shadow-md shadow-teal-200 hover:bg-teal-600 disabled:bg-teal-200 disabled:shadow-none"
           >
             {saving ? 'Saving…' : 'Save'}

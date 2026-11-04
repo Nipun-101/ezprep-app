@@ -1,18 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Pencil, Target, X } from 'lucide-react';
+import { AlertCircle, Pencil, RefreshCw, Target, X } from 'lucide-react';
 import ExamCardDashboard from '@/components/dashboard/ExamCardDashboard';
 import TargetExamPicker from '@/components/target-exams/TargetExamPicker';
 import { type ApiExamCategory } from '@/lib/api/exams';
+import { findExamInCategories } from '@/lib/target-exams';
 import { type UseTargetExams } from '@/lib/hooks/useTargetExams';
-
-const EMPTY_DISMISS_KEY = 'ezprep.target-exams.empty-dismissed';
 
 interface TargetExamsSectionProps {
   categories: ApiExamCategory[];
-  targetExams: Pick<UseTargetExams, 'targets' | 'loading' | 'isAuthenticated' | 'replace'>;
+  targetExams: Pick<
+    UseTargetExams,
+    'targets' | 'loading' | 'ready' | 'loadError' | 'isAuthenticated' | 'replace' | 'refresh'
+  >;
 }
 
 export default function TargetExamsSection({
@@ -20,18 +22,48 @@ export default function TargetExamsSection({
   targetExams,
 }: TargetExamsSectionProps) {
   const router = useRouter();
-  const { targets, loading, isAuthenticated, replace } = targetExams;
+  const { targets, loading, ready, loadError, isAuthenticated, replace, refresh } =
+    targetExams;
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [emptyDismissed, setEmptyDismissed] = useState(true);
+  const [emptyDismissed, setEmptyDismissed] = useState(false);
 
-  useEffect(() => {
-    setEmptyDismissed(window.localStorage.getItem(EMPTY_DISMISS_KEY) === '1');
-  }, []);
+  if (!isAuthenticated) return null;
 
-  if (!isAuthenticated || loading) return null;
+  if (loading && !ready) {
+    return (
+      <div
+        className="h-24 animate-pulse rounded-2xl bg-gradient-to-r from-teal-50 to-gray-50"
+        aria-hidden
+      />
+    );
+  }
+
+  if (loadError && !ready) {
+    return (
+      <section className="rounded-2xl border border-red-100 bg-red-50/60 px-3.5 py-3 sm:px-5 sm:py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600">
+            <AlertCircle className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-gray-900">Could not load target exams</p>
+            <p className="mt-0.5 text-sm text-gray-500">{loadError}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void refresh()}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-medium text-teal-700 ring-1 ring-teal-100 hover:bg-teal-50"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            Retry
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   const cards = targets.map((target) => {
-    const match = findExam(categories, target.id);
+    const match = findExamInCategories(categories, target.id);
     return {
       id: target.id,
       title: match?.exam.title ?? target.name,
@@ -40,8 +72,35 @@ export default function TargetExamsSection({
     };
   });
 
+  const picker = (
+    <TargetExamPicker
+      open={pickerOpen}
+      onOpenChange={setPickerOpen}
+      selected={targets}
+      categories={categories}
+      onSave={replace}
+    />
+  );
+
   if (cards.length === 0) {
-    if (emptyDismissed) return null;
+    if (emptyDismissed) {
+      return (
+        <>
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => setPickerOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-teal-700 hover:bg-teal-50"
+            >
+              <Target className="h-3.5 w-3.5" />
+              Set target exams
+            </button>
+          </div>
+          {picker}
+        </>
+      );
+    }
+
     return (
       <>
         <section className="rounded-2xl border border-teal-100 bg-gradient-to-r from-teal-50 to-white px-3.5 py-3 sm:px-5 sm:py-4">
@@ -67,11 +126,8 @@ export default function TargetExamsSection({
             </button>
             <button
               type="button"
-              aria-label="Dismiss"
-              onClick={() => {
-                window.localStorage.setItem(EMPTY_DISMISS_KEY, '1');
-                setEmptyDismissed(true);
-              }}
+              aria-label="Dismiss target exams prompt"
+              onClick={() => setEmptyDismissed(true)}
               className="shrink-0 rounded-lg p-1.5 text-gray-400 hover:bg-white hover:text-gray-600"
             >
               <X className="h-4 w-4" />
@@ -85,12 +141,7 @@ export default function TargetExamsSection({
             Choose exams
           </button>
         </section>
-        <TargetExamPicker
-          open={pickerOpen}
-          onOpenChange={setPickerOpen}
-          selected={targets}
-          onSave={replace}
-        />
+        {picker}
       </>
     );
   }
@@ -122,42 +173,7 @@ export default function TargetExamsSection({
           </div>
         ))}
       </div>
-      <TargetExamPicker
-        open={pickerOpen}
-        onOpenChange={setPickerOpen}
-        selected={targets}
-        onSave={replace}
-      />
+      {picker}
     </section>
   );
-}
-
-function findExam(categories: ApiExamCategory[], examId: string) {
-  for (const category of categories) {
-    const exam = category.exams.find((item) => item.id === examId);
-    if (exam) return { exam, category };
-  }
-  return null;
-}
-
-export function orderCategoriesByTargets(
-  categories: ApiExamCategory[],
-  targetIds: string[]
-): ApiExamCategory[] {
-  if (targetIds.length === 0) return categories;
-  const rank = new Map(targetIds.map((id, index) => [id, index]));
-  return categories
-    .map((category, index) => {
-      let best = Number.POSITIVE_INFINITY;
-      for (const exam of category.exams) {
-        const position = rank.get(exam.id);
-        if (position !== undefined && position < best) best = position;
-      }
-      return { category, index, best };
-    })
-    .sort((left, right) => {
-      if (left.best !== right.best) return left.best - right.best;
-      return left.index - right.index;
-    })
-    .map((entry) => entry.category);
 }

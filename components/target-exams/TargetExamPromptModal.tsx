@@ -1,10 +1,11 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useRef, useState } from 'react';
 import { Check, LayoutDashboard, LineChart, Sparkles, Target } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
-import { addTargetExam, dismissTargetExamPrompt } from '@/lib/api/users';
+import { dismissTargetExamPrompt } from '@/lib/api/users';
+import { apiErrorMessage } from '@/lib/api/errors';
+import { useTargetExams } from '@/lib/hooks/useTargetExams';
 
 interface TargetExamPromptModalProps {
   examId: string;
@@ -25,12 +26,26 @@ export default function TargetExamPromptModal({
   open,
   onOpenChange,
 }: TargetExamPromptModalProps) {
+  const { add } = useTargetExams();
   const [phase, setPhase] = useState<'ask' | 'done'>('ask');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const settled = useRef(false);
+  const closeTimer = useRef(0);
 
-  const closeWithoutPrompt = () => {
+  useEffect(() => {
+    if (open) {
+      setPhase('ask');
+      setSaving(false);
+      setError(null);
+      settled.current = false;
+    }
+    return () => {
+      window.clearTimeout(closeTimer.current);
+    };
+  }, [open]);
+
+  const closeWithoutDismiss = () => {
     settled.current = true;
     onOpenChange(false);
   };
@@ -53,18 +68,13 @@ export default function TargetExamPromptModal({
     setSaving(true);
     setError(null);
     try {
-      await addTargetExam(examId);
+      await add({ id: examId, name: examName });
       settled.current = true;
       setPhase('done');
-      window.setTimeout(() => onOpenChange(false), 1100);
+      window.clearTimeout(closeTimer.current);
+      closeTimer.current = window.setTimeout(() => onOpenChange(false), 1100);
     } catch (acceptError) {
-      const message =
-        axios.isAxiosError(acceptError) &&
-        typeof (acceptError.response?.data as { message?: unknown } | undefined)?.message ===
-          'string'
-          ? (acceptError.response?.data as { message: string }).message
-          : 'Could not add this exam. Please try again.';
-      setError(message);
+      setError(apiErrorMessage(acceptError, 'Could not add this exam. Please try again.'));
     } finally {
       setSaving(false);
     }
@@ -75,11 +85,13 @@ export default function TargetExamPromptModal({
       open={open}
       onOpenChange={(next) => {
         if (next) return;
+        // Esc / overlay / X close without counting toward the dismissal cap.
+        // Only the explicit "Not now" button records a dismissal.
         if (phase === 'done' || settled.current) {
-          closeWithoutPrompt();
+          closeWithoutDismiss();
           return;
         }
-        void decline();
+        closeWithoutDismiss();
       }}
     >
       <DialogContent className="w-[calc(100%-2rem)] max-w-md gap-0 overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:text-white [&>button]:hover:text-white">
@@ -122,7 +134,11 @@ export default function TargetExamPromptModal({
                 </li>
               ))}
             </ul>
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && (
+              <p role="alert" className="text-sm text-red-600">
+                {error}
+              </p>
+            )}
             <div className="flex flex-col gap-2 sm:flex-row-reverse">
               <button
                 type="button"
@@ -164,6 +180,11 @@ function Confetti() {
         @keyframes target-confetti {
           0% { transform: translateY(8px) scale(1); opacity: 1; }
           100% { transform: translateY(-72px) scale(0.6); opacity: 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          @keyframes target-confetti {
+            0%, 100% { transform: none; opacity: 0; }
+          }
         }
       `}</style>
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24" aria-hidden>

@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { Analytics } from '@vercel/analytics/next';
+import AppProviders from '@/components/providers/AppProviders';
 
 const inter = localFont({
   src: './fonts/inter-latin-wght-normal.woff2',
@@ -23,7 +24,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        {children}
+        <AppProviders>
+          {children}
+        </AppProviders>
         <Analytics />
       </body>
     </html>

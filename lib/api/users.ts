@@ -83,7 +83,7 @@ export interface UpdateUserProfilePayload {
   dateOfBirth?: string;
   gender?: Gender;
   location?: ApiUserLocation;
-  targetExam?: string | null;
+  /** Prefer the dedicated target-exams endpoints; kept for API compatibility. */
   targetExamDate?: string;
 }
 

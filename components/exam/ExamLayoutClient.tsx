@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState, createContext, useContext } from 'react';
-import axios from 'axios';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { getExamById, ApiExamDetail } from '@/lib/api/exams';
 import { ArrowLeft, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { apiErrorMessage } from '@/lib/api/errors';
 import { useTargetExams } from '@/lib/hooks/useTargetExams';
 
 interface ExamPageContextValue {
@@ -84,9 +84,17 @@ export default function ExamLayoutClient({ examId, children }: ExamLayoutClientP
                 {exam.name}
               </h1>
             )}
-            {exam && targets.isAuthenticated && !targets.loading && (
+            {exam && targets.isAuthenticated && targets.ready && (
               <button
                 type="button"
+                aria-label={
+                  targeted
+                    ? 'Remove from target exams'
+                    : targets.isFull
+                      ? 'Target exam list is full'
+                      : 'Add to target exams'
+                }
+                aria-pressed={targeted}
                 disabled={targetBusy || (!targeted && targets.isFull)}
                 onClick={async () => {
                   if (!exam) return;
@@ -99,13 +107,9 @@ export default function ExamLayoutClient({ examId, children }: ExamLayoutClientP
                       await targets.add({ id: examId, name: exam.name });
                     }
                   } catch (toggleError) {
-                    const apiMessage =
-                      axios.isAxiosError(toggleError) &&
-                      typeof (toggleError.response?.data as { message?: unknown } | undefined)
-                        ?.message === 'string'
-                        ? (toggleError.response?.data as { message: string }).message
-                        : null;
-                    setTargetError(apiMessage ?? 'Could not update your target exams.');
+                    setTargetError(
+                      apiErrorMessage(toggleError, 'Could not update your target exams.')
+                    );
                   } finally {
                     setTargetBusy(false);
                   }
@@ -129,7 +133,9 @@ export default function ExamLayoutClient({ examId, children }: ExamLayoutClientP
             )}
           </div>
           {targetError && (
-            <p className="text-sm text-red-600">{targetError}</p>
+            <p role="alert" className="text-sm text-red-600">
+              {targetError}
+            </p>
           )}
 
           <nav
