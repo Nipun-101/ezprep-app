@@ -15,8 +15,8 @@ Read [`authentication.md`](authentication.md) first for how the web works today.
 | Storage | `expo-secure-store`: `ezprep.auth.token` (access) and, after Phase 12, `ezprep.auth.refresh`. `keychainAccessible: AFTER_FIRST_UNLOCK` |
 | In-memory state | `AuthProvider` context: `{ status: 'restoring' \| 'signedOut' \| 'signedIn', token?: string, signIn(...), signOut(reason?) }`. `http.ts` reads the token from the provider, not SecureStore, on each request |
 | Restoration at launch | Keep the splash → read SecureStore → `signedIn` if a token is present, otherwise `signedOut` → hide the splash. Then, in the background, call `GET /api/v1/users/me` (seeds the `['me']` cache). A 401 triggers refresh (Phase 12) or sign-out |
-| Refresh | Backend supports `refreshToken` with **90d sliding** idle for `client=mobile`. **Phase 12** wires SecureStore + single-flight `POST /auth/refresh`. Until then, pass `client: 'mobile'` so access alone lasts ~90d |
-| 401 handling | Phase 01: 401 → `signOut('expired')`. Phase 12: 401 → one refresh attempt → retry; else sign-out with "Your session has expired…" |
+| Refresh | Backend supports `refreshToken` with **90d sliding** idle for `client=mobile`. **Phase 12** wires SecureStore + single-flight `POST /auth/refresh`. **Required:** every login must send `client: 'mobile'` — OTP defaults to `web` on the API and otherwise issues a ~15m access token with no JSON refresh |
+| 401 handling | Phase 01 (current mobile): 401 → `signOut('expired')`. Phase 12: 401 → one refresh attempt → retry; else sign-out with "Your session has expired…" |
 | Logout | Phase 12: `POST /auth/logout` (revokes this device only) then clear SecureStore + Google SDK `signOut()`. Web logout does not affect mobile |
 | Route protection | Expo Router groups: `(auth)` only when `signedOut`, `(app)` only when `signedIn`. Guard at the layout level |
 | Pending route (deep link while signed out) | Store an in-memory target. After `signIn`, `router.replace(target)` if `isSafeInAppPath(target)` (port the rules from `lib/safeRedirect.ts`), else Home |

@@ -2,7 +2,7 @@
 
 Each item couldn't be settled from this repository. **Blocks** is the earliest phase that can't finish until the item is resolved. Priority: 🔴 blocks a mandatory phase or the release · 🟠 changes the design · 🟢 product polish.
 
-Summary of the 🔴 items: **U-01, U-02, U-03, U-04, U-06, U-12, U-23, U-29, U-30, U-32**.
+Summary of the 🔴 items: **U-01, U-02, U-03, U-06, U-12, U-23, U-29, U-30, U-32** (U-04 superseded by Phase 12 / Redis sessions).
 
 ---
 
@@ -30,13 +30,11 @@ Summary of the 🔴 items: **U-01, U-02, U-03, U-04, U-06, U-12, U-23, U-29, U-3
 - **How to verify:** Product decision. Confirm with the backend team whether the timer runs server-side while IN_PROGRESS (inferred from `computeAttemptSecondsLeft`).
 - **Blocks:** Phase 06.
 
-### U-04 🔴 Token lifetime and revocation
-- **Question:** What is the JWT TTL? Is there a refresh token or revocation/logout endpoint? Will a token expiring mid-attempt lose the submit?
-- **Why it matters:** Session UX, the submit-retry design, and security.
-- **Evidence:** `lib/auth.ts` sets a 7-day cookie. No refresh logic. Logout is client-only. The 401 interceptor is in `lib/api/client.ts`.
-- **Options:** Keep the current approach (re-login on expiry) / add refresh / add server logout.
-- **How to verify:** Read the backend JWT config. Decode a dev token's `exp` (don't share it).
-- **Blocks:** Phase 01 (design). Phase 06 (submit on 401).
+### U-04 ✅ Token lifetime and revocation — **resolved (superseded by Phase 12)**
+- **Resolution (2026-11):** Backend Redis student sessions. Web: ~15m access in memory + HttpOnly refresh cookie, 7d absolute. Mobile (`client=mobile`): access currently up to 90d (`MOBILE_ACCESS_TTL_SEC`), refresh token in JSON, **90d sliding** idle, `POST /auth/refresh` (rotating), `POST /auth/logout` revokes this `sid` only. Web logout does not affect mobile.
+- **Mobile work:** Phase 12 wires SecureStore refresh + single-flight refresh + logout. Until Phase 12 ships, OTP must still send `client: 'mobile'` or it incorrectly receives the web 15m session.
+- **Follow-up (not blocking):** After Phase 12 device proof, ask API owner to lower `MOBILE_ACCESS_TTL_SEC` (e.g. 1h).
+- **Blocks:** None for design. Phase 12 implements the client.
 
 ### U-05 🟠 Which endpoints require auth?
 - **Question:** Are the catalog/search/exam/content endpoints public or authenticated?
@@ -66,9 +64,10 @@ Summary of the 🔴 items: **U-01, U-02, U-03, U-04, U-06, U-12, U-23, U-29, U-3
 - **Question:** Should Analytics (`/analytics`, dummy data), Study Materials (static), the 8 coming-soon features, `/test` (legacy), and `/profile` vs `/dashboard?tab=profile` appear in the app?
 - **Why it matters:** Avoid porting fake data.
 - **Evidence:** `components/AIAnalyticsDashboard.tsx` imports `lib/mockData.ts`. `/study-materials` uses static arrays. See `route-inventory.md`.
+- **Update (2026-11):** Web removed Courses / Concept Videos / Bookmarks coming-soon routes; **My Subscriptions** is a real page. Mobile Phase 16 removes those three placeholders and ships read-only Subscriptions. Analytics / Study Materials / Mentorship etc. stay deferred.
 - **Options:** Coming-soon placeholders (recommended) / omit / build later with real APIs.
 - **How to verify:** Product decision.
-- **Blocks:** Phase 02 (More tab contents).
+- **Blocks:** Phase 02 (More tab contents); Phase 16 cleanup.
 
 ### U-09 🟢 Profile completion / onboarding
 - **Question:** Is `POST /user/complete-profile` live? Is any onboarding intended after first login?
@@ -218,3 +217,10 @@ Summary of the 🔴 items: **U-01, U-02, U-03, U-04, U-06, U-12, U-23, U-29, U-3
 - **Question:** When iOS launches with Google sign-in, is Sign in with Apple required (App Store guideline 4.8), or do phone OTP and the guideline's exceptions suffice?
 - **How to verify:** Review the current App Store guidelines at the time of iOS planning.
 - **Blocks:** Phase 11.
+
+### U-Purchase ✅ In-app purchase / Razorpay on Android — **resolved for v1**
+- **Resolution (owner, 2026-11):** No in-app Razorpay, Play Billing, WebView checkout, or deep-link to web checkout in the Android app for now.
+- **Flow:** Locked/paid papers show an informational message only: *“This test isn't available in your account. You can purchase tests directly on our website.”* No link or Buy button. User buys on `ezprep.in` in a normal browser, then returns to the app; lists refetch so access unlocks (Phase 13). Read-only My Subscriptions may show entitlements/orders/invoices (Phase 16).
+- **Evidence:** Payment-gateway docs already mark native mobile checkout out of scope for v1 (`docs/payment-gateway/executive-summary.md`, `current-architecture.md`).
+- **Revisit later:** Play Billing vs Razorpay if product wants in-app purchase parity.
+- **Blocks:** None. Do not install payment SDKs in phases 12–16.

@@ -41,6 +41,32 @@ Port the web logic as pure functions and test them against these cases:
 ### Current affairs
 - Date key in local time. The future-date guard. The seen-date logic (badge when today's key ≠ stored). Swipe threshold decision function.
 
+### Session hardening (phase 12)
+- Auth response Zod accepts optional `refreshToken` / `expiresIn` (degraded Redis omit).
+- Login bodies always include `client: 'mobile'`.
+- `http.ts` refresh is **single-flight**: concurrent 401s share one `POST /auth/refresh`; success stores rotated refresh and retries once; refresh 401 → one sign-out.
+- Logout clears access + refresh SecureStore keys and best-effort calls `POST /auth/logout`.
+- Tokens never appear in logs (redaction covers `refreshtoken`).
+
+### Access locking (phase 13)
+- `isAccessDenied` / `isStartBlocked`: missing `access` ⇒ allowed; `RESUME` + `resumeAttemptId` never blocked by lock; denied Start/Retake.
+- Entitlement UI copy is exactly the owner website-only message; assert **no** “View plans”, Buy, or URL / `Linking` purchase actions in the locked path.
+- Optional: focus/AppState invalidation helpers refetch the correct React Query keys.
+
+### Multi-target exams (phase 14)
+- `orderCategoriesByTargets` stable sort; empty targets leave order unchanged.
+- Cap at 5; primary = first id.
+- Results prompt: only explicit “Not now” calls dismiss-prompt (back/overlay close does not).
+
+### Support & feedback (phase 15)
+- `buildFeedbackPayload`: omit empty text and zero ratings; enforce max 1000; reject empty payload client-side.
+- Component: Send disabled when empty; star toggle clears.
+
+### Subscriptions read-only (phase 16)
+- `formatPaiseAsRupees`, `gstBreakdownLine` (intra vs inter), `formatDurationPreset`.
+- Section error isolation (one rejected promise does not blank sibling sections).
+- Coming-soon constants no longer list courses / concept-videos / bookmarks / subscriptions-as-placeholder.
+
 ## 3. Mocking rules
 - Mock at the **HTTP boundary** (fetch), not inside feature hooks, so contracts get exercised.
 - Fixtures: build them from the response shapes documented in `api-architecture.md`. Mark every field the web code reads. Never use real user data or tokens.
@@ -52,12 +78,24 @@ Port the web logic as pure functions and test them against these cases:
 | Flow | Phase |
 | --- | --- |
 | Launch → sign-in screen → phone → OTP (test number / staging, `U-30`) → Home | 01 |
-| Restore session on relaunch, then logout → sign-in | 01 |
+| Restore session on relaunch, then logout → sign-in | 01 / 12 |
+| Kill app mid-session → relaunch still signed in (refresh present) | 12 |
 | Home → exam → Topic Wise → start test → answer 2 → pause & leave → resume → submit → result | 06–07 |
 | Background the app mid-attempt for 60 s → timer correct on return | 06 |
 | Current affairs: swipe through cards, change date, badge clears | 09 |
+| Locked paper → owner message, no purchase CTA (no payment automation) | 13 |
+| More → Share feedback → thank-you | 15 |
+| More → My Subscriptions loads sections | 16 |
 
-E2E against a real backend needs a **test account / staging environment / OTP bypass** (`U-30`). Until that exists, E2E runs only up to the sign-in screen or uses an injected dev token in development builds (never in release).
+E2E against a real backend needs a **test account / staging environment / OTP bypass** (`U-30`). Until that exists, E2E runs only up to the sign-in screen or uses an injected dev token in development builds (never in release). **Do not** automate Razorpay or website checkout in Maestro for v1 (purchases are website-only).
+
+### Manual cross-phase validation (phases 12–16)
+Each phase file owns its device checklist. Minimum owner smoke after 12–16:
+
+1. OTP sign-in lasts beyond 15 minutes (or silent refresh keeps the session).
+2. Locked paper shows the website-only message; buy on `ezprep.in` in a browser; return to app → paper unlocks.
+3. Target exams: add from Home/exam star; results Not now vs Add.
+4. Feedback + Subscriptions + More cleanup (no Courses/Bookmarks/Concept Videos).
 
 ## 5. CI (phase 00 for setup, phase 10 for release gates)
 - On PR: install (frozen lockfile), typecheck, lint, unit + component tests.
