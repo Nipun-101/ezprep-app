@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { isAuthenticated } from '@/lib/auth';
+import { useAuthSession } from '@/components/providers/AuthSessionProvider';
 import ExamCard from './ExamCard';
 import { ApiExamGroupCategory } from '@/lib/api/exams';
 
@@ -13,12 +13,8 @@ interface ExamsSectionProps {
 
 export default function ExamsSection({ categories }: ExamsSectionProps) {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isAuthenticated: isLoggedIn } = useAuthSession();
   const [activeCategory, setActiveCategory] = useState(categories[0]?.id ?? '');
-
-  useEffect(() => {
-    setIsLoggedIn(isAuthenticated());
-  }, []);
 
   const handleViewAllExams = () => {
     router.push(isLoggedIn ? '/dashboard' : '/login');

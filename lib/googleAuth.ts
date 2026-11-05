@@ -80,7 +80,12 @@ export interface StoredGoogleReturn {
 }
 
 type GoogleSessionResult =
-  | { ok: true; accessToken: string; nextPath: string }
+  | {
+      ok: true;
+      accessToken: string;
+      expiresIn?: number;
+      nextPath: string;
+    }
   | { ok: false; message: string };
 
 let pendingSession: Promise<GoogleSessionResult> | null = null;
@@ -103,16 +108,21 @@ export function completeGoogleSession(): Promise<GoogleSessionResult> {
   pendingSession = fetch(`${apiUrl}/api/v1/auth/google`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({
       code: parsed.value.code,
       redirectUri: parsed.value.redirectUri,
       codeVerifier: parsed.value.codeVerifier,
+      client: 'web',
     }),
   })
     .then(async (response) => {
       const body = (await response.json().catch(() => null)) as {
         message?: unknown;
-        data?: { accessToken?: string };
+        data?: {
+          accessToken?: string;
+          expiresIn?: number;
+        };
       } | null;
 
       if (!response.ok || !body?.data?.accessToken) {
@@ -128,6 +138,7 @@ export function completeGoogleSession(): Promise<GoogleSessionResult> {
       return {
         ok: true as const,
         accessToken: body.data.accessToken,
+        expiresIn: body.data.expiresIn,
         nextPath: getSafeRedirectPath(parsed.value.nextPath),
       };
     })

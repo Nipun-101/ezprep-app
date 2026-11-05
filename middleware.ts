@@ -1,16 +1,27 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { AUTH_TOKEN_COOKIE, LOGOUT_RESUME_PATH_COOKIE } from '@/lib/authCookieNames';
+import {
+  AUTH_SESSION_COOKIE,
+  AUTH_TOKEN_COOKIE,
+  LOGOUT_RESUME_PATH_COOKIE,
+} from '@/lib/authCookieNames';
 import { getSafeRedirectPath, isSafeRedirectPath } from '@/lib/safeRedirect';
 
 // Routes that require authentication
-const protectedRoutes = ['/dashboard'];
+const protectedRoutes = ['/dashboard', '/analytics', '/profile', '/test'];
 
 // Routes that should redirect to dashboard if already authenticated
 const authRoutes = ['/login'];
 
 /** Public home / marketing route — authenticated users skip it */
 const landingPath = '/';
+
+function hasAuthSession(request: NextRequest): boolean {
+  const marker = request.cookies.get(AUTH_SESSION_COOKIE)?.value;
+  if (marker) return true;
+  // Legacy JWT cookie still counts during migration.
+  return Boolean(request.cookies.get(AUTH_TOKEN_COOKIE)?.value);
+}
 
 function redirectAuthenticatedUser(request: NextRequest): NextResponse {
   const fromQuery = request.nextUrl.searchParams.get('redirect');
@@ -33,7 +44,16 @@ function redirectAuthenticatedUser(request: NextRequest): NextResponse {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get(AUTH_TOKEN_COOKIE)?.value;
+  const token = hasAuthSession(request);
+
+  // Allow Google OAuth return on landing even if a stale session cookie exists.
+  if (
+    pathname === landingPath &&
+    (request.nextUrl.searchParams.has('code') ||
+      request.nextUrl.searchParams.has('error'))
+  ) {
+    return NextResponse.next();
+  }
 
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route),

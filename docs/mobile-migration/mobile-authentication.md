@@ -12,12 +12,12 @@ Read [`authentication.md`](authentication.md) first for how the web works today.
 
 | Concern | Design |
 | --- | --- |
-| Storage | `expo-secure-store`, key `ezprep.auth.token`, option `keychainAccessible: AFTER_FIRST_UNLOCK`. Nothing else stores the token |
-| In-memory state | `AuthProvider` context: `{ status: 'restoring' \| 'signedOut' \| 'signedIn', token?: string, signIn(token), signOut(reason?) }`. `http.ts` reads the token from the provider, not SecureStore, on each request |
-| Restoration at launch | Keep the splash → read SecureStore → `signedIn` if a token is present, otherwise `signedOut` → hide the splash. Then, in the background, call `GET /api/v1/users/me` (seeds the `['me']` cache). A 401 triggers sign-out. *Additive compared with web, which detects expiry lazily; recommended because Home's catalog may not require auth and would not surface a 401* |
-| Refresh | **None**, matching current backend behavior (`U-04`). If the backend adds refresh tokens later, add the logic in `http.ts` only |
-| 401 handling | Any authenticated response with 401 → `signOut('expired')` → clear SecureStore + query cache → `(auth)/sign-in` with the message "Your session has expired. Please sign in again." The pending route is remembered |
-| Logout | A More/Profile action with confirmation → `signOut('user')`: clear SecureStore, `queryClient.clear()`, Google SDK `signOut()` (so the account chooser shows next time, parity with `prompt=select_account`) → sign-in. No server call (none exists, `U-04`) |
+| Storage | `expo-secure-store`: `ezprep.auth.token` (access) and, after Phase 12, `ezprep.auth.refresh`. `keychainAccessible: AFTER_FIRST_UNLOCK` |
+| In-memory state | `AuthProvider` context: `{ status: 'restoring' \| 'signedOut' \| 'signedIn', token?: string, signIn(...), signOut(reason?) }`. `http.ts` reads the token from the provider, not SecureStore, on each request |
+| Restoration at launch | Keep the splash → read SecureStore → `signedIn` if a token is present, otherwise `signedOut` → hide the splash. Then, in the background, call `GET /api/v1/users/me` (seeds the `['me']` cache). A 401 triggers refresh (Phase 12) or sign-out |
+| Refresh | Backend supports `refreshToken` with **90d sliding** idle for `client=mobile`. **Phase 12** wires SecureStore + single-flight `POST /auth/refresh`. Until then, pass `client: 'mobile'` so access alone lasts ~90d |
+| 401 handling | Phase 01: 401 → `signOut('expired')`. Phase 12: 401 → one refresh attempt → retry; else sign-out with "Your session has expired…" |
+| Logout | Phase 12: `POST /auth/logout` (revokes this device only) then clear SecureStore + Google SDK `signOut()`. Web logout does not affect mobile |
 | Route protection | Expo Router groups: `(auth)` only when `signedOut`, `(app)` only when `signedIn`. Guard at the layout level |
 | Pending route (deep link while signed out) | Store an in-memory target. After `signIn`, `router.replace(target)` if `isSafeInAppPath(target)` (port the rules from `lib/safeRedirect.ts`), else Home |
 | Resume after logout | Web remembers the last path for 7 days. On mobile this is low value *(drop unless product asks; `U-15`)* |

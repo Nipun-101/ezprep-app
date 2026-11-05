@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { setAuthToken } from '@/lib/auth';
+import { setAuthTokens } from '@/lib/auth';
 import { completeGoogleSession } from '@/lib/googleAuth';
 
 export default function GoogleOAuthReturn() {
@@ -21,7 +21,7 @@ export default function GoogleOAuthReturn() {
         setMessage(result.message);
         return;
       }
-      setAuthToken(result.accessToken);
+      setAuthTokens(result.accessToken, null, result.expiresIn);
       router.replace(result.nextPath);
     });
 

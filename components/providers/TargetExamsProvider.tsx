@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from 'react';
 import { getAuthToken } from '@/lib/auth';
+import { useAuthSession } from '@/components/providers/AuthSessionProvider';
 import {
   addTargetExam,
   getMyProfile,
@@ -48,6 +49,7 @@ function requireAuth(): void {
 }
 
 export function TargetExamsProvider({ children }: { children: ReactNode }) {
+  const auth = useAuthSession();
   const [targets, setTargets] = useState<ApiTargetExam[]>([]);
   const targetsRef = useRef<ApiTargetExam[]>([]);
   const [loading, setLoading] = useState(true);
@@ -101,8 +103,9 @@ export function TargetExamsProvider({ children }: { children: ReactNode }) {
   }, [commit]);
 
   useEffect(() => {
+    if (auth.status === 'loading') return;
     void load();
-  }, [load]);
+  }, [load, auth.status, auth.token]);
 
   const enqueue = useCallback(<T,>(task: () => Promise<T>): Promise<T> => {
     const run = mutationChain.current.then(task, task);

@@ -62,6 +62,7 @@ import {
   isLastSession,
 } from '@/lib/attempt-sessions';
 import { examTestExitLabel, examTestListPath } from '@/lib/exam-test-routes';
+import { getAuthToken } from '@/lib/auth';
 
 interface MockTestRunnerProps {
   attemptId: string;
@@ -205,7 +206,7 @@ export default function MockTestRunner({
       if (!isActiveRef.current) return;
       e.preventDefault();
       e.returnValue = '';
-      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      const token = getAuthToken();
       const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? '';
       fetch(`${apiUrl}/api/v1/mock-test-attempts/${attemptId}/pause`, {
         method: 'POST',
@@ -213,6 +214,7 @@ export default function MockTestRunner({
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
+        credentials: 'include',
         keepalive: true,
       }).catch(() => {});
       // The server clock is now frozen, so the cached payload is stale

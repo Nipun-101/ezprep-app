@@ -27,6 +27,7 @@ Each phase is independently executable in a fresh session and ends in a working,
 | 09 | [Current affairs](phase-09-current-affairs.md) | Daily swipe stack, date navigation, new badge, image share | — |
 | 10 | [Release hardening & Play Store](phase-10-release-hardening.md) | Security, performance, a11y passes, crash reporting, store listing, internal → production | U-06, U-16, U-23, U-24, U-32 |
 | 11 | [iOS enablement](phase-11-ios-enablement.md) | iOS build, Google iOS client, App Store | U-33 |
+| 12 | [Session hardening](phase-12-session-hardening.md) | Redis sessions, refresh token, per-device logout, `client=mobile` | Phase 01; backend already shipped |
 
 **Deferred (not phased):** AI Analytics (mock today), Study Materials (static today), Mentorship/Courses/Bookmarks/Concept videos/Subscriptions/Success stories/Tests hub (coming soon on web), marketing home. All of them depend on U-08.
 
@@ -50,10 +51,12 @@ flowchart LR
   P08 --> P10
   P09 --> P10
   P10 --> P11[11 iOS]
+  P01 --> P12[12 Session hardening]
+  P12 -.-> P10
 ```
 
 ## Recommended order
-`00 → 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 → 10 → 11`
+`00 → 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08 → 09 → 10 → 11`, with **12** after 01 (can run before or with 10 once the backend contract is live).
 
 ## What can run in parallel
 - **Phase 05 spike** (renderer choice with fixture content) can start right after 00, in parallel with 01–04. Its integration and acceptance with live attempt data need 04.

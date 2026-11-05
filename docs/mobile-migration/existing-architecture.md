@@ -118,7 +118,7 @@ flowchart LR
     MW[middleware.ts<br/>cookie authToken gate]
     RSC[Server Components<br/>MarketingHome, Dashboard page<br/>ISR 24h]
     CC[Client Components<br/>'use client' screens]
-    LS[(localStorage<br/>authToken, CA seen date)]
+    LS[(memory access + HttpOnly refresh;<br/>localStorage CA seen date)]
     SS[(sessionStorage<br/>OAuth PKCE state,<br/>attempt cache,<br/>Google prompt dismissed)]
     CK[(Cookies<br/>authToken, logoutResumePath)]
     AX[axios apiClient<br/>Bearer interceptor<br/>401 → /login]

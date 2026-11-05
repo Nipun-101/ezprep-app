@@ -1,17 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { isAuthenticated } from '@/lib/auth';
+import { useAuthSession } from '@/components/providers/AuthSessionProvider';
 
 export default function HeroSection() {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    setIsLoggedIn(isAuthenticated());
-  }, []);
+  const { isAuthenticated: isLoggedIn } = useAuthSession();
 
   const handleStartFreeTrial = () => {
     if (isLoggedIn) {

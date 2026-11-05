@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { AlertCircle, Phone, X } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { setAuthToken, getAuthToken } from '@/lib/auth';
+import { setAuthTokens, getAuthToken, healAuthSessionCookies } from '@/lib/auth';
 import { getSafeRedirectPath } from '@/lib/safeRedirect';
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 
@@ -87,7 +87,8 @@ export default function LoginModal() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ accessToken }),
+          credentials: 'include',
+          body: JSON.stringify({ accessToken, client: 'web' }),
         });
 
         if (!response.ok) {
@@ -97,7 +98,7 @@ export default function LoginModal() {
         const result = await response.json();
 
         if (result.data?.accessToken) {
-          setAuthToken(result.data.accessToken);
+          setAuthTokens(result.data.accessToken, null, result.data.expiresIn);
           router.replace(resolvePostLoginPath());
         } else {
           throw new Error('No access token received from backend');
@@ -133,7 +134,7 @@ export default function LoginModal() {
   useEffect(() => {
     const token = getAuthToken();
     if (token) {
-      setAuthToken(token);
+      healAuthSessionCookies();
       router.replace(resolvePostLoginPath());
     }
   }, [router]);

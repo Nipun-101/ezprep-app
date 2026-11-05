@@ -22,6 +22,7 @@ Update this file at the end of every implementation session (see [`engineering-r
 | 09 | Current affairs | Not started | | | | |
 | 10 | Release hardening & Play Store | Not started | | | | U-16, U-23, U-32 |
 | 11 | iOS enablement | Not started | | | | U-33 |
+| 12 | Session hardening | Not started | | | | Backend + web already shipped; implement after 01 |
 
 Status values: `Not started` · `In progress` · `Blocked (U-xx)` · `In review` · `Done`.
 

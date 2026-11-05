@@ -7,7 +7,7 @@
 | Base URL | `process.env.NEXT_PUBLIC_API_URL` (origin only, no `/api/v1`). Production: `https://api.ezprep.in` | `lib/api/client.ts`, README |
 | Fallback | Raw-fetch auth paths fall back to `http://localhost:4000`, which README calls wrong. The axios client has no fallback | `LoginModal.tsx`, `googleAuth.ts`, `lib/auth.ts` |
 | Library | axios instance `apiClient` with `Content-Type: application/json` | `lib/api/client.ts` |
-| Request interceptor | Adds `Authorization: Bearer <localStorage.authToken>` if present | same |
+| Request interceptor | Adds `Authorization: Bearer <memory access>` if present (`withCredentials` for refresh cookie) | same |
 | Response interceptor | On 401 (browser only): remove the token, `window.location.href = /login?redirect=…`, reject | same |
 | Timeouts | **None** configured (axios default = no timeout) | [Verified] |
 | Retries | **None** | [Verified] |

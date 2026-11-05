@@ -1,20 +1,17 @@
 'use client';
 
 import { Menu, User, LogOut } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { isAuthenticated, logout } from '@/lib/auth';
+import { useAuthSession } from '@/components/providers/AuthSessionProvider';
+import { logout } from '@/lib/auth';
 import SearchBox from '@/components/dashboard/SearchBox';
 
 export default function Header() {
   const router = useRouter();
+  const { isAuthenticated: isLoggedIn } = useAuthSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    setIsLoggedIn(isAuthenticated());
-  }, []);
 
   const handleAuthClick = () => {
     if (isLoggedIn) {
@@ -25,8 +22,7 @@ export default function Header() {
   };
 
   const handleLogout = () => {
-    logout();
-    setIsLoggedIn(false);
+    void logout();
   };
 
   return (
