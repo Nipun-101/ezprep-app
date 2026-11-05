@@ -10,7 +10,8 @@
 | Component `useState`/`useEffect` | Yes, everywhere | All server data is fetched per component |
 | `react-hook-form` / `zod` | Installed, **not used** by feature code (only `components/ui/form.tsx`) | — |
 | URL state | Minimal: `redirect`, `categoryId`, OAuth `code/state/error`, route params `id`, `attemptId` | |
-| `localStorage` | `authToken`, `ezp:currentAffairsLastSeenDate` | `lib/auth.ts`, `lib/current-affairs-seen.ts` |
+| Memory / HttpOnly | Access JWT in memory; refresh via API `ezprep_rt` cookie | `lib/auth.ts` |
+| `localStorage` | `ezp:currentAffairsLastSeenDate` (auth tokens no longer stored) | `lib/current-affairs-seen.ts` |
 | `sessionStorage` | `ezprep.google.oauth.{state,verifier,redirect,next}`, `ezp:mockAttempt:<id>` (attempt payload cache), `ezprep.google.prompt.dismissed` | `lib/googleAuth.ts`, `lib/attempt-storage.ts`, `GoogleSignInPrompt.tsx` |
 | Cookies | `authToken`, `logoutResumePath` | `lib/auth.ts`, `middleware.ts` |
 | Module singletons | `pendingSession` (Google exchange de-dupe), Mathpix `cached`/`pending` | `lib/googleAuth.ts`, `MathpixBoundary.tsx` |

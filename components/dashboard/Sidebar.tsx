@@ -43,8 +43,7 @@ export default function Sidebar({ onNavigate, showOfferCallout }: SidebarProps) 
   };
 
   const handleLogout = () => {
-    // Clear authentication tokens and redirect to login
-    logout();
+    void logout();
     if (onNavigate) {
       onNavigate();
     }

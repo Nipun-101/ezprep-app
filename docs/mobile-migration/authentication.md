@@ -7,13 +7,15 @@ This describes how authentication works **today** in the web app. The mobile des
 | Aspect | Current behavior | Evidence |
 | --- | --- | --- |
 | Methods | Google OAuth (authorization code + PKCE) and phone OTP via the MSG91 widget | `lib/googleAuth.ts`, `components/auth/LoginModal.tsx` |
-| Session artifact | A single bearer **access token** (README: "JWT") returned in `data.accessToken` | `LoginModal.tsx`, `googleAuth.ts` |
-| Storage | `localStorage['authToken']` **and** a non-HttpOnly cookie `authToken` (`path=/; max-age=7d; SameSite=Lax`) set from JS | `lib/auth.ts` |
-| Refresh | **None.** No refresh token, no silent renewal | [Verified] absence |
-| Expiry | Cookie lifetime 7 days. JWT `exp` is unknown. The client never checks expiry (`isTokenExpired` is unused and broken for real JWTs) | `U-04` |
-| Server validation | Implicit. Any API call that returns 401 triggers logout | `lib/api/client.ts` |
-| Logout | Client-only. No API call. Token removed. Current path saved to resume | `lib/auth.ts` `logout()` |
-| Route protection | Edge middleware checks only **cookie presence**, not validity | `middleware.ts` |
+| Session artifact | Bearer **access JWT** (`data.accessToken`, ~15m) plus HttpOnly **refresh cookie** (`ezprep_rt`) for Redis-backed student sessions | `LoginModal.tsx`, `googleAuth.ts`, API auth |
+| Storage | Access in **memory** only; refresh never readable by JS; middleware uses non-JWT `authSession=1` marker for **7d** (session length — Edge cannot see the API HttpOnly cookie) | `lib/auth.ts` |
+| Refresh | Boot + 401: `POST /auth/refresh` with `credentials: 'include'` (cookie only; single-flight) | `lib/api/client.ts`, `AuthSessionProvider` |
+| Expiry | Web session **7d** absolute (refresh cookie); access **15m**; mobile login with `client=mobile` is **90d** | API student sessions |
+| Server validation | JWT + Redis `sid` for new student tokens; legacy no-`sid` JWTs until natural expiry; admin unchanged | API `validateJwtPayload` |
+| Logout | `POST /auth/logout` with credentials (revokes this `sid`, Clear-Cookie) then clear memory + marker | `lib/auth.ts` `logout()` |
+| Route protection | Edge middleware checks session marker presence for `/dashboard`, `/analytics`, `/profile`, `/test` | `middleware.ts` |
+
+See also Phase 12: [`phases/phase-12-session-hardening.md`](phases/phase-12-session-hardening.md).
 
 ## 2. Phone OTP flow (MSG91 widget)
 
@@ -33,7 +35,7 @@ sequenceDiagram
   LM->>API: POST /api/v1/auth/verify-otp { accessToken }
   alt ok + data.accessToken
     API-->>LM: { data: { accessToken } }
-    LM->>LM: setAuthToken() → localStorage + cookie
+    LM->>LM: setAuthTokens() → memory access + authSession marker (HttpOnly refresh via Set-Cookie)
     LM->>LM: router.replace(redirect || /dashboard)
   else failure
     LM->>U: "Something went wrong while completing sign-in…"
@@ -66,7 +68,7 @@ sequenceDiagram
   B->>API: POST /api/v1/auth/google { code, redirectUri, codeVerifier }
   Note over API: [Inferred] exchanges code with Google using<br/>client id + client SECRET + verifier,<br/>validates redirectUri ∈ GOOGLE_REDIRECT_URIS,<br/>finds/creates user, issues app JWT
   API-->>B: { data: { accessToken } }
-  B->>B: clear sessionStorage handoff, setAuthToken, router.replace(next)
+  B->>B: clear sessionStorage handoff, setAuthTokens (memory), router.replace(next)
 ```
 
 Key facts:
@@ -80,12 +82,12 @@ Key facts:
 
 | Event | Behavior |
 | --- | --- |
-| Session creation | `setAuthToken(token)` → `localStorage.authToken` + cookie `authToken` (7 d) |
-| Session restoration | Implicit. The token is in `localStorage` on reload. The cookie gates server routes |
-| Authenticated request | The axios interceptor adds `Authorization: Bearer <token>` if present |
-| 401 from API | `removeAuthToken()` + `window.location.href = /login?redirect=<current path>` |
-| Expired cookie but valid localStorage (or the reverse) | They can drift. Middleware only checks the cookie, and the API client only checks localStorage. **[Inferred]** A user can be bounced to `/login`, where `LoginModal` re-saves the localStorage token as a cookie and redirects back |
-| Logout | Saves the current path to the `logoutResumePath` cookie, removes the token, `location.href = '/'` |
+| Session creation | `setAuthTokens(access)` → memory + `authSession=1` marker (~access TTL); API sets HttpOnly `ezprep_rt` |
+| Session restoration | Full reload: wipe legacy `localStorage` tokens; silent `POST /auth/refresh` with credentials; hydrate memory if cookie valid |
+| Authenticated request | Axios `withCredentials` + `Authorization: Bearer <memory access>` |
+| 401 from API | Single-flight cookie refresh; on failure `removeAuthToken()` + `/login?redirect=` |
+| Marker vs memory | Provider rewrites marker after boot refresh so landing/dashboard drift stays fixed |
+| Logout | Saves path to `logoutResumePath`, credentials logout (Clear-Cookie), clear memory + marker, `location.href = '/'` |
 | Post-login redirect priority (middleware) | `?redirect` (if safe) → `logoutResumePath` cookie (if safe) → `/dashboard`. The resume cookie is cleared |
 | Safe redirect rules | Must start with `/`, must not start with `//`, must not contain `..`, must not be `/`, `/login`, or `/login/*` |
 
@@ -102,8 +104,8 @@ Key facts:
 
 | Web assumption | Why it breaks on native | Native replacement |
 | --- | --- | --- |
-| `localStorage` token | Does not exist; AsyncStorage is unencrypted | `expo-secure-store` (Keystore/Keychain) |
-| JS-set cookie for middleware | No cookies or middleware | Auth state in memory, hydrated from SecureStore at launch; route groups guard navigation |
+| Memory access + HttpOnly refresh cookie | No browser cookies; refresh must live in SecureStore | `expo-secure-store` for refresh; memory access; Phase 12 |
+| JS-set `authSession` marker for middleware | No cookies or middleware | Auth state in memory, hydrated from SecureStore at launch; route groups guard navigation |
 | `window.location` redirects | No document location | Expo Router `router.replace` |
 | MSG91 browser script + DOM mount | No DOM; WebView is a poor fit for auth | MSG91 native/JS SDK, or the EZ Prep backend calling MSG91 send/verify APIs (`U-01`) |
 | Google redirect back to `https://www.ezprep.in/` | A native app cannot receive that redirect without App Links. Google restricts custom-scheme redirects for web clients | Native Google Sign-In (Android Credential Manager / Google Identity) returning an ID token or server auth code. **The backend contract likely needs to change** (`U-02`) |
