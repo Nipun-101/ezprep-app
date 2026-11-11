@@ -11,6 +11,8 @@ interface CategorySectionProps {
 export default function CategorySection({ category }: CategorySectionProps) {
   const router = useRouter();
 
+  if (!category.exams?.length) return null;
+
   const handleExamClick = (examId: string) => {
     router.push(`/dashboard/exam/${examId}`);
   };

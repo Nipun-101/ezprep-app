@@ -35,12 +35,12 @@ export default function DashboardExamsContent({ categories }: DashboardExamsCont
   const ordered = orderCategoriesByTargets(
     categories,
     targetExams.targets.map((exam) => exam.id)
-  );
+  ).filter((category) => category.exams?.length);
 
   return (
     <div className="space-y-8">
       <TargetExamsSection categories={categories} targetExams={targetExams} />
-      {categories.length === 0 ? (
+      {ordered.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 text-center text-gray-500">
           Exam listings will be available soon.
         </div>
