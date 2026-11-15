@@ -68,6 +68,7 @@ export interface NavigationItem {
 
 export const navigationItems: NavigationItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: 'LayoutDashboard', href: '/dashboard' },
+  { id: 'state-psc', label: 'State PSC', icon: 'MapPin', href: '/dashboard/state-psc' },
   { id: 'subscriptions', label: 'My Subscriptions', icon: 'CreditCard', href: '/dashboard/subscriptions' },
   { id: 'current-affairs', label: 'Current Affairs', icon: 'Zap', href: '/dashboard/current-affairs' },
   { id: 'profile', label: 'My Profile', icon: 'UserCircle', href: '/dashboard/profile' },

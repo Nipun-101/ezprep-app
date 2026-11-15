@@ -6,6 +6,7 @@ import {
   CreditCard,
   Zap,
   UserCircle,
+  MapPin,
   LogOut,
 } from 'lucide-react';
 import Image from 'next/image';
@@ -19,6 +20,7 @@ import { useCurrentAffairsNotification } from '@/hooks/useCurrentAffairsNotifica
 
 const iconMap: Record<string, any> = {
   LayoutDashboard,
+  MapPin,
   CreditCard,
   Zap,
   UserCircle,
