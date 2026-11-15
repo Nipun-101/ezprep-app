@@ -6,15 +6,23 @@ import ExamCardDashboard from './ExamCardDashboard';
 
 interface CategorySectionProps {
   category: ApiExamCategory;
+  /** Query string appended to exam links (e.g. from=state-psc). */
+  examFrom?: string;
 }
 
-export default function CategorySection({ category }: CategorySectionProps) {
+export default function CategorySection({
+  category,
+  examFrom,
+}: CategorySectionProps) {
   const router = useRouter();
 
   if (!category.exams?.length) return null;
 
   const handleExamClick = (examId: string) => {
-    router.push(`/dashboard/exam/${examId}`);
+    const href = examFrom
+      ? `/dashboard/exam/${examId}?from=${encodeURIComponent(examFrom)}`
+      : `/dashboard/exam/${examId}`;
+    router.push(href);
   };
 
   return (

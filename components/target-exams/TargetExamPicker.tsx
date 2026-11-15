@@ -11,6 +11,7 @@ import {
 import { getExamsByCategory, type ApiExamCategory } from '@/lib/api/exams';
 import { apiErrorMessage } from '@/lib/api/errors';
 import { MAX_TARGET_EXAMS, type ApiTargetExam } from '@/lib/api/users';
+import { DEFAULT_STATE_PSC_CODE } from '@/lib/dashboard-categories';
 
 interface TargetExamPickerProps {
   open: boolean;
@@ -66,10 +67,17 @@ export default function TargetExamPicker({
     let cancelled = false;
     setLoading(true);
     setLoadError(null);
-    getExamsByCategory()
-      .then((data) => {
+    // Load central + default state PSC so the picker can select either jurisdiction.
+    Promise.all([
+      getExamsByCategory(),
+      getExamsByCategory({
+        scope: 'state',
+        stateCode: DEFAULT_STATE_PSC_CODE,
+      }),
+    ])
+      .then(([central, state]) => {
         if (cancelled) return;
-        setCategories(data);
+        setCategories([...central, ...state]);
         setFetched(true);
       })
       .catch(() => {

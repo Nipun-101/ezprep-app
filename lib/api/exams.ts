@@ -93,8 +93,25 @@ export interface MockTestsByExamResponse {
   pagination: MockTestsPagination;
 }
 
-export async function getExamsByCategory(): Promise<ApiExamCategory[]> {
-  const response = await apiClient.get<ExamsByCategoryResponse>('/api/v1/exams/by-category');
+export type CategoryScope = 'central' | 'state';
+
+export interface GetExamsByCategoryParams {
+  scope?: CategoryScope;
+  /** ISO 3166-2:IN two-letter code (e.g. KL). Required when scope is state. */
+  stateCode?: string;
+}
+
+export async function getExamsByCategory(
+  params: GetExamsByCategoryParams = {}
+): Promise<ApiExamCategory[]> {
+  const query: Record<string, string> = {};
+  if (params.scope) query.scope = params.scope;
+  if (params.stateCode) query.stateCode = params.stateCode;
+
+  const response = await apiClient.get<ExamsByCategoryResponse>(
+    '/api/v1/exams/by-category',
+    { params: query }
+  );
   return response.data.data;
 }
 

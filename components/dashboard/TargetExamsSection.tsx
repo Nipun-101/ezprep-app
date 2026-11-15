@@ -10,16 +10,20 @@ import { findExamInCategories } from '@/lib/target-exams';
 import { type UseTargetExams } from '@/lib/hooks/useTargetExams';
 
 interface TargetExamsSectionProps {
+  /** Categories used to resolve target exam logos/names (central + state). */
   categories: ApiExamCategory[];
   targetExams: Pick<
     UseTargetExams,
     'targets' | 'loading' | 'ready' | 'loadError' | 'isAuthenticated' | 'replace' | 'refresh'
   >;
+  /** Query value for exam links so back returns here (e.g. state-psc). */
+  examFrom?: string;
 }
 
 export default function TargetExamsSection({
   categories,
   targetExams,
+  examFrom,
 }: TargetExamsSectionProps) {
   const router = useRouter();
   const { targets, loading, ready, loadError, isAuthenticated, replace, refresh } =
@@ -165,7 +169,12 @@ export default function TargetExamsSection({
             <ExamCardDashboard
               name={card.title}
               imageUrl={card.imageUrl}
-              onClick={() => router.push(`/dashboard/exam/${card.id}`)}
+              onClick={() => {
+                const href = examFrom
+                  ? `/dashboard/exam/${card.id}?from=${encodeURIComponent(examFrom)}`
+                  : `/dashboard/exam/${card.id}`;
+                router.push(href);
+              }}
             />
             {card.categoryName && (
               <p className="mt-1.5 text-center text-[11px] text-gray-400">{card.categoryName}</p>

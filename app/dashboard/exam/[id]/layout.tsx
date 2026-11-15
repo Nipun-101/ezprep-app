@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import ExamLayoutClient from '@/components/exam/ExamLayoutClient';
 
 interface LayoutProps {
@@ -8,5 +9,9 @@ interface LayoutProps {
 }
 
 export default function ExamLayout({ children, params }: LayoutProps) {
-  return <ExamLayoutClient examId={params.id}>{children}</ExamLayoutClient>;
+  return (
+    <Suspense fallback={null}>
+      <ExamLayoutClient examId={params.id}>{children}</ExamLayoutClient>
+    </Suspense>
+  );
 }

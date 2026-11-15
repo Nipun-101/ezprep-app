@@ -2,13 +2,23 @@
 
 import { useEffect, useRef, useState, createContext, useContext } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { getExamById, ApiExamDetail } from '@/lib/api/exams';
 import { ArrowLeft, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { apiErrorMessage } from '@/lib/api/errors';
 import { useTargetExams } from '@/lib/hooks/useTargetExams';
+
+function examReturnPath(from: string | null): {
+  href: string;
+  label: string;
+} {
+  if (from === 'state-psc') {
+    return { href: '/dashboard/state-psc', label: 'Back to State PSC' };
+  }
+  return { href: '/dashboard', label: 'Back to Dashboard' };
+}
 
 interface ExamPageContextValue {
   examId: string;
@@ -35,6 +45,10 @@ interface ExamLayoutClientProps {
 export default function ExamLayoutClient({ examId, children }: ExamLayoutClientProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const from = searchParams.get('from');
+  const back = examReturnPath(from);
+  const fromQuery = from ? `?from=${encodeURIComponent(from)}` : '';
   const navRef = useRef<HTMLElement>(null);
   const [exam, setExam] = useState<ApiExamDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,10 +74,30 @@ export default function ExamLayoutClient({ examId, children }: ExamLayoutClientP
   const targeted = targets.isTargeted(examId);
 
   const navItems = [
-    { href: `/dashboard/exam/${examId}`, label: 'Overview', exact: true },
-    { href: `/dashboard/exam/${examId}/practice`, label: 'Topic Wise', exact: false },
-    { href: `/dashboard/exam/${examId}/full-mocks`, label: 'Full Mocks', exact: false },
-    { href: `/dashboard/exam/${examId}/sprint-tests`, label: 'Sprint Tests', exact: false },
+    {
+      path: `/dashboard/exam/${examId}`,
+      href: `/dashboard/exam/${examId}${fromQuery}`,
+      label: 'Overview',
+      exact: true,
+    },
+    {
+      path: `/dashboard/exam/${examId}/practice`,
+      href: `/dashboard/exam/${examId}/practice${fromQuery}`,
+      label: 'Topic Wise',
+      exact: false,
+    },
+    {
+      path: `/dashboard/exam/${examId}/full-mocks`,
+      href: `/dashboard/exam/${examId}/full-mocks${fromQuery}`,
+      label: 'Full Mocks',
+      exact: false,
+    },
+    {
+      path: `/dashboard/exam/${examId}/sprint-tests`,
+      href: `/dashboard/exam/${examId}/sprint-tests${fromQuery}`,
+      label: 'Sprint Tests',
+      exact: false,
+    },
   ];
 
   return (
@@ -73,11 +107,11 @@ export default function ExamLayoutClient({ examId, children }: ExamLayoutClientP
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => router.push('/dashboard')}
+              onClick={() => router.push(back.href)}
               className="flex items-center gap-2 shrink-0 text-gray-600 hover:text-gray-900 transition-colors touch-manipulation"
             >
               <ArrowLeft className="w-4 h-4 shrink-0" />
-              <span className="font-medium hidden md:inline">Back to Dashboard</span>
+              <span className="font-medium hidden md:inline">{back.label}</span>
             </button>
             {exam && (
               <h1 className="md:hidden flex-1 min-w-0 text-lg font-bold text-gray-900 leading-tight truncate">
@@ -144,11 +178,11 @@ export default function ExamLayoutClient({ examId, children }: ExamLayoutClientP
           >
             {navItems.map((item) => {
               const active = item.exact
-                ? pathname === item.href
-                : pathname?.startsWith(item.href);
+                ? pathname === item.path
+                : pathname?.startsWith(item.path);
               return (
                 <Link
-                  key={item.href}
+                  key={item.path}
                   href={item.href}
                   data-active={active ? 'true' : undefined}
                   className={cn(
