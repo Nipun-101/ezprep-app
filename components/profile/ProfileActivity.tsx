@@ -47,20 +47,18 @@ const scoreConfig = (pct: number) => {
   };
 };
 
-const statusConfig = (
-  status: RecentActivityStatus
-): { label: string; color: string } => {
+const statusCardClass = (status: RecentActivityStatus): string => {
   switch (status) {
     case 'SUBMITTED':
-      return { label: 'Submitted', color: 'text-emerald-600' };
+      return 'border-emerald-100 bg-emerald-50/90 hover:bg-emerald-50';
     case 'EXPIRED':
-      return { label: 'Expired', color: 'text-amber-600' };
+      return 'border-rose-100 bg-rose-50/90 hover:bg-rose-50';
     case 'PAUSED':
-      return { label: 'Paused', color: 'text-blue-500' };
+      return 'border-sky-100 bg-sky-50/90 hover:bg-sky-50';
     case 'IN_PROGRESS':
-      return { label: 'In progress', color: 'text-blue-500' };
+      return 'border-amber-100 bg-amber-50/90 hover:bg-amber-50';
     default:
-      return { label: String(status).replace(/_/g, ' '), color: 'text-gray-500' };
+      return 'border-gray-100 bg-gray-50 hover:bg-gray-100';
   }
 };
 
@@ -178,11 +176,10 @@ export default function ProfileActivity() {
       )}
 
       {!isLoading && !error && activityItems.length > 0 && (
-        <div className="divide-y divide-gray-50">
+        <div className="space-y-2 p-3 sm:p-4">
           {activityItems.map((item) => {
             const pct = Math.round(item.scorePercent);
             const score = scoreConfig(pct);
-            const status = statusConfig(item.status);
             const isFullMock = !item.subject;
             const rawTitle =
               item.testTitle?.trim() ||
@@ -192,7 +189,7 @@ export default function ProfileActivity() {
               'Untitled test';
             const title = toTitleCase(rawTitle);
             const subjectLabel = toTitleCase(item.subject?.name?.trim() || '');
-            const examLabel = toTitleCase(item.exam?.name?.trim() || '');
+            const examLabel = item.exam?.name?.trim().toUpperCase() || '';
             const showSubjectChip =
               !!item.topic?.name &&
               subjectLabel.toLowerCase() !== title.toLowerCase();
@@ -209,7 +206,10 @@ export default function ProfileActivity() {
                     : `/dashboard/attempt/${item.attemptId}`;
                   router.push(href);
                 }}
-                className="group flex w-full items-start gap-3 px-4 py-4 text-left transition-colors hover:bg-gray-50/60 sm:items-center sm:gap-4 sm:px-6"
+                className={cn(
+                  'group flex w-full items-start gap-3 rounded-xl border px-3.5 py-3.5 text-left transition-colors sm:items-center sm:gap-4 sm:px-4',
+                  statusCardClass(item.status)
+                )}
               >
                 <div
                   className={cn(
@@ -226,19 +226,11 @@ export default function ProfileActivity() {
                   <div className="truncate text-sm font-semibold text-gray-800 transition-colors group-hover:text-teal-700">
                     {title}
                   </div>
-                  <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 sm:gap-x-3">
-                    <span
-                      className={cn(
-                        'shrink-0 text-xs font-semibold',
-                        isFullMock ? 'text-indigo-500' : 'text-teal-500'
-                      )}
-                    >
-                      {isFullMock ? 'Full Mock' : 'Practice'}
-                    </span>
+                  <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1.5">
                     {showSubjectChip && (
                       <span
                         title={subjectLabel}
-                        className="inline-block max-w-[11rem] shrink-0 truncate rounded-md bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500 sm:max-w-[14rem] lg:max-w-[16rem]"
+                        className="inline-block max-w-[11rem] shrink-0 truncate rounded-md bg-white/80 px-1.5 py-0.5 text-xs text-gray-600 sm:max-w-[14rem] lg:max-w-[16rem]"
                       >
                         {subjectLabel}
                       </span>
@@ -246,44 +238,25 @@ export default function ProfileActivity() {
                     {examLabel && (
                       <span
                         title={examLabel}
-                        className={cn(
-                          'inline-block max-w-[12rem] shrink-0 truncate rounded-md bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500 sm:max-w-[14rem] lg:max-w-[18rem]',
-                          showSubjectChip && 'hidden sm:inline-block'
-                        )}
+                        className="inline-block max-w-[12rem] shrink-0 truncate rounded-md bg-white/80 px-1.5 py-0.5 text-xs font-medium tracking-wide text-gray-600 sm:max-w-[14rem] lg:max-w-[18rem]"
                       >
                         {examLabel}
                       </span>
                     )}
-                    <span className="hidden items-center gap-1 text-xs text-gray-400 sm:inline-flex">
-                      <Clock className="h-3 w-3" />
-                      {formatDuration(item.timeConsumedMinutes)}
-                    </span>
-                    <span className="hidden text-xs text-gray-400 sm:inline">
-                      {formatRelativeTime(item.submittedAt)}
-                    </span>
                   </div>
-                  <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-400 sm:hidden">
-                    {showSubjectChip && examLabel ? (
-                      <span
-                        title={examLabel}
-                        className="inline-block max-w-[12rem] shrink-0 truncate rounded-md bg-gray-100 px-1.5 py-0.5 text-gray-500"
-                      >
-                        {examLabel}
-                      </span>
-                    ) : null}
-                    <span className="inline-flex shrink-0 items-center gap-1">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500">
+                    <span className="inline-flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {formatDuration(item.timeConsumedMinutes)}
                     </span>
-                    <span className="shrink-0">{formatRelativeTime(item.submittedAt)}</span>
+                    <span>{formatRelativeTime(item.submittedAt)}</span>
                   </div>
                 </div>
 
                 <div className="flex shrink-0 flex-col items-end gap-1 pt-0.5 sm:pt-0">
                   <div
                     className={cn(
-                      'flex items-center gap-1 rounded-lg border px-2.5 py-1',
-                      score.bg,
+                      'flex items-center gap-1 rounded-lg border bg-white/80 px-2.5 py-1',
                       score.border
                     )}
                   >
@@ -291,12 +264,7 @@ export default function ProfileActivity() {
                       {pct}%
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
-                    <span className={cn('font-medium', status.color)}>
-                      {status.label}
-                    </span>
-                    <span>· {item.totalQuestions} Qs</span>
-                  </div>
+                  <span className="text-xs text-gray-500">{item.totalQuestions} Qs</span>
                 </div>
 
                 <ChevronRight className="mt-2.5 hidden h-4 w-4 shrink-0 text-gray-300 transition-colors group-hover:text-teal-500 sm:mt-0 sm:block" />
