@@ -31,36 +31,37 @@ export default function ProfileHeader({ profile, onEdit }: Props) {
             backgroundSize: '60px 60px, 80px 80px, 30px 30px',
           }}
         />
-        <div className="relative flex items-start justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm border-2 border-white/40 flex items-center justify-center text-white text-xl font-bold shadow-xl shrink-0 overflow-hidden">
+        <div className="relative flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-4">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-white/40 bg-white/20 text-xl font-bold text-white shadow-xl backdrop-blur-sm">
               {profile.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={profile.avatarUrl}
                   alt={profile.name}
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               ) : (
                 initials || '?'
               )}
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-white">{profile.name}</h1>
+            <div className="min-w-0">
+              <h1 className="truncate text-xl font-bold text-white">{profile.name}</h1>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {targetExams.length === 0 ? (
-                  <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full border border-white/30">
-                    <Target className="w-3 h-3" />
-                    No target exam
+                  <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-white/30 bg-white/20 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+                    <Target className="h-3 w-3 shrink-0" />
+                    <span className="truncate">No target exam</span>
                   </span>
                 ) : (
                   targetExams.map((exam) => (
                     <span
                       key={exam.id}
-                      className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full border border-white/30"
+                      title={exam.name}
+                      className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-white/30 bg-white/20 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm"
                     >
-                      <Target className="w-3 h-3" />
-                      {exam.name}
+                      <Target className="h-3 w-3 shrink-0" />
+                      <span className="truncate">{exam.name}</span>
                     </span>
                   ))
                 )}
@@ -69,9 +70,9 @@ export default function ProfileHeader({ profile, onEdit }: Props) {
           </div>
           <button
             onClick={onEdit}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-xl font-medium text-sm transition-all active:scale-95 border border-white/30"
+            className="flex shrink-0 items-center gap-1.5 rounded-xl border border-white/30 bg-white/20 px-3.5 py-2 text-sm font-medium text-white backdrop-blur-sm transition-all hover:bg-white/30 active:scale-95"
           >
-            <Pencil className="w-3.5 h-3.5" />
+            <Pencil className="h-3.5 w-3.5" />
             Edit
           </button>
         </div>

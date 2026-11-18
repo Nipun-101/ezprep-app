@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertCircle, Pencil, RefreshCw, Target, X } from 'lucide-react';
+import { AlertCircle, Headset, Pencil, RefreshCw, Target, X } from 'lucide-react';
 import ExamCardDashboard from '@/components/dashboard/ExamCardDashboard';
 import TargetExamPicker from '@/components/target-exams/TargetExamPicker';
 import { type ApiExamCategory } from '@/lib/api/exams';
+import { brand } from '@/lib/brand';
 import { findExamInCategories } from '@/lib/target-exams';
 import { type UseTargetExams } from '@/lib/hooks/useTargetExams';
 
@@ -154,14 +155,17 @@ export default function TargetExamsSection({
     <section>
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-2xl font-bold tracking-tight text-gray-900">Your target exams</h2>
-        <button
-          type="button"
-          onClick={() => setPickerOpen(true)}
-          className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-teal-700 hover:bg-teal-50"
-        >
-          <Pencil className="h-3.5 w-3.5" />
-          Edit
-        </button>
+        <div className="flex items-center gap-1.5">
+          <HelpSupportControl />
+          <button
+            type="button"
+            onClick={() => setPickerOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-teal-700 hover:bg-teal-50"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            Edit
+          </button>
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {cards.map((card) => (
@@ -184,5 +188,49 @@ export default function TargetExamsSection({
       </div>
       {picker}
     </section>
+  );
+}
+
+function HelpSupportControl() {
+  const [expanded, setExpanded] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!expanded) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setExpanded(false);
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [expanded]);
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        type="button"
+        aria-label="Help and support"
+        aria-expanded={expanded}
+        tabIndex={expanded ? -1 : 0}
+        onClick={() => setExpanded(true)}
+        className={
+          expanded
+            ? 'invisible inline-flex items-center justify-center rounded-xl p-2'
+            : 'inline-flex items-center justify-center rounded-xl p-2 text-teal-700 hover:bg-teal-50'
+        }
+      >
+        <Headset className="h-4 w-4" />
+      </button>
+      {expanded ? (
+        <a
+          href={`mailto:${brand.supportEmail}`}
+          className="absolute right-0 top-1/2 z-20 inline-flex -translate-y-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-teal-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-teal-200 hover:bg-teal-600"
+        >
+          <Headset className="h-4 w-4 shrink-0" aria-hidden />
+          Help & Support
+        </a>
+      ) : null}
+    </div>
   );
 }

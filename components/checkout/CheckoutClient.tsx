@@ -3,7 +3,7 @@
 import { FormEvent, MutableRefObject, ReactNode, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { Headset, Loader2 } from 'lucide-react';
 import BillingForm from '@/components/checkout/BillingForm';
 import {
   BillingFormValues,
@@ -28,6 +28,7 @@ import {
 } from '@/lib/api/checkout';
 import { apiErrorCode, apiErrorMessage } from '@/lib/api/errors';
 import { getMyProfile } from '@/lib/api/users';
+import { brand } from '@/lib/brand';
 import { checkoutService } from '@/lib/checkout/CheckoutService';
 import { checkoutTimeoutSeconds, nextOrderPollAction } from '@/lib/checkout/poll-order-status';
 import { formatDurationPreset, formatPaiseAsRupees, gstBreakdownLine } from '@/lib/commerce-money';
@@ -382,6 +383,21 @@ export default function CheckoutClient() {
               'Pay securely'
             )}
           </Button>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Headset className="h-4 w-4 shrink-0 text-teal-600" aria-hidden />
+              <p className="text-sm font-semibold text-gray-900">Need help with your payment?</p>
+            </div>
+            <p className="text-sm text-gray-500">
+              Having trouble completing your purchase or payment not reflecting?
+            </p>
+            <a
+              href={`mailto:${brand.supportEmail}`}
+              className="inline-block text-sm font-semibold text-teal-600 hover:text-teal-700"
+            >
+              Contact support → {brand.supportEmail}
+            </a>
+          </div>
           <div className="space-y-2 text-sm text-gray-600">
             <p>One-time payment. Does not renew. Prices include GST.</p>
             <p>
