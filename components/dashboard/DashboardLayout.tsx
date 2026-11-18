@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
         <SheetContent
           side="left"
-          className="p-0 w-72"
+          className="flex h-full w-72 flex-col overflow-hidden p-0"
           onInteractOutside={(event) => {
             if (document.body.hasAttribute('data-support-feedback-open')) {
               event.preventDefault();

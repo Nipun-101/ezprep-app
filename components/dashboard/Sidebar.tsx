@@ -52,8 +52,8 @@ export default function Sidebar({ onNavigate, showOfferCallout }: SidebarProps) 
   };
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-2xl shadow-lg shadow-gray-200/50">
-      <div className="p-6 pb-8">
+    <div className="flex h-full min-h-0 flex-col bg-white shadow-lg shadow-gray-200/50 lg:rounded-2xl">
+      <div className="shrink-0 px-6 pb-4 pt-6 lg:pb-8">
         <div className="flex items-center">
           <div className="relative h-12 w-36">
             <Image
@@ -68,12 +68,12 @@ export default function Sidebar({ onNavigate, showOfferCallout }: SidebarProps) 
       </div>
 
       {showOfferCallout ? (
-        <div className="px-4 pb-2 -mt-2">
+        <div className="-mt-1 shrink-0 px-4 pb-3">
           <OfferCallout className="py-3" />
         </div>
       ) : null}
 
-      <nav className="flex-1 overflow-y-auto px-4 pb-4 space-y-1.5">
+      <nav className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-4 pb-3">
         {navigationItems.map((item) => {
           const Icon = iconMap[item.icon];
           const isActive = pathname === item.href;
@@ -110,16 +110,18 @@ export default function Sidebar({ onNavigate, showOfferCallout }: SidebarProps) 
         })}
       </nav>
 
-      <SupportSection />
+      <div className="shrink-0 border-t border-gray-100 pt-3">
+        <SupportSection />
 
-      <div className="p-4 pt-2">
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group"
-        >
-          <LogOut className="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110" />
-          <span>Logout</span>
-        </button>
+        <div className="p-4 pt-1">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group"
+          >
+            <LogOut className="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110" />
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
     </div>
   );

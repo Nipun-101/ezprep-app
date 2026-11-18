@@ -207,25 +207,30 @@ function HelpSupportControl() {
   }, [expanded]);
 
   return (
-    <div ref={rootRef}>
+    <div ref={rootRef} className="relative">
+      <button
+        type="button"
+        aria-label="Help and support"
+        aria-expanded={expanded}
+        tabIndex={expanded ? -1 : 0}
+        onClick={() => setExpanded(true)}
+        className={
+          expanded
+            ? 'invisible inline-flex items-center justify-center rounded-xl p-2'
+            : 'inline-flex items-center justify-center rounded-xl p-2 text-teal-700 hover:bg-teal-50'
+        }
+      >
+        <Headset className="h-4 w-4" />
+      </button>
       {expanded ? (
         <a
           href={`mailto:${brand.supportEmail}`}
-          className="inline-flex items-center gap-2 rounded-full bg-teal-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-teal-200 hover:bg-teal-600"
+          className="absolute right-0 top-1/2 z-20 inline-flex -translate-y-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-teal-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-teal-200 hover:bg-teal-600"
         >
           <Headset className="h-4 w-4 shrink-0" aria-hidden />
           Help & Support
         </a>
-      ) : (
-        <button
-          type="button"
-          aria-label="Help and support"
-          onClick={() => setExpanded(true)}
-          className="inline-flex items-center justify-center rounded-xl p-2 text-teal-700 hover:bg-teal-50"
-        >
-          <Headset className="h-4 w-4" />
-        </button>
-      )}
+      ) : null}
     </div>
   );
 }

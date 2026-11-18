@@ -209,56 +209,80 @@ export default function ProfileActivity() {
                     : `/dashboard/attempt/${item.attemptId}`;
                   router.push(href);
                 }}
-                className="w-full text-left px-6 py-4 flex items-center gap-4 hover:bg-gray-50/60 transition-colors group"
+                className="group flex w-full items-start gap-3 px-4 py-4 text-left transition-colors hover:bg-gray-50/60 sm:items-center sm:gap-4 sm:px-6"
               >
                 <div
                   className={cn(
-                    'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-md',
+                    'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-md',
                     isFullMock
                       ? 'bg-gradient-to-br from-indigo-500 to-blue-400 shadow-indigo-200'
                       : 'bg-gradient-to-br from-teal-500 to-emerald-400 shadow-teal-200'
                   )}
                 >
-                  <BookOpen className="w-4.5 h-4.5 text-white" size={18} />
+                  <BookOpen className="h-[18px] w-[18px] text-white" />
                 </div>
 
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-gray-800 truncate group-hover:text-teal-700 transition-colors">
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-semibold text-gray-800 transition-colors group-hover:text-teal-700">
                     {title}
                   </div>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                  <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 sm:gap-x-3">
                     <span
                       className={cn(
-                        'text-xs font-semibold',
+                        'shrink-0 text-xs font-semibold',
                         isFullMock ? 'text-indigo-500' : 'text-teal-500'
                       )}
                     >
                       {isFullMock ? 'Full Mock' : 'Practice'}
                     </span>
                     {showSubjectChip && (
-                      <span className="text-xs text-gray-500 px-1.5 py-0.5 bg-gray-100 rounded-md">
+                      <span
+                        title={subjectLabel}
+                        className="inline-block max-w-[11rem] shrink-0 truncate rounded-md bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500 sm:max-w-[14rem] lg:max-w-[16rem]"
+                      >
                         {subjectLabel}
                       </span>
                     )}
                     {examLabel && (
-                      <span className="text-xs text-gray-500 px-1.5 py-0.5 bg-gray-100 rounded-md">
+                      <span
+                        title={examLabel}
+                        className={cn(
+                          'inline-block max-w-[12rem] shrink-0 truncate rounded-md bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500 sm:max-w-[14rem] lg:max-w-[18rem]',
+                          showSubjectChip && 'hidden sm:inline-block'
+                        )}
+                      >
                         {examLabel}
                       </span>
                     )}
-                    <span className="text-xs text-gray-400 flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
+                    <span className="hidden items-center gap-1 text-xs text-gray-400 sm:inline-flex">
+                      <Clock className="h-3 w-3" />
                       {formatDuration(item.timeConsumedMinutes)}
                     </span>
-                    <span className="text-xs text-gray-400">
+                    <span className="hidden text-xs text-gray-400 sm:inline">
                       {formatRelativeTime(item.submittedAt)}
                     </span>
                   </div>
+                  <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-400 sm:hidden">
+                    {showSubjectChip && examLabel ? (
+                      <span
+                        title={examLabel}
+                        className="inline-block max-w-[12rem] shrink-0 truncate rounded-md bg-gray-100 px-1.5 py-0.5 text-gray-500"
+                      >
+                        {examLabel}
+                      </span>
+                    ) : null}
+                    <span className="inline-flex shrink-0 items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {formatDuration(item.timeConsumedMinutes)}
+                    </span>
+                    <span className="shrink-0">{formatRelativeTime(item.submittedAt)}</span>
+                  </div>
                 </div>
 
-                <div className="shrink-0 flex flex-col items-end gap-1">
+                <div className="flex shrink-0 flex-col items-end gap-1 pt-0.5 sm:pt-0">
                   <div
                     className={cn(
-                      'flex items-center gap-1 px-2.5 py-1 rounded-lg border',
+                      'flex items-center gap-1 rounded-lg border px-2.5 py-1',
                       score.bg,
                       score.border
                     )}
@@ -275,7 +299,7 @@ export default function ProfileActivity() {
                   </div>
                 </div>
 
-                <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-teal-500 transition-colors shrink-0" />
+                <ChevronRight className="mt-2.5 hidden h-4 w-4 shrink-0 text-gray-300 transition-colors group-hover:text-teal-500 sm:mt-0 sm:block" />
               </button>
             );
           })}
