@@ -60,6 +60,7 @@ import {
   hydrateAnswers,
   mergeAnswers,
   isLastSession,
+  resumeQuestionIndex,
 } from '@/lib/attempt-sessions';
 import { examTestExitLabel, examTestListPath } from '@/lib/exam-test-routes';
 import { getAuthToken } from '@/lib/auth';
@@ -106,10 +107,15 @@ export default function MockTestRunner({
   const [questions, setQuestions] = useState<AttemptQuestion[]>(initialQuestions);
   const [secondsLeft, setSecondsLeft] = useState(initialSecondsLeft);
 
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<string, string>>(() => hydrateAnswers(initialQuestions));
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(() =>
+    resumeQuestionIndex(
+      visibleAttemptQuestions(initialQuestions, initialMockTestData),
+      hydrateAnswers(initialQuestions)
+    )
+  );
   const [markedForReview, setMarkedForReview] = useState<Set<string>>(new Set());
-  const [visited, setVisited] = useState<Set<number>>(new Set([0]));
+  const [visited, setVisited] = useState<Set<number>>(() => new Set([currentQuestionIndex]));
 
   const [language, setLanguage] = useState<'en' | 'ml'>('en');
   const [questionZoomIndex, setQuestionZoomIndex] = useState(DEFAULT_QUESTION_ZOOM_INDEX);
@@ -346,17 +352,23 @@ export default function MockTestRunner({
   };
 
   const applyResumePayload = (data: ResumeAttemptData) => {
-    setMockTestData({
+    const nextMockTestData = {
       ...data.mockTestData,
       sessions: data.mockTestData.sessions ?? data.sessions,
       currentSessionIndex:
         data.mockTestData.currentSessionIndex ?? data.currentSessionIndex,
-    });
+    };
+    // A new section has no answers yet, so this lands on its first question
+    const resumeIndex = resumeQuestionIndex(
+      visibleAttemptQuestions(data.questions, nextMockTestData),
+      mergeAnswers(answers, data.questions)
+    );
+    setMockTestData(nextMockTestData);
     setQuestions(data.questions);
     setSecondsLeft(data.timeRemaining);
     setAnswers((prev) => mergeAnswers(prev, data.questions));
-    setCurrentQuestionIndex(0);
-    setVisited(new Set([0]));
+    setCurrentQuestionIndex(resumeIndex);
+    setVisited(new Set([resumeIndex]));
     setIsPaused(false);
     setPausedConsumedSeconds(null);
     setPausedTotalConsumedSeconds(null);

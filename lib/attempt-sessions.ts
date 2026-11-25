@@ -65,6 +65,17 @@ export function mergeAnswers(
   return next;
 }
 
+/** Where to reopen a test: the furthest answered question, else the first. */
+export function resumeQuestionIndex(
+  questions: AttemptQuestion[],
+  answers: Map<string, string>
+): number {
+  for (let i = questions.length - 1; i >= 0; i--) {
+    if (answers.has(questions[i]._id)) return i;
+  }
+  return 0;
+}
+
 export function isLastSession(meta: AttemptMockTestData): boolean {
   if (!meta.isSessionWise || !meta.sessions?.length) return true;
   const idx = meta.currentSessionIndex ?? 0;
